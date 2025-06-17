@@ -19,11 +19,14 @@ FROM eclipse-temurin:17
 
 RUN apt-get update && apt-get install -y ca-certificates
 
+java -Djdk.tls.client.protocols=TLSv1.2 -jar app.jar \
+
+
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Djavax.net.debug=ssl,handshake", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djdk.tls.client.protocols=TLSv1.2", "-jar", "app.jar"]
 
