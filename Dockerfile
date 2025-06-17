@@ -17,13 +17,13 @@ RUN mvn clean package -DskipTests
 # Use a lightweight JRE 17 image to run the app
 FROM eclipse-temurin:17
 
+RUN apt-get update && apt-get install -y ca-certificates
+
 WORKDIR /app
 
-# Copy the jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port
 EXPOSE 8080
 
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djavax.net.debug=ssl,handshake", "-jar", "app.jar"]
+
