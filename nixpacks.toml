@@ -1,0 +1,10 @@
+[phases.setup]
+commands = [
+    "echo Installing Java 17",
+    "nix-env -i openjdk17"
+]
+
+[phases.build]
+commands = [
+    "mvn clean package"
+]
