@@ -12,7 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import com.example.fastapi.service.UserService;
 import com.example.fastapi.dboModel.Users;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+
+
+@CrossOrigin(origins = "*")  // اجازه دسترسی از هر آدرسی
 @RestController
 @RequestMapping("/users")
 public class UserController {
