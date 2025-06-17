@@ -51,6 +51,12 @@
             <version>3.5.0</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.11.0</version> <!-- نسخه سازگار با Spring Boot 3.5.0 -->
+        </dependency>
     </dependencies>
 
     <build>
