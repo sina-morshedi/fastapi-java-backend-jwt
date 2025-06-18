@@ -11,7 +11,6 @@ public class Users {
     private String lastName;
     private String roleId;
     private String permissionId;
-    private String userPassId;
 
     public Users() {}
 
@@ -57,11 +56,4 @@ public class Users {
         this.permissionId = permissionId;
     }
 
-    public String getUserPassId() {
-        return userPassId;
-    }
-
-    public void setUserPassId(String userPassId) {
-        this.userPassId = userPassId;
-    }
 }

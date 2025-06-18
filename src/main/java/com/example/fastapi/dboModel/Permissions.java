@@ -7,4 +7,22 @@ public class Permissions {
     @Id
     private String id;
     private String permissionName;
+
+    Permissions(){}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getPermissionName() {
+        return permissionName;
+    }
+
+    public void setPermissionName(String permissionsName) {
+        this.permissionName = permissionName;
+    }
 }

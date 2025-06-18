@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.example.fastapi.service.PermissionsService;
 import com.example.fastapi.dboModel.Permissions;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/permissions")
@@ -21,7 +22,7 @@ public class PermissionsController {
     private PermissionsService permissionsService;
 
     @GetMapping("/")
-    public List<Permissions> getByName(@RequestParam String permissionName) {
+    public Optional<Permissions> getByName(@RequestParam String permissionName) {
         return permissionsService.getByPermissionName(permissionName);
     }
 

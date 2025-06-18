@@ -1,4 +1,7 @@
 package com.example.fastapi.repository;
+import java.util.Optional;
+
+import com.example.fastapi.dboModel.UserPass;
 import com.example.fastapi.dboModel.Users;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Repository
-public interface UserRepository extends MongoRepository<Users, String> {
+public interface UserPassRepository extends MongoRepository<UserPass, Long> {
+    Optional<UserPass> findByUsername(String username);
 
-    List<Users> findByFirstName(String firstName);
+    Optional<Users> findById(String _id);
 }
