@@ -14,6 +14,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
+                        .allowedOriginPatterns("http://localhost:*", "https://fastapi-java-backend-production.up.railway.app")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
@@ -21,3 +22,4 @@ public class WebConfig {
         };
     }
 }
+
