@@ -54,9 +54,13 @@ public class UsersController {
         UserProfileDTO profile = userService.getUserProfile(username, password);
         if (success) {
 
-            return ResponseEntity.ok(profile);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(profile);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Invalid username or password");
         }
     }
 //
