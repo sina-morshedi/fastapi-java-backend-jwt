@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 
-@CrossOrigin(origins = {"http://localhost:xxxx"})
+@CrossOrigin(origins = {"http://localhost:xxxx","https://*.netlify.app"})
 @RestController
 @RequestMapping("/users")
 public class UsersController {
