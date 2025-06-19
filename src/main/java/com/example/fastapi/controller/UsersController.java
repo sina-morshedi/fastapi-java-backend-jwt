@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 
-@CrossOrigin(origins = "http://localhost:53282/")
+@CrossOrigin(origins = {"http://localhost:xxxx"})
 @RestController
 @RequestMapping("/users")
 public class UsersController {
