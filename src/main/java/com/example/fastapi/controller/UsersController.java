@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.example.fastapi.service.UsersService;
 import com.example.fastapi.dboModel.Users;
 import com.example.fastapi.dboModel.UserPass;
+import com.example.fastapi.dto.UserProfileDTO;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 
@@ -49,7 +51,7 @@ public class UsersController {
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
 //        userService.userLogin(username,password);
         boolean success = userService.userLogin(username,password);
-        UsersService.UserProfileDTO profile = userService.getUserProfile(username, password);
+        UserProfileDTO profile = userService.getUserProfile(username, password);
         if (success) {
 
             return ResponseEntity.ok(profile);
