@@ -11,6 +11,8 @@ import com.example.fastapi.repository.UsersRepository;
 import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.dto.RegisterDTO;
 
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -72,27 +74,42 @@ public class UsersService {
     }
 
     public boolean registerUser(RegisterDTO dto) {
-        if (usernameExists(dto.getUsername())) {
+        // چک یوزرنیم تکراری
+        Optional<UserPass> existingUser = userPassRepository.findByUsername(dto.getUsername());
+        if (existingUser.isPresent()) {
             return false;
         }
 
-        Users user = new Users();
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setRoleId(dto.getRoleId());
-        user.setPermissionId(dto.getPermissionId());
+        try {
+            Users user = new Users();
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setRoleId(new ObjectId(dto.getRoleId()));
+            user.setPermissionId(new ObjectId(dto.getPermissionId()));
 
-        Users savedUser = usersRepository.save(user);
+            Users savedUser = usersRepository.save(user);
+            if (savedUser == null || savedUser.getId() == null) {
+                return false;
+            }
 
-        UserPass userPass = new UserPass();
-        userPass.setUsername(dto.getUsername());
-        userPass.setPassword(passwordEncoder.encode(dto.getPassword())); // رمز هش‌شده
-        userPass.setUserId(savedUser.getId());
+            UserPass userPass = new UserPass();
+            userPass.setUsername(dto.getUsername());
+            userPass.setPassword(passwordEncoder.encode(dto.getPassword()));
+            userPass.setUserId(savedUser.getId());
 
-        userPassRepository.save(userPass);
+            UserPass savedUserPass = userPassRepository.save(userPass);
+            if (savedUserPass == null || savedUserPass.getId() == null) {
+                // می‌تونی اینجا کار rollback بزنی یا لاگ خطا بگیری
+                return false;
+            }
 
-        return true;
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();  // یا لاگ به صورت بهتر
+            return false;
+        }
     }
+
 
     public Optional<Users> getByFirstName(String firstName) {
         return userRepository.findByFirstName(firstName);
@@ -116,10 +133,10 @@ public class UsersService {
 
         Users user = userOpt.get();
 
-        Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId());
+        Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId().toHexString());
         String roleName = roleOpt.map(Roles::getRoleName).orElse("Unknown");
 
-        Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId());
+        Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId().toHexString());
         String permissionName = permOpt.map(Permissions::getPermissionName).orElse("Unknown");
 
         return new UserProfileDTO(

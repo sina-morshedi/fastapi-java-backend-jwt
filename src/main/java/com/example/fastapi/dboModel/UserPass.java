@@ -43,8 +43,8 @@ public class UserPass {
         return user_id;
     }
 
-    public void setUserId(String password) {
-        this.password = user_id;
+    public void setUserId(String userId) {
+        this.user_id = userId;
     }
 
 }

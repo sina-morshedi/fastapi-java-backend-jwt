@@ -1,5 +1,5 @@
 package com.example.fastapi.dboModel;
-
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,8 +9,9 @@ public class Users {
     private String id;
     private String firstName;
     private String lastName;
-    private String roleId;
-    private String permissionId;
+    private ObjectId  roleId;
+    private ObjectId  permissionId;
+
 
     public Users() {}
 
@@ -40,19 +41,19 @@ public class Users {
         this.lastName = lastName;
     }
 
-    public String getRoleId() {
+    public ObjectId getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(String roleId) {
+    public void setRoleId(ObjectId roleId) {
         this.roleId = roleId;
     }
 
-    public String getPermissionId() {
+    public ObjectId getPermissionId() {
         return permissionId;
     }
 
-    public void setPermissionId(String permissionId) {
+    public void setPermissionId(ObjectId permissionId) {
         this.permissionId = permissionId;
     }
 
