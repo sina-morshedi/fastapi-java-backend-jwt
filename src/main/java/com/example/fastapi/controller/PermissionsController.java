@@ -1,5 +1,7 @@
 package com.example.fastapi.controller;
 
+import com.example.fastapi.dboModel.Roles;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +29,12 @@ public class PermissionsController {
     }
 
     @GetMapping("/all")
-    public List<Permissions> getAllPermissions() {
-        return permissionsService.getAllPermissions();
+    public ResponseEntity<?> getAllPermissions() {
+        List<Permissions> users = permissionsService.getAllPermissions();
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(users);
+        //TODO Return the appropriate error.
     }
 
 

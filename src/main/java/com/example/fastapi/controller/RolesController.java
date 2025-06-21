@@ -1,8 +1,10 @@
 package com.example.fastapi.controller;
 
 import com.example.fastapi.dboModel.Roles;
+import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.service.RolesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +26,12 @@ public class RolesController {
     }
 
     @GetMapping("/all")
-    public List<Roles> getAllRoles() {
-        return rolesService.getAllRoles();
+    public ResponseEntity<?> getAllRoles() {
+        List<Roles> users = rolesService.getAllRoles();
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(users);
+        //TODO Return the appropriate error.
     }
 
 
