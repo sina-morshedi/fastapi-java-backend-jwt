@@ -26,4 +26,10 @@ public class PermissionsController {
         return permissionsService.getByPermissionName(permissionName);
     }
 
+    @GetMapping("/all")
+    public List<Permissions> getAllPermissions() {
+        return permissionsService.getAllPermissions();
+    }
+
+
 }

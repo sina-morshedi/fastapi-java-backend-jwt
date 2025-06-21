@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-// پیاده‌سازی UserCustomRepository با نام Impl برای شناسایی خودکار توسط Spring Data
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
 

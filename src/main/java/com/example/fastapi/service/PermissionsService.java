@@ -22,8 +22,9 @@ public class PermissionsService {
         return optional;
     }
 
-//    public Users saveUser(Users user) {
-//        return userRepository.save(user);
-//    }
+    public List<Permissions> getAllPermissions() {
+        return permissionsRepository.findAll();
+    }
+
 
 }
