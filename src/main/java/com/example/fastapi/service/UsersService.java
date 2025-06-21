@@ -9,15 +9,20 @@ import com.example.fastapi.repository.RolesRepository;
 import com.example.fastapi.repository.UserPassRepository;
 import com.example.fastapi.repository.UsersRepository;
 import com.example.fastapi.dto.UserProfileDTO;
+import com.example.fastapi.dto.RegisterDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.List;
+
+
 
 
 @Service
@@ -29,6 +34,9 @@ public class UsersService {
     private final PermissionsRepository permissionsRepository;
     private final RolesRepository rolesRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private UsersRepository usersRepository;
+
 
     public UsersService(
             UsersRepository userRepository,
@@ -59,7 +67,32 @@ public class UsersService {
         }
     }
 
+    public boolean usernameExists(String username) {
+        return userPassRepository.findByUsername(username).isPresent();
+    }
 
+    public boolean registerUser(RegisterDTO dto) {
+        if (usernameExists(dto.getUsername())) {
+            return false;
+        }
+
+        Users user = new Users();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setRoleId(dto.getRoleId());
+        user.setPermissionId(dto.getPermissionId());
+
+        Users savedUser = usersRepository.save(user);
+
+        UserPass userPass = new UserPass();
+        userPass.setUsername(dto.getUsername());
+        userPass.setPassword(passwordEncoder.encode(dto.getPassword())); // رمز هش‌شده
+        userPass.setUserId(savedUser.getId());
+
+        userPassRepository.save(userPass);
+
+        return true;
+    }
 
     public Optional<Users> getByFirstName(String firstName) {
         return userRepository.findByFirstName(firstName);

@@ -12,6 +12,7 @@ import com.example.fastapi.service.UsersService;
 import com.example.fastapi.dboModel.Users;
 import com.example.fastapi.dboModel.UserPass;
 import com.example.fastapi.dto.UserProfileDTO;
+import com.example.fastapi.dto.RegisterDTO;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -32,9 +33,6 @@ public class UsersController {
 
         // getters and setters
     }
-
-
-
     private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
 
     @Autowired
@@ -56,11 +54,8 @@ public class UsersController {
         //TODO Return the appropriate error.
     }
 
-
-
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-//        userService.userLogin(username,password);
         boolean success = userService.userLogin(username,password);
         UserProfileDTO profile = userService.getUserProfile(username, password);
         if (success) {
@@ -75,17 +70,6 @@ public class UsersController {
         }
     }
 
-
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@RequestBody Users newUser) {
-//        try {
-//            userService.register(newUser);
-//            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
-//        } catch (Exception e) {
-//            logger.error("Error in register: ", e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed: " + e.getMessage());
-//        }
-//    }
 
     // آپدیت کاربر
 //    @PutMapping("/update/{id}")
@@ -111,3 +95,4 @@ public class UsersController {
 //        }
 //    }
 }
+
