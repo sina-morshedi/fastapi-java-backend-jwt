@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.List;
 import com.example.fastapi.dto.UserProfileDTO;
 
 @Service
@@ -61,6 +62,11 @@ public class UsersService {
     public Optional<Users> getByFirstName(String firstName) {
         return userRepository.findByFirstName(firstName);
     }
+
+    public List<Users> getAllUsers() {
+        return userRepository.findAll();
+    }
+
 
     public UserProfileDTO getUserProfile(String username, String password) {
         Optional<UserPass> userPassOpt = userPassRepository.findByUsername(username);

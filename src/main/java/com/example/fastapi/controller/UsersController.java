@@ -16,6 +16,8 @@ import com.example.fastapi.dto.UserProfileDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import java.util.List;
+
 
 
 
@@ -39,12 +41,17 @@ public class UsersController {
     private UsersService userService;
     private UserPass userPass;
 
-    // جستجو بر اساس firstName
     @GetMapping("/")
     public Optional<Users> getByName(@RequestParam String firstName) {
         Optional<Users> users = userService.getByFirstName(firstName);
         return users;
     }
+
+    @GetMapping("/all")
+    public List<Users> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
 
 
     @GetMapping("/login")
@@ -63,8 +70,8 @@ public class UsersController {
                     .body("Invalid username or password");
         }
     }
-//
-//    // ثبت نام کاربر جدید
+
+
 //    @PostMapping("/register")
 //    public ResponseEntity<String> register(@RequestBody Users newUser) {
 //        try {
@@ -75,8 +82,8 @@ public class UsersController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed: " + e.getMessage());
 //        }
 //    }
-//
-//    // آپدیت کاربر
+
+    // آپدیت کاربر
 //    @PutMapping("/update/{id}")
 //    public ResponseEntity<String> updateUser(@PathVariable String id, @RequestBody Users updatedUser) {
 //        try {
@@ -87,8 +94,8 @@ public class UsersController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed: " + e.getMessage());
 //        }
 //    }
-//
-//
+
+
 //    @DeleteMapping("/delete/{id}")
 //    public ResponseEntity<String> deleteUser(@PathVariable String id) {
 //        try {
