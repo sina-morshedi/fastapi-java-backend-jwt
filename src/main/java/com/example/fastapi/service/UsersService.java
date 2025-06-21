@@ -8,15 +8,17 @@ import com.example.fastapi.repository.PermissionsRepository;
 import com.example.fastapi.repository.RolesRepository;
 import com.example.fastapi.repository.UserPassRepository;
 import com.example.fastapi.repository.UsersRepository;
+import com.example.fastapi.dto.UserProfileDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.List;
-import com.example.fastapi.dto.UserProfileDTO;
+
 
 @Service
 public class UsersService {
@@ -63,10 +65,9 @@ public class UsersService {
         return userRepository.findByFirstName(firstName);
     }
 
-    public List<Users> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserProfileDTO> getAllUsers() {
+        return userRepository.findUsersWithRolesAndPermissions();
     }
-
 
     public UserProfileDTO getUserProfile(String username, String password) {
         Optional<UserPass> userPassOpt = userPassRepository.findByUsername(username);

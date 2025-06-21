@@ -48,8 +48,11 @@ public class UsersController {
     }
 
     @GetMapping("/all")
-    public List<Users> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<?> getAllUsers() {
+        List<UserProfileDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(users);
     }
 
 
