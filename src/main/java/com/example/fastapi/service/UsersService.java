@@ -9,6 +9,8 @@ import com.example.fastapi.repository.RolesRepository;
 import com.example.fastapi.repository.UserPassRepository;
 import com.example.fastapi.repository.UsersRepository;
 import com.example.fastapi.dto.UserProfileDTO;
+import com.example.fastapi.dto.RoleDTO;
+import com.example.fastapi.dto.PermissionDTO;
 import com.example.fastapi.dto.RegisterDTO;
 
 
@@ -118,44 +120,45 @@ public class UsersService {
     }
 
     public List<UserProfileDTO> getAllUsersWithUsernames() {
-        // Get all users
         List<Users> users = usersRepository.findAll();
-
-        // Get all userPasses (username و userId)
         List<UserPass> userPasses = userPassRepository.findAll();
-
         List<Roles> rolesList = rolesRepository.findAll();
         List<Permissions> permissionsList = permissionsRepository.findAll();
 
         Map<String, String> userIdToUsername = userPasses.stream()
                 .collect(Collectors.toMap(UserPass::getUserId, UserPass::getUsername));
 
-        Map<String, String> roleIdToName = rolesList.stream()
-                .collect(Collectors.toMap(Roles::getId, Roles::getRoleName));
+        Map<String, Roles> roleIdToObject = rolesList.stream()
+                .collect(Collectors.toMap(Roles::getId, role -> role));
 
-        Map<String, String> permissionIdToName = permissionsList.stream()
-                .collect(Collectors.toMap(Permissions::getId, Permissions::getPermissionName));
+        Map<String, Permissions> permissionIdToObject = permissionsList.stream()
+                .collect(Collectors.toMap(Permissions::getId, perm -> perm));
 
         List<UserProfileDTO> result = new ArrayList<>();
 
         for (Users user : users) {
-
             String username = userIdToUsername.getOrDefault(user.getId(), "Unknown Username");
 
             String roleId = user.getRoleId() != null ? user.getRoleId().toHexString() : null;
             String permissionId = user.getPermissionId() != null ? user.getPermissionId().toHexString() : null;
 
+            RoleDTO roleDTO = new RoleDTO(
+                    roleId,
+                    roleIdToObject.containsKey(roleId) ? roleIdToObject.get(roleId).getRoleName() : "Unknown Role"
+            );
 
-            String roleName = roleIdToName.getOrDefault(roleId, "Unknown Role");
-            String permissionName = permissionIdToName.getOrDefault(permissionId, "Unknown Permission");
+            PermissionDTO permissionDTO = new PermissionDTO(
+                    permissionId,
+                    permissionIdToObject.containsKey(permissionId) ? permissionIdToObject.get(permissionId).getPermissionName() : "Unknown Permission"
+            );
 
             UserProfileDTO dto = new UserProfileDTO(
-                    user.getId().toString(),
+                    user.getId(),
                     username,
                     user.getFirstName(),
                     user.getLastName(),
-                    roleName,
-                    permissionName
+                    roleDTO,
+                    permissionDTO
             );
 
             result.add(dto);
@@ -163,6 +166,7 @@ public class UsersService {
 
         return result;
     }
+
 
     public long countAllUser() {
         return userRepository.count();
@@ -181,19 +185,41 @@ public class UsersService {
 
         Users user = userOpt.get();
 
-        Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId().toHexString());
-        String roleName = roleOpt.map(Roles::getRoleName).orElse("Unknown");
+        // Get role and build RoleDTO
+        RoleDTO roleDTO;
+        if (user.getRoleId() != null) {
+            Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId().toHexString());
+            if (roleOpt.isPresent()) {
+                Roles role = roleOpt.get();
+                roleDTO = new RoleDTO(role.getId(), role.getRoleName());
+            } else {
+                roleDTO = new RoleDTO(null, "Unknown");
+            }
+        } else {
+            roleDTO = new RoleDTO(null, "Unknown");
+        }
 
-        Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId().toHexString());
-        String permissionName = permOpt.map(Permissions::getPermissionName).orElse("Unknown");
+        // Get permission and build PermissionDTO
+        PermissionDTO permissionDTO;
+        if (user.getPermissionId() != null) {
+            Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId().toHexString());
+            if (permOpt.isPresent()) {
+                Permissions perm = permOpt.get();
+                permissionDTO = new PermissionDTO(perm.getId(), perm.getPermissionName());
+            } else {
+                permissionDTO = new PermissionDTO(null, "Unknown");
+            }
+        } else {
+            permissionDTO = new PermissionDTO(null, "Unknown");
+        }
 
         return new UserProfileDTO(
-                user.getId().toString(),
+                user.getId(),
                 username,
                 user.getFirstName(),
                 user.getLastName(),
-                roleName,
-                permissionName
+                roleDTO,
+                permissionDTO
         );
     }
 
