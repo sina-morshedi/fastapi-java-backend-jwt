@@ -150,6 +150,7 @@ public class UsersService {
             String permissionName = permissionIdToName.getOrDefault(permissionId, "Unknown Permission");
 
             UserProfileDTO dto = new UserProfileDTO(
+                    user.getId().toString(),
                     username,
                     user.getFirstName(),
                     user.getLastName(),
@@ -187,6 +188,7 @@ public class UsersService {
         String permissionName = permOpt.map(Permissions::getPermissionName).orElse("Unknown");
 
         return new UserProfileDTO(
+                user.getId().toString(),
                 username,
                 user.getFirstName(),
                 user.getLastName(),

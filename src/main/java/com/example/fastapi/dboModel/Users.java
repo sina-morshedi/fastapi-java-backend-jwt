@@ -57,11 +57,11 @@ public class Users {
         this.permissionId = permissionId;
     }
 
-    public String getTeam() { // ✅ Getter
-        return team;
+    public ObjectId getObjectId() {
+        return new ObjectId(this.id);
     }
 
-    public void setTeam(String team) { // ✅ Setter
-        this.team = team;
+    public void setObjectId(ObjectId objectId) {
+        this.id = objectId.toHexString();
     }
 }
