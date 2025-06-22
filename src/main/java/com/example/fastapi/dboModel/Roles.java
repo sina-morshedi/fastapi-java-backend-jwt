@@ -7,17 +7,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "roles")
 public class Roles {
     @Id
-    private ObjectId id;    // <-- از ObjectId استفاده می‌کنیم
+    private String id;    // <-- از ObjectId استفاده می‌کنیم
 
     private String roleName;
 
     public Roles() {}
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

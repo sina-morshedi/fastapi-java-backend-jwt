@@ -130,10 +130,10 @@ public class UsersService {
         Map<String, String> userIdToUsername = userPasses.stream()
                 .collect(Collectors.toMap(UserPass::getUserId, UserPass::getUsername));
 
-        Map<ObjectId, String> roleIdToName = rolesList.stream()
+        Map<String, String> roleIdToName = rolesList.stream()
                 .collect(Collectors.toMap(Roles::getId, Roles::getRoleName));
 
-        Map<ObjectId, String> permissionIdToName = permissionsList.stream()
+        Map<String, String> permissionIdToName = permissionsList.stream()
                 .collect(Collectors.toMap(Permissions::getId, Permissions::getPermissionName));
 
         List<UserProfileDTO> result = new ArrayList<>();
@@ -142,8 +142,9 @@ public class UsersService {
 
             String username = userIdToUsername.getOrDefault(user.getId(), "Unknown Username");
 
-            ObjectId roleId = user.getRoleId();
-            ObjectId permissionId = user.getPermissionId();
+            String roleId = user.getRoleId() != null ? user.getRoleId().toHexString() : null;
+            String permissionId = user.getPermissionId() != null ? user.getPermissionId().toHexString() : null;
+
 
             String roleName = roleIdToName.getOrDefault(roleId, "Unknown Role");
             String permissionName = permissionIdToName.getOrDefault(permissionId, "Unknown Permission");
