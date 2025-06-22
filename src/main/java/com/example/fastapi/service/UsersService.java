@@ -74,7 +74,6 @@ public class UsersService {
     }
 
     public boolean registerUser(RegisterDTO dto) {
-        // چک یوزرنیم تکراری
         Optional<UserPass> existingUser = userPassRepository.findByUsername(dto.getUsername());
         if (existingUser.isPresent()) {
             return false;

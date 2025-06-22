@@ -66,7 +66,7 @@ public class UsersController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Invalid username or password");
+                    .body("Geçersiz kullanıcı adı veya şifre");
         }
     }
 

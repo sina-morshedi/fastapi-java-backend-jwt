@@ -20,9 +20,13 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterDTO dto) {
         boolean success = userService.registerUser(dto);
         if (success) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Kullanıcı başarıyla kaydedildi");
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Kullanıcı adı zaten mevcut");
         }
     }
 }
