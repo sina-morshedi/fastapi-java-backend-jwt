@@ -1,20 +1,23 @@
 package com.example.fastapi.dboModel;
+
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "permissions")
 public class Permissions {
     @Id
-    private String id;
+    private ObjectId id;
+
     private String permissionName;
 
-    Permissions(){}
+    public Permissions() {}
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -22,7 +25,7 @@ public class Permissions {
         return permissionName;
     }
 
-    public void setPermissionName(String permissionsName) {
+    public void setPermissionName(String permissionName) {
         this.permissionName = permissionName;
     }
 }

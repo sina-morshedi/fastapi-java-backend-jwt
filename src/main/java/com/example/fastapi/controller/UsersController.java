@@ -45,14 +45,15 @@ public class UsersController {
         return users;
     }
 
+    // Controller
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
-        List<UserProfileDTO> users = userService.getAllUsers();
+        List<UserProfileDTO> userProfiles = userService.getAllUsersWithUsernames();
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
-                .body(users);
-        //TODO Return the appropriate error.
+                .body(userProfiles);
     }
+
 
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {

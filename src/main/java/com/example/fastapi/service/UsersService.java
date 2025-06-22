@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 
@@ -114,9 +117,51 @@ public class UsersService {
         return userRepository.findByFirstName(firstName);
     }
 
-    public List<UserProfileDTO> getAllUsers() {
-        return userRepository.findUsersWithRolesAndPermissions();
+    public List<UserProfileDTO> getAllUsersWithUsernames() {
+        // Get all users
+        List<Users> users = usersRepository.findAll();
+
+        // Get all userPasses (username و userId)
+        List<UserPass> userPasses = userPassRepository.findAll();
+
+        List<Roles> rolesList = rolesRepository.findAll();
+        List<Permissions> permissionsList = permissionsRepository.findAll();
+
+        Map<String, String> userIdToUsername = userPasses.stream()
+                .collect(Collectors.toMap(UserPass::getUserId, UserPass::getUsername));
+
+        Map<ObjectId, String> roleIdToName = rolesList.stream()
+                .collect(Collectors.toMap(Roles::getId, Roles::getRoleName));
+
+        Map<ObjectId, String> permissionIdToName = permissionsList.stream()
+                .collect(Collectors.toMap(Permissions::getId, Permissions::getPermissionName));
+
+        List<UserProfileDTO> result = new ArrayList<>();
+
+        for (Users user : users) {
+
+            String username = userIdToUsername.getOrDefault(user.getId(), "Unknown Username");
+
+            ObjectId roleId = user.getRoleId();
+            ObjectId permissionId = user.getPermissionId();
+
+            String roleName = roleIdToName.getOrDefault(roleId, "Unknown Role");
+            String permissionName = permissionIdToName.getOrDefault(permissionId, "Unknown Permission");
+
+            UserProfileDTO dto = new UserProfileDTO(
+                    username,
+                    user.getFirstName(),
+                    user.getLastName(),
+                    roleName,
+                    permissionName
+            );
+
+            result.add(dto);
+        }
+
+        return result;
     }
+
 
     public UserProfileDTO getUserProfile(String username, String password) {
         Optional<UserPass> userPassOpt = userPassRepository.findByUsername(username);
