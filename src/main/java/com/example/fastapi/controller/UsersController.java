@@ -18,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 
 
@@ -54,6 +57,15 @@ public class UsersController {
                 .body(userProfiles);
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> countAllUsers() {
+        long count = userService.countAllUser();
+        Map<String, Long> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(response);
+    }
 
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {

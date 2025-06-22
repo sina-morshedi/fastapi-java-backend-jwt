@@ -9,9 +9,9 @@ public class Users {
     private String id;
     private String firstName;
     private String lastName;
-    private ObjectId  roleId;
-    private ObjectId  permissionId;
-
+    private ObjectId roleId;
+    private ObjectId permissionId;
+    private String team; // ✅ این اضافه شده
 
     public Users() {}
 
@@ -57,4 +57,11 @@ public class Users {
         this.permissionId = permissionId;
     }
 
+    public String getTeam() { // ✅ Getter
+        return team;
+    }
+
+    public void setTeam(String team) { // ✅ Setter
+        this.team = team;
+    }
 }

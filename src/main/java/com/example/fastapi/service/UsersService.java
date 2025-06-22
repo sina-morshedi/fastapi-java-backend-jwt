@@ -163,7 +163,9 @@ public class UsersService {
         return result;
     }
 
-
+    public long countAllUser() {
+        return userRepository.count();
+    }
     public UserProfileDTO getUserProfile(String username, String password) {
         Optional<UserPass> userPassOpt = userPassRepository.findByUsername(username);
         if (userPassOpt.isEmpty()) {

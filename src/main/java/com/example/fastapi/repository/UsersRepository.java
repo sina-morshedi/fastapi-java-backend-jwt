@@ -12,6 +12,8 @@ public interface UsersRepository extends MongoRepository<Users, String>, UserCus
     Optional<Users> findByFirstName(String firstName);
 
     Optional<Users> findById(String _id);
+
+    long count();
 }
 
 interface UserCustomRepository {
