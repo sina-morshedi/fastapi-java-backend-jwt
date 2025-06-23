@@ -5,12 +5,18 @@ import com.example.fastapi.dto.CarInfo;
 import com.example.fastapi.repository.CarInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 
 import java.time.LocalDateTime;
 
 @Service
 public class CarInfoService {
-
+    @Autowired
+    private MongoTemplate mongoTemplate;
     private final CarInfoRepository carInfoRepository;
 
     @Autowired
@@ -39,21 +45,22 @@ public class CarInfoService {
     }
 
     public CarInfo updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) {
-        CarInfo existingCar = carInfoRepository.findByLicensePlate(licensePlate);
-        if (existingCar == null) {
-            return null;
-        }
+        Query query = new Query(Criteria.where("licensePlate").is(licensePlate));
+        Update update = new Update()
+                .set("brand", updatedCar.getBrand())
+                .set("brandModel", updatedCar.getBrandModel())
+                .set("chassisNo", updatedCar.getChassisNo())
+                .set("motorNo", updatedCar.getMotorNo())
+                .set("modelYear", updatedCar.getModelYear())
+                .set("fuelType", updatedCar.getFuelType())
+                .set("dateTime", updatedCar.getDateTime());
 
-        // Update fields
-        existingCar.setBrand(updatedCar.getBrand());
-        existingCar.setBrandModel(updatedCar.getBrandModel());
-        existingCar.setChassisNo(updatedCar.getChassisNo());
-        existingCar.setMotorNo(updatedCar.getMotorNo());
-        existingCar.setModelYear(updatedCar.getModelYear());
-        existingCar.setFuelType(updatedCar.getFuelType());
-        existingCar.setDateTime(updatedCar.getDateTime());
+        FindAndModifyOptions options = new FindAndModifyOptions();
+        options.returnNew(true);
 
-        return carInfoRepository.save(existingCar);
+        CarInfo updated = mongoTemplate.findAndModify(query, update, options, CarInfo.class);
+        return updated;
     }
+
 
 }
