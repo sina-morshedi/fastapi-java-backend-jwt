@@ -43,6 +43,46 @@ public class CarInfoController {
         }
     }
 
+    @GetMapping("/getCarInfo/{licensePlate}")
+    public ResponseEntity<?> getCarInfoByLicensePlate(@PathVariable String licensePlate) {
+        try {
+            CarInfo car = carInfoService.getCarByLicensePlate(licensePlate);
+            if (car == null) {
+                return ResponseEntity.status(404)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body(new ApiResponse("error", "Araç bulunamadı"));
+            }
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(car);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(new ApiResponse("error", "Sunucu iç hatası"));
+        }
+    }
+
+    @PutMapping("/updateCarInfo/{licensePlate}")
+    public ResponseEntity<?> updateCarInfoByLicensePlate(@PathVariable String licensePlate, @RequestBody CarInfo updatedCar) {
+        try {
+            CarInfo car = carInfoService.updateCarInfoByLicensePlate(licensePlate, updatedCar);
+            if (car == null) {
+                return ResponseEntity.status(404)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body(new ApiResponse("error", "Güncellenecek araç bulunamadı"));
+            }
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(new ApiResponse("successful", "Araç başarıyla güncellendi"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(new ApiResponse("error", "Sunucu iç hatası"));
+        }
+    }
+
+
+
     // Internal helper class for standard JSON response
     static class ApiResponse {
         private String status;

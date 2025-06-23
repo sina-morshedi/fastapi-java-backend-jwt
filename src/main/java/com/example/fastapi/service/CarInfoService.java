@@ -33,4 +33,27 @@ public class CarInfoService {
         // Save the car information to MongoDB
         return carInfoRepository.save(carInfo);
     }
+
+    public CarInfo getCarByLicensePlate(String licensePlate) {
+        return carInfoRepository.findByLicensePlate(licensePlate);
+    }
+
+    public CarInfo updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) {
+        CarInfo existingCar = carInfoRepository.findByLicensePlate(licensePlate);
+        if (existingCar == null) {
+            return null;
+        }
+
+        // Update fields
+        existingCar.setBrand(updatedCar.getBrand());
+        existingCar.setBrandModel(updatedCar.getBrandModel());
+        existingCar.setChassisNo(updatedCar.getChassisNo());
+        existingCar.setMotorNo(updatedCar.getMotorNo());
+        existingCar.setModelYear(updatedCar.getModelYear());
+        existingCar.setFuelType(updatedCar.getFuelType());
+        existingCar.setDateTime(updatedCar.getDateTime());
+
+        return carInfoRepository.save(existingCar);
+    }
+
 }

@@ -12,4 +12,6 @@ public interface CarInfoRepository extends MongoRepository<CarInfo, String> {
 
     // Retrieve a car by its chassis number
     CarInfo findByChassisNo(String chassisNo);
+
+    CarInfo findByLicensePlate(String licensePlate);
 }
