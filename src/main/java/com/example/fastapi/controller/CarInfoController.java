@@ -21,17 +21,23 @@ public class CarInfoController {
     public ResponseEntity<?> insertCarInfo(@RequestBody CarInfo carInfo) {
         try {
             CarInfo savedCar = carInfoService.insertCarInfo(carInfo);
-            return ResponseEntity.ok().body(
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(
                     new ApiResponse("successful", savedCar.getId())
             );
         } catch (IllegalArgumentException e) {
             // chassis_no duplicate error
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(
                     new ApiResponse("error", "Bu şasi numarasına sahip araç zaten mevcut")
             );
         } catch (Exception e) {
             // other errors
-            return ResponseEntity.status(500).body(
+            return ResponseEntity.status(500)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(
                     new ApiResponse("error", "Sunucu iç hatası")
             );
         }
