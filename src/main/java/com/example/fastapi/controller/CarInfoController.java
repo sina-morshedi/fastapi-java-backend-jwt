@@ -22,17 +22,17 @@ public class CarInfoController {
         try {
             CarInfo savedCar = carInfoService.insertCarInfo(carInfo);
             return ResponseEntity.ok().body(
-                    new ApiResponse("başarılı", savedCar.getId())
+                    new ApiResponse("successful", savedCar.getId())
             );
         } catch (IllegalArgumentException e) {
             // chassis_no duplicate error
             return ResponseEntity.badRequest().body(
-                    new ApiResponse("hata", "Bu şasi numarasına sahip araç zaten mevcut")
+                    new ApiResponse("error", "Bu şasi numarasına sahip araç zaten mevcut")
             );
         } catch (Exception e) {
             // other errors
             return ResponseEntity.status(500).body(
-                    new ApiResponse("hata", "Sunucu iç hatası")
+                    new ApiResponse("error", "Sunucu iç hatası")
             );
         }
     }
@@ -56,3 +56,4 @@ public class CarInfoController {
         }
     }
 }
+
