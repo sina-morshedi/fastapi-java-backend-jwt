@@ -28,12 +28,12 @@ public class CarInfoService {
     public CarInfo insertCarInfo(CarInfo carInfo) {
         // Check if a car with this chassis number already exists
         if (carInfoRepository.existsByChassisNo(carInfo.getChassisNo())) {
-            throw new IllegalArgumentException("duplicate_chassis");
+            throw new IllegalArgumentException("Bu şasi numarasına sahip araç zaten mevcut");
         }
 
         // Check if a car with this license plate already exists
         if (carInfoRepository.existsByLicensePlate(carInfo.getLicensePlate())) {
-            throw new IllegalArgumentException("duplicate_plate");
+            throw new IllegalArgumentException("Bu plakaya sahip araç zaten mevcut");
         }
 
         // Set current date and time if not provided

@@ -31,7 +31,7 @@ public class CarInfoController {
             return ResponseEntity.badRequest()
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(
-                    new ApiResponse("error", "Bu şasi numarasına sahip araç zaten mevcut")
+                    new ApiResponse("error", e.getMessage())
             );
         } catch (Exception e) {
             // other errors
