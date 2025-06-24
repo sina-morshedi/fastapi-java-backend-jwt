@@ -3,11 +3,13 @@ package com.example.fastapi.dto;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "carInfo")
 public class CarInfo {
 
     @Id
+    @JsonProperty("id")
     private String id;
 
     private String chassisNo;
