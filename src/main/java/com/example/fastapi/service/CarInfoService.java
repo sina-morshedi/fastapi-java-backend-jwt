@@ -26,9 +26,14 @@ public class CarInfoService {
 
     // Insert a new car record into MongoDB
     public CarInfo insertCarInfo(CarInfo carInfo) {
-        // Optional: check if a car with this chassis number already exists
+        // Check if a car with this chassis number already exists
         if (carInfoRepository.existsByChassisNo(carInfo.getChassisNo())) {
-            throw new IllegalArgumentException("Car with this chassis number already exists");
+            throw new IllegalArgumentException("duplicate_chassis");
+        }
+
+        // Check if a car with this license plate already exists
+        if (carInfoRepository.existsByLicensePlate(carInfo.getLicensePlate())) {
+            throw new IllegalArgumentException("duplicate_plate");
         }
 
         // Set current date and time if not provided
@@ -39,6 +44,7 @@ public class CarInfoService {
         // Save the car information to MongoDB
         return carInfoRepository.save(carInfo);
     }
+
 
     public CarInfo getCarByLicensePlate(String licensePlate) {
         return carInfoRepository.findByLicensePlate(licensePlate);
