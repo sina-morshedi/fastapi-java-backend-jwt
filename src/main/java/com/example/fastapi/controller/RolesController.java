@@ -65,7 +65,7 @@ public class RolesController {
     public ResponseEntity<?> deleteRole(@PathVariable String id) {
         boolean deleted = userRoleService.deleteRole(id);
         if (deleted) {
-            return ResponseEntity.ok().body("Role deleted successfully.");
+            return ResponseEntity.ok().body("Rol başarıyla silindi.");
         } else {
             return ResponseEntity.notFound().build();
         }
