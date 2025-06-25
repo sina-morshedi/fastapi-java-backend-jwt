@@ -24,12 +24,21 @@ public class TaskStatusController {
         return taskStatusService.getByTaskStatusName(taskName);
     }
     @PostMapping("/")
-    public ResponseEntity<TaskStatusDTO> addTaskStatus(@RequestBody TaskStatusDTO taskStatusDTO) {
+    public ResponseEntity<?> addTaskStatus(@RequestBody TaskStatusDTO taskStatusDTO) {
+        // Check if the task status name already exists
+        Optional<TaskStatusDTO> existing = taskStatusService.getByTaskStatusName(taskStatusDTO.getTaskStatusName());
+        if (existing.isPresent()) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Aynı isimli Görev Durumu zaten mevcut.");
+        }
+
         TaskStatusDTO savedStatus = taskStatusService.saveTaskStatus(taskStatusDTO);
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(savedStatus);
     }
+
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllTasks() {
