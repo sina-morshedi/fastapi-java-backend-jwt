@@ -60,4 +60,19 @@ public class TaskStatusService {
         }
     }
 
+    public boolean deleteTaskStatus(String id) {
+        try {
+            ObjectId objectId = new ObjectId(id);
+            if (taskStatusRepository.existsById(objectId)) {
+                taskStatusRepository.deleteById(objectId);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IllegalArgumentException e) {
+            return false; // Invalid ID format
+        }
+    }
+
+
 }

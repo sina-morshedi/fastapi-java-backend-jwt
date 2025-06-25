@@ -54,4 +54,15 @@ public class TaskStatusController {
         }
     }
 
+    @DeleteMapping("/deleteTaskStatus/{id}")
+    public ResponseEntity<?> deleteTaskStatus(@PathVariable String id) {
+        boolean deleted = taskStatusService.deleteTaskStatus(id);
+        if (deleted) {
+            return ResponseEntity.ok().body("TaskStatus deleted successfully.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 }
