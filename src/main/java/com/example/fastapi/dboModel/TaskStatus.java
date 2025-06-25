@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.ObjectId;
 
-@Document(collection = "task_status")
+@Document(collection = "taskStatus")
 public class TaskStatus {
 
     @Id
