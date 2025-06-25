@@ -18,10 +18,11 @@ public class TaskStatus {
     }
 
     public void setId(String id) {
-        if (id != null) {
+        if (id != null && !id.isBlank()) {
             this.id = new ObjectId(id);
         }
     }
+
 
     public String getTaskStatusName() {
         return taskStatusName;

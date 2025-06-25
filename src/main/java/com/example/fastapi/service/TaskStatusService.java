@@ -43,12 +43,10 @@ public class TaskStatusService {
 
     public Optional<TaskStatusDTO> updateTaskStatus(String id, TaskStatusDTO dto) {
         ObjectId objectId;
-
         try {
             objectId = new ObjectId(id);
         } catch (IllegalArgumentException e) {
-            // اگر id معتبر نبود، 404 برگردون
-            return Optional.empty();
+            return Optional.empty(); // اگر فرمت اشتباه بود
         }
 
         Optional<TaskStatus> existing = taskStatusRepository.findById(objectId);
@@ -56,7 +54,7 @@ public class TaskStatusService {
             TaskStatus entity = existing.get();
             entity.setTaskStatusName(dto.getTaskStatusName());
             TaskStatus saved = taskStatusRepository.save(entity);
-            return Optional.of(new TaskStatusDTO(saved.getId(), saved.getTaskStatusName()));
+            return Optional.of(convertToDTO(saved));
         } else {
             return Optional.empty();
         }
