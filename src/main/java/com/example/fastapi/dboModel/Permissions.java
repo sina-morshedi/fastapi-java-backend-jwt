@@ -7,18 +7,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "permissions")
 public class Permissions {
     @Id
-    private String id;
+    private ObjectId id;  // <-- اینجا از ObjectId استفاده کن
 
     private String permissionName;
 
     public Permissions() {}
 
+    // getter تبدیل ObjectId به String
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
+    // setter تبدیل String به ObjectId
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getPermissionName() {

@@ -4,13 +4,13 @@ public class UserProfileDTO {
     private String username;
     private String firstName;
     private String lastName;
-    private RoleDTO role;
+    private RolesDTO role;
     private PermissionDTO permission;
 
     public UserProfileDTO() {}
 
     public UserProfileDTO(String userId, String username, String firstName, String lastName,
-                          RoleDTO role, PermissionDTO permission) {
+                          RolesDTO role, PermissionDTO permission) {
         this.userId = userId;
         this.username = username;
         this.firstName = firstName;
@@ -32,8 +32,8 @@ public class UserProfileDTO {
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public RoleDTO getRole() { return role; }
-    public void setRole(RoleDTO role) { this.role = role; }
+    public RolesDTO getRole() { return role; }
+    public void setRole(RolesDTO role) { this.role = role; }
 
     public PermissionDTO getPermission() { return permission; }
     public void setPermission(PermissionDTO permission) { this.permission = permission; }

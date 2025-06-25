@@ -9,7 +9,7 @@ import com.example.fastapi.repository.RolesRepository;
 import com.example.fastapi.repository.UserPassRepository;
 import com.example.fastapi.repository.UsersRepository;
 import com.example.fastapi.dto.UserProfileDTO;
-import com.example.fastapi.dto.RoleDTO;
+import com.example.fastapi.dto.RolesDTO;
 import com.example.fastapi.dto.PermissionDTO;
 import com.example.fastapi.dto.RegisterDTO;
 
@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
@@ -142,7 +140,7 @@ public class UsersService {
             String roleId = user.getRoleId() != null ? user.getRoleId().toHexString() : null;
             String permissionId = user.getPermissionId() != null ? user.getPermissionId().toHexString() : null;
 
-            RoleDTO roleDTO = new RoleDTO(
+            RolesDTO roleDTO = new RolesDTO(
                     roleId,
                     roleIdToObject.containsKey(roleId) ? roleIdToObject.get(roleId).getRoleName() : "Unknown Role"
             );
@@ -186,23 +184,23 @@ public class UsersService {
         Users user = userOpt.get();
 
         // Get role and build RoleDTO
-        RoleDTO roleDTO;
+        RolesDTO roleDTO;
         if (user.getRoleId() != null) {
-            Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId().toHexString());
+            Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId());
             if (roleOpt.isPresent()) {
                 Roles role = roleOpt.get();
-                roleDTO = new RoleDTO(role.getId(), role.getRoleName());
+                roleDTO = new RolesDTO(role.getId(), role.getRoleName());
             } else {
-                roleDTO = new RoleDTO(null, "Unknown");
+                roleDTO = new RolesDTO(null, "Unknown");
             }
         } else {
-            roleDTO = new RoleDTO(null, "Unknown");
+            roleDTO = new RolesDTO(null, "Unknown");
         }
 
         // Get permission and build PermissionDTO
         PermissionDTO permissionDTO;
         if (user.getPermissionId() != null) {
-            Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId().toHexString());
+            Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId());
             if (permOpt.isPresent()) {
                 Permissions perm = permOpt.get();
                 permissionDTO = new PermissionDTO(perm.getId(), perm.getPermissionName());
@@ -222,5 +220,6 @@ public class UsersService {
                 permissionDTO
         );
     }
+
 
 }

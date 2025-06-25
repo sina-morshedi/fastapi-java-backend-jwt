@@ -6,19 +6,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "roles")
 public class Roles {
+
     @Id
-    private String id;    // <-- از ObjectId استفاده می‌کنیم
+    private ObjectId id;
 
     private String roleName;
 
     public Roles() {}
 
-    public String getId() {
-        return id;
+    public Roles(ObjectId id, String roleName) {
+        this.id = id;
+        this.roleName = roleName;
     }
 
+    public String getId() {
+        return id != null ? id.toHexString() : null;
+    }
+
+    // Setter تبدیل String به ObjectId
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getRoleName() {
