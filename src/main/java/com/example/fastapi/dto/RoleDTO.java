@@ -1,6 +1,9 @@
 package com.example.fastapi.dto;
 
+import org.springframework.data.annotation.Id;
+
 public class RoleDTO {
+    @Id
     private String roleId;
     private String roleName;
 
