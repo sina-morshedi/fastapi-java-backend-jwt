@@ -38,7 +38,7 @@ public class TaskStatusController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(tasks);
     }
-    @PutMapping("/{id}")
+    @PutMapping("/updateTaskStatus/{id}")
     public ResponseEntity<TaskStatusDTO> updateTaskStatus(
             @PathVariable String id,
             @RequestBody TaskStatusDTO updatedStatusDTO) {

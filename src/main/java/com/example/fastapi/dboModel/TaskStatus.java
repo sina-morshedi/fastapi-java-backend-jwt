@@ -2,32 +2,29 @@ package com.example.fastapi.dboModel;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.bson.types.ObjectId;
 
-@Document(collection = "taskStatus")
+@Document(collection = "task_status")
 public class TaskStatus {
 
     @Id
-    private String id;
+    private ObjectId id;
+
     private String taskStatusName;
 
-    // Constructors
-    public TaskStatus() {}
-
-    public TaskStatus(String taskStatusName) {
-        this.taskStatusName = taskStatusName;
+    // Getter برای تبدیل به String در DTO
+    public String getId() {
+        return id != null ? id.toHexString() : null;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
+    public void setId(String id) {
+        if (id != null) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getTaskStatusName() {
         return taskStatusName;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public void setTaskStatusName(String taskStatusName) {

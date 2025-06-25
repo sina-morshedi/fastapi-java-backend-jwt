@@ -1,4 +1,5 @@
 package com.example.fastapi.service;
+import org.bson.types.ObjectId;
 
 import com.example.fastapi.dboModel.TaskStatus;
 import com.example.fastapi.dto.TaskStatusDTO;
@@ -41,7 +42,16 @@ public class TaskStatusService {
     }
 
     public Optional<TaskStatusDTO> updateTaskStatus(String id, TaskStatusDTO dto) {
-        Optional<TaskStatus> existing = taskStatusRepository.findById(id);
+        ObjectId objectId;
+
+        try {
+            objectId = new ObjectId(id);
+        } catch (IllegalArgumentException e) {
+            // اگر id معتبر نبود، 404 برگردون
+            return Optional.empty();
+        }
+
+        Optional<TaskStatus> existing = taskStatusRepository.findById(objectId);
         if (existing.isPresent()) {
             TaskStatus entity = existing.get();
             entity.setTaskStatusName(dto.getTaskStatusName());
