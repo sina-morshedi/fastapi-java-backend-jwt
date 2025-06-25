@@ -18,7 +18,7 @@ public class PermissionsService {
     }
 
     public Optional<Permissions> getByPermissionName(String permissionName) {
-        Optional<Permissions> optional = permissionsRepository.findById(permissionName);
+        Optional<Permissions> optional = permissionsRepository.findByPermissionName(permissionName);
         return optional;
     }
 
