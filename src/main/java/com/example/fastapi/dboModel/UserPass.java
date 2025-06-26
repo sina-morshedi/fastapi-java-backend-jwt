@@ -2,15 +2,20 @@ package com.example.fastapi.dboModel;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "userPass")
 public class UserPass {
     @Id
     private String id;
+
     private String username;
+
     private String password;
 
-    private String user_id;
+    @Field("user_id")
+    private String userId;  // تغییر نام به userId با @Field مپ شده به user_id
+
     public UserPass() {}
 
     // Getters and Setters
@@ -40,11 +45,10 @@ public class UserPass {
     }
 
     public String getUserId() {
-        return user_id;
+        return userId;
     }
 
     public void setUserId(String userId) {
-        this.user_id = userId;
+        this.userId = userId;
     }
-
 }

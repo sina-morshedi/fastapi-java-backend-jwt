@@ -273,18 +273,24 @@ public class UsersService {
 
     public boolean deleteUserById(String userId) {
         try {
-            // Delete from users collection
+            Optional<Users> user = usersRepository.findById(userId);
+            if (!user.isPresent()) {
+                return false;
+            }
+
+            Optional<UserPass> userPass = userPassRepository.findByUserId(userId);
+
             usersRepository.deleteById(userId);
 
-            // Delete from userPass collection
-            Optional<UserPass> userPass = userPassRepository.findByUserId(userId);
             userPass.ifPresent(up -> userPassRepository.deleteById(up.getId()));
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace(); // Or log it properly
+            e.printStackTrace();
             return false;
         }
     }
+
+
 
 }
