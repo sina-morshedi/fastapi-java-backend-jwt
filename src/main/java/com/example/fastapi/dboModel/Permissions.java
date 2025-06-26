@@ -13,7 +13,10 @@ public class Permissions {
 
     public Permissions() {}
 
-    // getter تبدیل ObjectId به String
+    public Permissions(ObjectId id, String roleName) {
+        this.id = id;
+        this.permissionName = roleName;
+    }
     public String getId() {
         return id != null ? id.toHexString() : null;
     }

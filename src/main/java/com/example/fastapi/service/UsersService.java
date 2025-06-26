@@ -86,8 +86,14 @@ public class UsersService {
             Users user = new Users();
             user.setFirstName(dto.getFirstName());
             user.setLastName(dto.getLastName());
-            user.setRoleId(new ObjectId(dto.getRoleId()));
-            user.setPermissionId(new ObjectId(dto.getPermissionId()));
+
+            // ساخت آبجکت Roles و Permissions با داده‌های dto
+            Roles role = new Roles(new ObjectId(dto.getRoleId()), dto.getRoleName());
+            Permissions permission = new Permissions(new ObjectId(dto.getPermissionId()), dto.getPermissionName());
+
+
+            user.setRole(role);
+            user.setPermission(permission);
 
             Users savedUser = usersRepository.save(user);
             if (savedUser == null || savedUser.getId() == null) {
@@ -101,16 +107,17 @@ public class UsersService {
 
             UserPass savedUserPass = userPassRepository.save(userPass);
             if (savedUserPass == null || savedUserPass.getId() == null) {
-                // می‌تونی اینجا کار rollback بزنی یا لاگ خطا بگیری
+                // اگر میخوای rollback بزنی یا لاگ بهتر بزنی اینجا اضافه کن
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();  // یا لاگ به صورت بهتر
+            e.printStackTrace();  // بهتره لاگ بهتری بزنی یا لاگ‌ها رو مدیریت کنی
             return false;
         }
     }
+
 
 
     public Optional<Users> getByFirstName(String firstName) {
@@ -120,35 +127,26 @@ public class UsersService {
     public List<UserProfileDTO> getAllUsersWithUsernames() {
         List<Users> users = usersRepository.findAll();
         List<UserPass> userPasses = userPassRepository.findAll();
-        List<Roles> rolesList = rolesRepository.findAll();
-        List<Permissions> permissionsList = permissionsRepository.findAll();
 
         Map<String, String> userIdToUsername = userPasses.stream()
                 .collect(Collectors.toMap(UserPass::getUserId, UserPass::getUsername));
-
-        Map<String, Roles> roleIdToObject = rolesList.stream()
-                .collect(Collectors.toMap(Roles::getId, role -> role));
-
-        Map<String, Permissions> permissionIdToObject = permissionsList.stream()
-                .collect(Collectors.toMap(Permissions::getId, perm -> perm));
 
         List<UserProfileDTO> result = new ArrayList<>();
 
         for (Users user : users) {
             String username = userIdToUsername.getOrDefault(user.getId(), "Unknown Username");
 
-            String roleId = user.getRoleId() != null ? user.getRoleId().toHexString() : null;
-            String permissionId = user.getPermissionId() != null ? user.getPermissionId().toHexString() : null;
+            Roles role = user.getRole();
+            Permissions permission = user.getPermission();
 
-            RolesDTO roleDTO = new RolesDTO(
-                    roleId,
-                    roleIdToObject.containsKey(roleId) ? roleIdToObject.get(roleId).getRoleName() : "Unknown Role"
-            );
+            String roleId = role != null ? role.getId() : null;
+            String roleName = (role != null && role.getRoleName() != null) ? role.getRoleName() : "Unknown Role";
 
-            PermissionDTO permissionDTO = new PermissionDTO(
-                    permissionId,
-                    permissionIdToObject.containsKey(permissionId) ? permissionIdToObject.get(permissionId).getPermissionName() : "Unknown Permission"
-            );
+            String permissionId = permission != null ? permission.getId() : null;
+            String permissionName = (permission != null && permission.getPermissionName() != null) ? permission.getPermissionName() : "Unknown Permission";
+
+            RolesDTO roleDTO = new RolesDTO(roleId, roleName);
+            PermissionDTO permissionDTO = new PermissionDTO(permissionId, permissionName);
 
             UserProfileDTO dto = new UserProfileDTO(
                     user.getId(),
@@ -166,6 +164,7 @@ public class UsersService {
     }
 
 
+
     public long countAllUser() {
         return userRepository.count();
     }
@@ -176,6 +175,10 @@ public class UsersService {
         }
 
         UserPass userPass = userPassOpt.get();
+
+        // اگر لازم باشه رمز را اینجا هم بررسی کنیم (بسته به منطق برنامه)
+        // اگر چک رمز لازم است، اینجا باید passwordEncoder.matches(password, userPass.getPassword()) بررسی شود.
+
         Optional<Users> userOpt = userRepository.findById(userPass.getUserId());
         if (userOpt.isEmpty()) {
             return null;
@@ -183,33 +186,17 @@ public class UsersService {
 
         Users user = userOpt.get();
 
-        // Get role and build RoleDTO
-        RolesDTO roleDTO;
-        if (user.getRoleId() != null) {
-            Optional<Roles> roleOpt = rolesRepository.findById(user.getRoleId());
-            if (roleOpt.isPresent()) {
-                Roles role = roleOpt.get();
-                roleDTO = new RolesDTO(role.getId(), role.getRoleName());
-            } else {
-                roleDTO = new RolesDTO(null, "Unknown");
-            }
-        } else {
-            roleDTO = new RolesDTO(null, "Unknown");
-        }
+        // مستقیماً از آبجکت های role و permission استفاده می‌کنیم
+        Roles role = user.getRole();
+        Permissions permission = user.getPermission();
 
-        // Get permission and build PermissionDTO
-        PermissionDTO permissionDTO;
-        if (user.getPermissionId() != null) {
-            Optional<Permissions> permOpt = permissionsRepository.findById(user.getPermissionId());
-            if (permOpt.isPresent()) {
-                Permissions perm = permOpt.get();
-                permissionDTO = new PermissionDTO(perm.getId(), perm.getPermissionName());
-            } else {
-                permissionDTO = new PermissionDTO(null, "Unknown");
-            }
-        } else {
-            permissionDTO = new PermissionDTO(null, "Unknown");
-        }
+        RolesDTO roleDTO = (role != null)
+                ? new RolesDTO(role.getId(), role.getRoleName())
+                : new RolesDTO(null, "Unknown");
+
+        PermissionDTO permissionDTO = (permission != null)
+                ? new PermissionDTO(permission.getId(), permission.getPermissionName())
+                : new PermissionDTO(null, "Unknown");
 
         return new UserProfileDTO(
                 user.getId(),
@@ -220,6 +207,7 @@ public class UsersService {
                 permissionDTO
         );
     }
+
 
 
 }
