@@ -12,6 +12,7 @@ import com.example.fastapi.service.UsersService;
 import com.example.fastapi.dboModel.Users;
 import com.example.fastapi.dboModel.UserPass;
 import com.example.fastapi.dto.UserProfileDTO;
+import com.example.fastapi.dto.UpdateUserDTO;
 import com.example.fastapi.dto.RegisterDTO;
 
 import org.springframework.http.ResponseEntity;
@@ -29,14 +30,6 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/users")
 public class UsersController {
-
-    public class LoginRequest {
-        private String username;
-        private String password;
-
-        // getters and setters
-    }
-    private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
 
     @Autowired
     private UsersService userService;
@@ -83,29 +76,30 @@ public class UsersController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UpdateUserDTO dto) {
+        try {
+            boolean success = userService.updateUser(id, dto);
+            if(success) {
+                return ResponseEntity.ok("Kullanıcı başarıyla güncellendi");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Güncelleme başarısız oldu");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hata: " + e.getMessage());
+        }
+    }
 
-    // آپدیت کاربر
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<String> updateUser(@PathVariable String id, @RequestBody Users updatedUser) {
-//        try {
-//            userService.updateUser(id, updatedUser);
-//            return ResponseEntity.ok("User updated successfully");
-//        } catch (Exception e) {
-//            logger.error("Error in updateUser: ", e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed: " + e.getMessage());
-//        }
-//    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+        boolean success = userService.deleteUserById(id);
+        if (success) {
+            return ResponseEntity.ok("Kullanıcı başarıyla silindi.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Kullanıcı silinemedi.");
+        }
+    }
 
-
-//    @DeleteMapping("/delete/{id}")
-//    public ResponseEntity<String> deleteUser(@PathVariable String id) {
-//        try {
-//            userService.deleteUser(id);
-//            return ResponseEntity.ok("User deleted successfully");
-//        } catch (Exception e) {
-//            logger.error("Error in deleteUser: ", e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Delete failed: " + e.getMessage());
-//        }
-//    }
 }
 

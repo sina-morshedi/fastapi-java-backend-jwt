@@ -12,6 +12,7 @@ import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.dto.RolesDTO;
 import com.example.fastapi.dto.PermissionDTO;
 import com.example.fastapi.dto.RegisterDTO;
+import com.example.fastapi.dto.UpdateUserDTO;
 
 
 import org.bson.types.ObjectId;
@@ -208,6 +209,82 @@ public class UsersService {
         );
     }
 
+    public boolean updateUser(String userId, UpdateUserDTO dto) {
+        Optional<Users> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            logger.warn("User not found with id: {}", userId);
+            return false;
+        }
+        Users user = optionalUser.get();
 
+        // Update basic info
+        if (dto.getFirstName() != null && !dto.getFirstName().isEmpty()) {
+            user.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null && !dto.getLastName().isEmpty()) {
+            user.setLastName(dto.getLastName());
+        }
+
+        // Update role if provided
+        if (dto.getRoleId() != null && !dto.getRoleId().isEmpty()) {
+            try {
+                ObjectId roleObjectId = new ObjectId(dto.getRoleId());
+                Optional<Roles> optionalRole = rolesRepository.findById(roleObjectId);
+                optionalRole.ifPresent(user::setRole);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid roleId format: {}", dto.getRoleId());
+            }
+        }
+
+        // Update permission if provided
+        if (dto.getPermissionId() != null && !dto.getPermissionId().isEmpty()) {
+            try {
+                ObjectId permissionObjectId = new ObjectId(dto.getPermissionId());
+                Optional<Permissions> optionalPermission = permissionsRepository.findById(permissionObjectId);
+                optionalPermission.ifPresent(user::setPermission);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid permissionId format: {}", dto.getPermissionId());
+            }
+        }
+
+        // Save user
+        userRepository.save(user);
+
+        // Update UserPass (username and optionally password)
+        Optional<UserPass> optionalUserPass = userPassRepository.findByUserId(userId);
+        if (!optionalUserPass.isPresent()) {
+            logger.warn("UserPass not found for userId: {}", userId);
+            return false;
+        }
+        UserPass userPass = optionalUserPass.get();
+
+        if (dto.getUsername() != null && !dto.getUsername().isEmpty()) {
+            userPass.setUsername(dto.getUsername());
+        }
+
+        if (dto.isUpdatePassword() && dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            userPass.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        userPassRepository.save(userPass);
+
+        return true;
+    }
+
+    public boolean deleteUserById(String userId) {
+        try {
+            // Delete from users collection
+            usersRepository.deleteById(userId);
+
+            // Delete from userPass collection
+            Optional<UserPass> userPass = userPassRepository.findByUserId(userId);
+            userPass.ifPresent(up -> userPassRepository.deleteById(up.getId()));
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace(); // Or log it properly
+            return false;
+        }
+    }
 
 }

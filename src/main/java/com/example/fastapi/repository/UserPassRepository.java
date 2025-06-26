@@ -12,4 +12,7 @@ public interface UserPassRepository extends MongoRepository<UserPass, String> {
     Optional<UserPass> findByUsername(String username);
 
     Optional<UserPass> findById(String _id);
+
+    Optional<UserPass> findByUserId(String userId);
+
 }
