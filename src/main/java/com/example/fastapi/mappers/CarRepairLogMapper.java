@@ -62,6 +62,23 @@ public class CarRepairLogMapper {
         return entity;
     }
 
+    private CarInfoDTO GetCarInfo(String carId){
+        CarInfo carInfo = carInfoRepository.findById(carId).orElse(null);
+        if (carInfo != null) {
+            CarInfoDTO carDto = new CarInfoDTO();
+            carDto.setId(carInfo.getId());
+            carDto.setChassisNo(carInfo.getChassisNo());
+            carDto.setMotorNo(carInfo.getMotorNo());
+            carDto.setLicensePlate(carInfo.getLicensePlate());
+            carDto.setBrand(carInfo.getBrand());
+            carDto.setBrandModel(carInfo.getBrandModel());
+            carDto.setModelYear(carInfo.getModelYear());
+            carDto.setFuelType(carInfo.getFuelType());
+            carDto.setDateTime(carInfo.getDateTime());
+            return carDto;
+        }
+        return null;
+    }
     // Convert Entity (DBO) to Response DTO
     public CarRepairLogResponseDTO toResponseDTO(CarRepairLog entity) {
         if (entity == null) return null;
@@ -101,7 +118,7 @@ public class CarRepairLogMapper {
             PermissionDTO permissionDto = new PermissionDTO();
             permissionDto.setPermissionId(user.getPermissionId());
             userDto.setPermission(permissionDto);
-
+            dto.setCreatorUser(userDto);
         } else {
             dto.setCreatorUser(null);
         }
@@ -134,7 +151,7 @@ public class CarRepairLogMapper {
             if (report != null) {
                 CarProblemReportDTO reportDto = new CarProblemReportDTO();
                 reportDto.setId(report.getId());
-                reportDto.setCarInfo(null);
+                reportDto.setCarInfo(GetCarInfo(report.getCarId()));
                 reportDto.setCreatorUser(null);
                 reportDto.setProblemSummary(report.getProblemSummary());
                 reportDto.setDateTime(report.getDateTime());
