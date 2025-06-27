@@ -22,20 +22,26 @@ public class CarRepairLogController {
     @GetMapping("/all")
     public ResponseEntity<List<CarRepairLogResponseDTO>> getAllLogs() {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getAllLogs();
-        return ResponseEntity.ok(logs);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
     }
 
 
     @GetMapping("/by-license-plate/{licensePlate}")
     public ResponseEntity<List<CarRepairLogResponseDTO>> getLogsByLicensePlate(@PathVariable String licensePlate) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLogsByLicensePlate(licensePlate);
-        return ResponseEntity.ok(logs);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
     }
 
     @PostMapping("/create")
     public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {
         CarRepairLogResponseDTO createdLog = carRepairLogService.createLog(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdLog);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(createdLog);
     }
 
     @PutMapping("/update/{id}")
@@ -45,7 +51,9 @@ public class CarRepairLogController {
         if (updated.isPresent()) {
             return ResponseEntity.ok(updated.get());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Log bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Log bulunamadı");
         }
     }
 
@@ -54,9 +62,13 @@ public class CarRepairLogController {
     public ResponseEntity<?> deleteLog(@PathVariable String id) {
         boolean deleted = carRepairLogService.deleteLog(id);
         if (deleted) {
-            return ResponseEntity.ok("Log başarıyla silindi");
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Log başarıyla silindi");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Log bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Log bulunamadı");
         }
     }
 }

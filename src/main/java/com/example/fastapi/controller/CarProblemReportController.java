@@ -23,41 +23,55 @@ public class CarProblemReportController {
     @PostMapping("/create")
     public ResponseEntity<?> createReport(@RequestBody CarProblemReport report) {
         CarProblemReport created = reportService.createReport(report);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(created);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<CarProblemReport>> getAllReports() {
         List<CarProblemReport> reports = reportService.getAllReports();
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(reports);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getReportById(@PathVariable String id) {
         Optional<CarProblemReport> report = reportService.getReportById(id);
         if (report.isPresent()) {
-            return ResponseEntity.ok(report.get());
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(report.get());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rapor bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Rapor bulunamadı");
         }
     }
 
     @GetMapping("/by-car/{carId}")
     public ResponseEntity<List<CarProblemReport>> getReportsByCarId(@PathVariable String carId) {
         List<CarProblemReport> reports = reportService.getReportsByCarId(carId);
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(reports);
     }
 
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<List<CarProblemReport>> getReportsByCreatorUserId(@PathVariable String userId) {
         List<CarProblemReport> reports = reportService.getReportsByCreatorUserId(userId);
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(reports);
     }
 
     @GetMapping("/by-license-plate/{licensePlate}")
     public ResponseEntity<List<CarProblemReport>> getReportsByLicensePlate(@PathVariable String licensePlate) {
         List<CarProblemReport> reports = reportService.getReportsByLicensePlate(licensePlate);
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(reports);
     }
 
     @PutMapping("/update/{id}")
@@ -65,16 +79,22 @@ public class CarProblemReportController {
         Optional<CarProblemReport> updated = reportService.updateReport(id, updatedReport);
         return updated
                 .map(r -> ResponseEntity.ok("Rapor başarıyla güncellendi"))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rapor bulunamadı"));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Rapor bulunamadı"));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable String id) {
         boolean deleted = reportService.deleteReport(id);
         if (deleted) {
-            return ResponseEntity.ok("Rapor başarıyla silindi");
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Rapor başarıyla silindi");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rapor bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Rapor bulunamadı");
         }
     }
 }
