@@ -25,7 +25,7 @@ public class CarRepairLogController {
         return ResponseEntity.ok(logs);
     }
 
-    // اگر لازم داری متد با پلاک ماشین
+
     @GetMapping("/by-license-plate/{licensePlate}")
     public ResponseEntity<List<CarRepairLogResponseDTO>> getLogsByLicensePlate(@PathVariable String licensePlate) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLogsByLicensePlate(licensePlate);

@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
 
 @RestController
 @RequestMapping("/task_status")
@@ -19,10 +22,16 @@ public class TaskStatusController {
 
 
     @GetMapping("/")
-    public Optional<TaskStatusDTO> getByStatusName(@RequestParam String taskName)
-    {
-        return taskStatusService.getByTaskStatusName(taskName);
+    public ResponseEntity<Object> getByStatusName(@RequestParam String taskName) {
+        Optional<TaskStatusDTO> optionalStatus = taskStatusService.getByTaskStatusName(taskName);
+        if (optionalStatus.isPresent()) {
+            return ResponseEntity.ok(optionalStatus.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("'" + taskName + "' adlı görev durumu bulunamadı");
+        }
     }
+
     @PostMapping("/")
     public ResponseEntity<?> addTaskStatus(@RequestBody TaskStatusDTO taskStatusDTO) {
         // Check if the task status name already exists
@@ -48,7 +57,7 @@ public class TaskStatusController {
                 .body(tasks);
     }
     @PutMapping("/updateTaskStatus/{id}")
-    public ResponseEntity<TaskStatusDTO> updateTaskStatus(
+    public ResponseEntity<Object> updateTaskStatus(
             @PathVariable String id,
             @RequestBody TaskStatusDTO updatedStatusDTO) {
 
@@ -59,19 +68,21 @@ public class TaskStatusController {
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(updated.get());
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Görev durumu bulunamadı");
         }
     }
+
 
     @DeleteMapping("/deleteTaskStatus/{id}")
-    public ResponseEntity<?> deleteTaskStatus(@PathVariable String id) {
+    public ResponseEntity<Object> deleteTaskStatus(@PathVariable String id) {
         boolean deleted = taskStatusService.deleteTaskStatus(id);
         if (deleted) {
-            return ResponseEntity.ok().body("TaskStatus deleted successfully.");
+            return ResponseEntity.ok().body("Görev durumu başarıyla silindi.");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Görev durumu bulunamadı.");
         }
     }
-
 
 }
