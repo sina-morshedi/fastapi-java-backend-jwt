@@ -1,6 +1,6 @@
 package com.example.fastapi.repository;
 
-import com.example.fastapi.dto.CarInfo;
+import com.example.fastapi.dboModel.CarInfo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

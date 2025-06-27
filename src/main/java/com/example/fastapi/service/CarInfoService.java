@@ -1,7 +1,7 @@
 package com.example.fastapi.service;
 
 
-import com.example.fastapi.dto.CarInfo;
+import com.example.fastapi.dboModel.CarInfo;
 import com.example.fastapi.repository.CarInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

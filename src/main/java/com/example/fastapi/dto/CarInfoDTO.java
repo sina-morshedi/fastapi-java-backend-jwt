@@ -1,17 +1,9 @@
 package com.example.fastapi.dto;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Document(collection = "carInfo")
-public class CarInfo {
-
-    @Id
-    @JsonProperty("id")
+public class CarInfoDTO {
     private String id;
-
     private String chassisNo;
     private String motorNo;
     private String licensePlate;
@@ -21,24 +13,7 @@ public class CarInfo {
     private String fuelType;
     private LocalDateTime dateTime;
 
-    // Default constructor
-    public CarInfo() {
-    }
-
-    // Constructor with all fields (except id)
-    public CarInfo(String chassisNo, String motorNo, String licensePlate, String brand,
-                   String brandModel, Integer modelYear, String fuelType, LocalDateTime dateTime) {
-        this.chassisNo = chassisNo;
-        this.motorNo = motorNo;
-        this.licensePlate = licensePlate;
-        this.brand = brand;
-        this.brandModel = brandModel;
-        this.modelYear = modelYear;
-        this.fuelType = fuelType;
-        this.dateTime = dateTime;
-    }
-
-    // Getters and Setters
+    public CarInfoDTO() {}
 
     public String getId() {
         return id;

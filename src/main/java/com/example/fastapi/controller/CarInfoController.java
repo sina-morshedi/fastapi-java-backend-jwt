@@ -1,6 +1,6 @@
 package com.example.fastapi.controller;
 
-import com.example.fastapi.dto.CarInfo;
+import com.example.fastapi.dboModel.CarInfo;
 import com.example.fastapi.service.CarInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
