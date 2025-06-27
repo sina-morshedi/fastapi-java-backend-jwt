@@ -12,12 +12,10 @@ public class CarRepairLog {
 
     private String carId;
     private String creatorUserId;
-    private String departmentId;
     private String description;
     private String taskStatusId;
     private Date dateTime;
     private String problemReportId;
-    private String carRequiredDepartmentId;
 
     public CarRepairLog() {}
 
@@ -47,13 +45,6 @@ public class CarRepairLog {
         this.creatorUserId = creatorUserId;
     }
 
-    public String getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(String departmentId) {
-        this.departmentId = departmentId;
-    }
 
     public String getDescription() {
         return description;
@@ -87,11 +78,5 @@ public class CarRepairLog {
         this.problemReportId = problemReportId;
     }
 
-    public String getCarRequiredDepartmentId() {
-        return carRequiredDepartmentId;
-    }
 
-    public void setCarRequiredDepartmentId(String carRequiredDepartmentId) {
-        this.carRequiredDepartmentId = carRequiredDepartmentId;
-    }
 }

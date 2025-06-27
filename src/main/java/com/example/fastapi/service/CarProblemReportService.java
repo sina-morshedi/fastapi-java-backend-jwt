@@ -21,10 +21,7 @@ public class CarProblemReportService {
     private CarInfoRepository carInfoRepository;
 
     public CarProblemReport createReport(CarProblemReport report) {
-        // اگر تاریخ خالی بود، تاریخ فعلی ثبت شود
-        if (report.getDateTime() == null) {
-            report.setDateTime(new Date());
-        }
+
         return reportRepository.save(report);
     }
 
