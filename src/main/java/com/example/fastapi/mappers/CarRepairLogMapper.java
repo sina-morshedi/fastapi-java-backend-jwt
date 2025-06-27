@@ -89,6 +89,31 @@ public class CarRepairLogMapper {
         rDto.setRoleName(permission.getRoleName());
         return rDto;
     }
+    private UserProfileDTO GetUserDTO(String userid) {
+        Users user = userRepository.findById(userid).orElse(null);
+
+        if (user != null) {
+            UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
+            UserProfileDTO userDto = new UserProfileDTO();
+            userDto.setUserId(user.getId());
+            if(userPass != null)
+                userDto.setUsername(userPass.getUsername()); // چون توی Users نیست
+            userDto.setFirstName(user.getFirstName());
+            userDto.setLastName(user.getLastName());
+            RolesDTO roleDto = new RolesDTO();
+            roleDto.setId(user.getRoleId());
+            roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
+            userDto.setRole(roleDto);
+            PermissionDTO permissionDto = new PermissionDTO();
+            permissionDto.setPermissionId(user.getPermissionId());
+            permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
+            userDto.setPermission(permissionDto);
+
+            return userDto;
+        } else {
+            return null;
+        }
+    }
     private CarInfoDTO GetCarInfoDto(String carId){
         CarInfo carInfo = carInfoRepository.findById(carId).orElse(null);
         if (carInfo != null) {
@@ -134,28 +159,29 @@ public class CarRepairLogMapper {
         }
 
         // Fetch and map Creator User
-        Users user = userRepository.findById(entity.getCreatorUserId()).orElse(null);
-        UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
-        if (user != null) {
-            UserProfileDTO userDto = new UserProfileDTO();
-            userDto.setUserId(user.getId());
-            if(userPass != null)
-                userDto.setUsername(userPass.getUsername()); // چون توی Users نیست
-            userDto.setFirstName(user.getFirstName());
-            userDto.setLastName(user.getLastName());
-            RolesDTO roleDto = new RolesDTO();
-            roleDto.setId(user.getRoleId());
-            roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
-            userDto.setRole(roleDto);
-            PermissionDTO permissionDto = new PermissionDTO();
-            permissionDto.setPermissionId(permissionDto.getPermissionName());
-            permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
-            userDto.setPermission(permissionDto);
-
-            dto.setCreatorUser(userDto);
-        } else {
-            dto.setCreatorUser(null);
-        }
+//        Users user = userRepository.findById(entity.getCreatorUserId()).orElse(null);
+//        UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
+//        if (user != null) {
+//            UserProfileDTO userDto = new UserProfileDTO();
+//            userDto.setUserId(user.getId());
+//            if(userPass != null)
+//                userDto.setUsername(userPass.getUsername()); // چون توی Users نیست
+//            userDto.setFirstName(user.getFirstName());
+//            userDto.setLastName(user.getLastName());
+//            RolesDTO roleDto = new RolesDTO();
+//            roleDto.setId(user.getRoleId());
+//            roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
+//            userDto.setRole(roleDto);
+//            PermissionDTO permissionDto = new PermissionDTO();
+//            permissionDto.setPermissionId(user.getPermissionId());
+//            permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
+//            userDto.setPermission(permissionDto);
+//
+//            dto.setCreatorUser(userDto);
+//        } else {
+//            dto.setCreatorUser(null);
+//        }
+        dto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
 
         // Set description
         dto.setDescription(entity.getDescription());
@@ -186,7 +212,7 @@ public class CarRepairLogMapper {
                 CarProblemReportDTO reportDto = new CarProblemReportDTO();
                 reportDto.setId(report.getId());
                 reportDto.setCarInfo(GetCarInfoDto(report.getCarId()));
-                reportDto.setCreatorUser(null);
+                reportDto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
                 reportDto.setProblemSummary(report.getProblemSummary());
                 reportDto.setDateTime(report.getDateTime());
                 dto.setProblemReport(reportDto);
