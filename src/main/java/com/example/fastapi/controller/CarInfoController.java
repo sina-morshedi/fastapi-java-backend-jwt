@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/cars")  // می‌تونی هر prefix دلخواه بزاری
 public class CarInfoController {
@@ -46,7 +48,7 @@ public class CarInfoController {
     @GetMapping("/getCarInfo/{licensePlate}")
     public ResponseEntity<?> getCarInfoByLicensePlate(@PathVariable String licensePlate) {
         try {
-            CarInfo car = carInfoService.getCarByLicensePlate(licensePlate);
+            Optional<CarInfo> car = carInfoService.getCarByLicensePlate(licensePlate);
             if (car == null) {
                 return ResponseEntity.status(404)
                         .header("Content-Type", "application/json; charset=UTF-8")

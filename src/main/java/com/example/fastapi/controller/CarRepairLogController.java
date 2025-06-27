@@ -1,0 +1,62 @@
+package com.example.fastapi.controller;
+
+import com.example.fastapi.dto.CarRepairLogRequestDTO;
+import com.example.fastapi.dto.CarRepairLogResponseDTO;
+import com.example.fastapi.service.CarRepairLogService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@CrossOrigin(origins = {"http://localhost:xxxx", "https://*.netlify.app"})
+@RestController
+@RequestMapping("/car-repair-log")
+public class CarRepairLogController {
+
+    @Autowired
+    private CarRepairLogService carRepairLogService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<CarRepairLogResponseDTO>> getAllLogs() {
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getAllLogs();
+        return ResponseEntity.ok(logs);
+    }
+
+    // اگر لازم داری متد با پلاک ماشین
+    @GetMapping("/by-license-plate/{licensePlate}")
+    public ResponseEntity<List<CarRepairLogResponseDTO>> getLogsByLicensePlate(@PathVariable String licensePlate) {
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getLogsByLicensePlate(licensePlate);
+        return ResponseEntity.ok(logs);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {
+        CarRepairLogResponseDTO createdLog = carRepairLogService.createLog(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdLog);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateLog(@PathVariable String id, @RequestBody CarRepairLogRequestDTO requestDTO) {
+        Optional<CarRepairLogResponseDTO> updated = carRepairLogService.updateLog(id, requestDTO);
+
+        if (updated.isPresent()) {
+            return ResponseEntity.ok(updated.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Log bulunamadı");
+        }
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteLog(@PathVariable String id) {
+        boolean deleted = carRepairLogService.deleteLog(id);
+        if (deleted) {
+            return ResponseEntity.ok("Log başarıyla silindi");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Log bulunamadı");
+        }
+    }
+}

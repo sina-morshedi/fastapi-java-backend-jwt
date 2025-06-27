@@ -1,6 +1,6 @@
 package com.example.fastapi.service;
 
-
+import java.util.Optional;
 import com.example.fastapi.dboModel.CarInfo;
 import com.example.fastapi.repository.CarInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ public class CarInfoService {
     }
 
 
-    public CarInfo getCarByLicensePlate(String licensePlate) {
+    public Optional<CarInfo> getCarByLicensePlate(String licensePlate) {
         return carInfoRepository.findByLicensePlate(licensePlate);
     }
 

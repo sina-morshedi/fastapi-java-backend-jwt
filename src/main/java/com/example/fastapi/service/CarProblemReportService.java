@@ -66,11 +66,12 @@ public class CarProblemReportService {
     }
 
     public List<CarProblemReport> getReportsByLicensePlate(String licensePlate) {
-        CarInfo carInfo = carInfoRepository.findByLicensePlate(licensePlate);
-        if (carInfo != null) {
-            return reportRepository.findByCarId(carInfo.getId());
+        Optional<CarInfo> carInfo = carInfoRepository.findByLicensePlate(licensePlate);
+        if (carInfo.isPresent()) {
+            return reportRepository.findByCarId(carInfo.get().getId());
         } else {
             return List.of(); // لیست خالی
         }
     }
+
 }

@@ -3,6 +3,8 @@ package com.example.fastapi.repository;
 import com.example.fastapi.dboModel.CarInfo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
+
 
 @Repository
 public interface CarInfoRepository extends MongoRepository<CarInfo, String> {
@@ -15,5 +17,5 @@ public interface CarInfoRepository extends MongoRepository<CarInfo, String> {
     // Retrieve a car by its chassis number
     CarInfo findByChassisNo(String chassisNo);
 
-    CarInfo findByLicensePlate(String licensePlate);
+    Optional<CarInfo> findByLicensePlate(String licensePlate);
 }
