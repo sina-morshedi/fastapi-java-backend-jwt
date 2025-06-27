@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -21,8 +23,9 @@ public class TaskStatusController {
     private TaskStatusService taskStatusService;
 
 
-    @GetMapping("/")
-    public ResponseEntity<Object> getByStatusName(@RequestParam String taskName) {
+    @PostMapping("/getByStatusName")
+    public ResponseEntity<Object> getByStatusName(@RequestBody Map<String, String> requestBody) {
+        String taskName = requestBody.get("taskName");
         Optional<TaskStatusDTO> optionalStatus = taskStatusService.getByTaskStatusName(taskName);
         if (optionalStatus.isPresent()) {
             return ResponseEntity.ok(optionalStatus.get());
