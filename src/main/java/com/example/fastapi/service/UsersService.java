@@ -88,13 +88,9 @@ public class UsersService {
             user.setFirstName(dto.getFirstName());
             user.setLastName(dto.getLastName());
 
-            // ساخت آبجکت Roles و Permissions با داده‌های dto
-            Roles role = new Roles(new ObjectId(dto.getRoleId()), dto.getRoleName());
-            Permissions permission = new Permissions(new ObjectId(dto.getPermissionId()), dto.getPermissionName());
-
-
-            user.setRole(role);
-            user.setPermission(permission);
+            // فقط ذخیره id ها در مدل Users
+            user.setRoleId(dto.getRoleId());
+            user.setPermissionId(dto.getPermissionId());
 
             Users savedUser = usersRepository.save(user);
             if (savedUser == null || savedUser.getId() == null) {
@@ -108,16 +104,16 @@ public class UsersService {
 
             UserPass savedUserPass = userPassRepository.save(userPass);
             if (savedUserPass == null || savedUserPass.getId() == null) {
-                // اگر میخوای rollback بزنی یا لاگ بهتر بزنی اینجا اضافه کن
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();  // بهتره لاگ بهتری بزنی یا لاگ‌ها رو مدیریت کنی
+            logger.error("Error during user registration", e);
             return false;
         }
     }
+
 
 
 
@@ -129,6 +125,7 @@ public class UsersService {
         List<Users> users = usersRepository.findAll();
         List<UserPass> userPasses = userPassRepository.findAll();
 
+        // ساخت مپ userId به username
         Map<String, String> userIdToUsername = userPasses.stream()
                 .collect(Collectors.toMap(UserPass::getUserId, UserPass::getUsername));
 
@@ -137,17 +134,25 @@ public class UsersService {
         for (Users user : users) {
             String username = userIdToUsername.getOrDefault(user.getId(), "Unknown Username");
 
-            Roles role = user.getRole();
-            Permissions permission = user.getPermission();
+            // واکشی رول
+            RolesDTO roleDTO = null;
+            if (user.getRoleId() != null) {
+                Optional<Roles> roleOpt = rolesRepository.findById(new ObjectId(user.getRoleId()));
+                roleDTO = roleOpt.map(role -> new RolesDTO(role.getId(), role.getRoleName()))
+                        .orElse(new RolesDTO(null, "Unknown Role"));
+            } else {
+                roleDTO = new RolesDTO(null, "Unknown Role");
+            }
 
-            String roleId = role != null ? role.getId() : null;
-            String roleName = (role != null && role.getRoleName() != null) ? role.getRoleName() : "Unknown Role";
-
-            String permissionId = permission != null ? permission.getId() : null;
-            String permissionName = (permission != null && permission.getPermissionName() != null) ? permission.getPermissionName() : "Unknown Permission";
-
-            RolesDTO roleDTO = new RolesDTO(roleId, roleName);
-            PermissionDTO permissionDTO = new PermissionDTO(permissionId, permissionName);
+            // واکشی پرمیشن
+            PermissionDTO permissionDTO = null;
+            if (user.getPermissionId() != null) {
+                Optional<Permissions> permissionOpt = permissionsRepository.findById(new ObjectId(user.getPermissionId()));
+                permissionDTO = permissionOpt.map(p -> new PermissionDTO(p.getId(), p.getPermissionName()))
+                        .orElse(new PermissionDTO(null, "Unknown Permission"));
+            } else {
+                permissionDTO = new PermissionDTO(null, "Unknown Permission");
+            }
 
             UserProfileDTO dto = new UserProfileDTO(
                     user.getId(),
@@ -166,6 +171,7 @@ public class UsersService {
 
 
 
+
     public long countAllUser() {
         return userRepository.count();
     }
@@ -177,8 +183,10 @@ public class UsersService {
 
         UserPass userPass = userPassOpt.get();
 
-        // اگر لازم باشه رمز را اینجا هم بررسی کنیم (بسته به منطق برنامه)
-        // اگر چک رمز لازم است، اینجا باید passwordEncoder.matches(password, userPass.getPassword()) بررسی شود.
+        // بررسی رمز عبور
+        if (!passwordEncoder.matches(password, userPass.getPassword())) {
+            return null;
+        }
 
         Optional<Users> userOpt = userRepository.findById(userPass.getUserId());
         if (userOpt.isEmpty()) {
@@ -187,17 +195,24 @@ public class UsersService {
 
         Users user = userOpt.get();
 
-        // مستقیماً از آبجکت های role و permission استفاده می‌کنیم
-        Roles role = user.getRole();
-        Permissions permission = user.getPermission();
+        // واکشی رول و پرمیشن با استفاده از id
+        RolesDTO roleDTO = null;
+        if (user.getRoleId() != null) {
+            Optional<Roles> roleOpt = rolesRepository.findById(new ObjectId(user.getRoleId()));
+            roleDTO = roleOpt.map(role -> new RolesDTO(role.getId(), role.getRoleName()))
+                    .orElse(new RolesDTO(null, "Unknown Role"));
+        } else {
+            roleDTO = new RolesDTO(null, "Unknown Role");
+        }
 
-        RolesDTO roleDTO = (role != null)
-                ? new RolesDTO(role.getId(), role.getRoleName())
-                : new RolesDTO(null, "Unknown");
-
-        PermissionDTO permissionDTO = (permission != null)
-                ? new PermissionDTO(permission.getId(), permission.getPermissionName())
-                : new PermissionDTO(null, "Unknown");
+        PermissionDTO permissionDTO = null;
+        if (user.getPermissionId() != null) {
+            Optional<Permissions> permissionOpt = permissionsRepository.findById(new ObjectId(user.getPermissionId()));
+            permissionDTO = permissionOpt.map(p -> new PermissionDTO(p.getId(), p.getPermissionName()))
+                    .orElse(new PermissionDTO(null, "Unknown Permission"));
+        } else {
+            permissionDTO = new PermissionDTO(null, "Unknown Permission");
+        }
 
         return new UserProfileDTO(
                 user.getId(),
@@ -208,6 +223,7 @@ public class UsersService {
                 permissionDTO
         );
     }
+
 
     public boolean updateUser(String userId, UpdateUserDTO dto) {
         Optional<Users> optionalUser = userRepository.findById(userId);
@@ -225,29 +241,19 @@ public class UsersService {
             user.setLastName(dto.getLastName());
         }
 
-        // Update role if provided
+        // Update roleId if provided
         if (dto.getRoleId() != null && !dto.getRoleId().isEmpty()) {
-            try {
-                ObjectId roleObjectId = new ObjectId(dto.getRoleId());
-                Optional<Roles> optionalRole = rolesRepository.findById(roleObjectId);
-                optionalRole.ifPresent(user::setRole);
-            } catch (IllegalArgumentException e) {
-                logger.warn("Invalid roleId format: {}", dto.getRoleId());
-            }
+            // Optional: بررسی وجود رول در دیتابیس (می‌تونی اضافه کنی)
+            user.setRoleId(dto.getRoleId());
         }
 
-        // Update permission if provided
+        // Update permissionId if provided
         if (dto.getPermissionId() != null && !dto.getPermissionId().isEmpty()) {
-            try {
-                ObjectId permissionObjectId = new ObjectId(dto.getPermissionId());
-                Optional<Permissions> optionalPermission = permissionsRepository.findById(permissionObjectId);
-                optionalPermission.ifPresent(user::setPermission);
-            } catch (IllegalArgumentException e) {
-                logger.warn("Invalid permissionId format: {}", dto.getPermissionId());
-            }
+            // Optional: بررسی وجود permission در دیتابیس (می‌تونی اضافه کنی)
+            user.setPermissionId(dto.getPermissionId());
         }
 
-        // Save user
+        // ذخیره اطلاعات اصلاح شده
         userRepository.save(user);
 
         // Update UserPass (username and optionally password)
@@ -270,6 +276,7 @@ public class UsersService {
 
         return true;
     }
+
 
     public boolean deleteUserById(String userId) {
         try {

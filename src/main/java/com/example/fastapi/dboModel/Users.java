@@ -1,6 +1,5 @@
 package com.example.fastapi.dboModel;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,12 +11,12 @@ public class Users {
     private String firstName;
     private String lastName;
 
-    private Roles role;           // آبجکت نقش
-    private Permissions permission;  // آبجکت دسترسی
+    private String roleId;
+    private String permissionId;
 
     public Users() {}
 
-    // Getter و Setter ها
+    // --- Getters and Setters ---
 
     public String getId() {
         return id;
@@ -43,29 +42,19 @@ public class Users {
         this.lastName = lastName;
     }
 
-    public Roles getRole() {
-        return role;
+    public String getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Roles role) {
-        this.role = role;
+    public void setRoleId(String roleId) {
+        this.roleId = roleId;
     }
 
-    public Permissions getPermission() {
-        return permission;
+    public String getPermissionId() {
+        return permissionId;
     }
 
-    public void setPermission(Permissions permission) {
-        this.permission = permission;
-    }
-
-    // متدهای مربوط به ObjectId سند کاربر (در صورت نیاز)
-
-    public ObjectId getObjectId() {
-        return new ObjectId(this.id);
-    }
-
-    public void setObjectId(ObjectId objectId) {
-        this.id = objectId.toHexString();
+    public void setPermissionId(String permissionId) {
+        this.permissionId = permissionId;
     }
 }
