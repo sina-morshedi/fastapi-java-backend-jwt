@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface PermissionsRepository extends MongoRepository<Permissions, ObjectId> {
 
     Optional<Permissions> findByPermissionName(String permissionName);
+    Optional<Permissions> findByPermissionId(ObjectId id);
 }
