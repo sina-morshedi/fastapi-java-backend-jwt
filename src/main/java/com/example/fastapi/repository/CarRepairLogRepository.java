@@ -10,7 +10,6 @@ import java.util.List;
 public interface CarRepairLogRepository extends MongoRepository<CarRepairLog, String> {
     List<CarRepairLog> findByCarId(String carId);
     List<CarRepairLog> findByCreatorUserId(String creatorUserId);
-    List<CarRepairLog> findByDepartmentId(String departmentId);
     List<CarRepairLog> findByTaskStatusId(String taskStatusId);
     List<CarRepairLog> findByProblemReportId(String problemReportId);
 }
