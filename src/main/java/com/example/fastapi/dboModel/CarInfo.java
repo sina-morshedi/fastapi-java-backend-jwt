@@ -1,6 +1,7 @@
 package com.example.fastapi.dboModel;
 
 import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CarInfo {
 
     @Id
-    @JsonProperty("id")
-    private String id;
+    private ObjectId  id;
 
     private String chassisNo;
     private String motorNo;
@@ -41,11 +41,14 @@ public class CarInfo {
     // Getters and Setters
 
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
+    // Setter تبدیل String به ObjectId
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getChassisNo() {

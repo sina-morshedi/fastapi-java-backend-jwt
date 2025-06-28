@@ -36,6 +36,7 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+
     @PostMapping("/create")
     public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {
         CarRepairLogResponseDTO createdLog = carRepairLogService.createLog(requestDTO);

@@ -89,6 +89,4 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         return results.getUniqueMappedResult();
     }
 
-
-
 }

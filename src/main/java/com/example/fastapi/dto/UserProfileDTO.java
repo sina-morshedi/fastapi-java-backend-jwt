@@ -1,5 +1,9 @@
 package com.example.fastapi.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserProfileDTO {
+
     private String userId;
     private String username;
     private String firstName;

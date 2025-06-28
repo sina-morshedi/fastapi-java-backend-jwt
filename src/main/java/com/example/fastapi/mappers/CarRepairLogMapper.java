@@ -131,100 +131,108 @@ public class CarRepairLogMapper {
         }
         return null;
     }
-    // Convert Entity (DBO) to Response DTO
     public CarRepairLogResponseDTO toResponseDTO(CarRepairLog entity) {
         if (entity == null) return null;
 
         CarRepairLogResponseDTO dto = new CarRepairLogResponseDTO();
         dto.setId(entity.getId());
 
-        // Fetch and map CarInfo
-        CarInfo carInfo = carInfoRepository.findById(entity.getCarId()).orElse(null);
-        if (carInfo != null) {
-//            CarInfoDTO carDto = new CarInfoDTO();
-
-            dto.setCar(GetCarInfoDto(carInfo.getId()));
-//            carDto.setId(carInfo.getId());
-//            carDto.setChassisNo(carInfo.getChassisNo());
-//            carDto.setMotorNo(carInfo.getMotorNo());
-//            carDto.setLicensePlate(carInfo.getLicensePlate());
-//            carDto.setBrand(carInfo.getBrand());
-//            carDto.setBrandModel(carInfo.getBrandModel());
-//            carDto.setModelYear(carInfo.getModelYear());
-//            carDto.setFuelType(carInfo.getFuelType());
-//            carDto.setDateTime(carInfo.getDateTime());
-//            dto.setCar(carDto);
-        } else {
-            dto.setCar(null);
-        }
-
-        // Fetch and map Creator User
-//        Users user = userRepository.findById(entity.getCreatorUserId()).orElse(null);
-//        UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
-//        if (user != null) {
-//            UserProfileDTO userDto = new UserProfileDTO();
-//            userDto.setUserId(user.getId());
-//            if(userPass != null)
-//                userDto.setUsername(userPass.getUsername()); // چون توی Users نیست
-//            userDto.setFirstName(user.getFirstName());
-//            userDto.setLastName(user.getLastName());
-//            RolesDTO roleDto = new RolesDTO();
-//            roleDto.setId(user.getRoleId());
-//            roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
-//            userDto.setRole(roleDto);
-//            PermissionDTO permissionDto = new PermissionDTO();
-//            permissionDto.setPermissionId(user.getPermissionId());
-//            permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
-//            userDto.setPermission(permissionDto);
-//
-//            dto.setCreatorUser(userDto);
-//        } else {
-//            dto.setCreatorUser(null);
-//        }
-        dto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
-
-        // Set description
-        dto.setDescription(entity.getDescription());
-
-        // Fetch and map TaskStatus
-        if (entity.getTaskStatusId() != null) {
-            ObjectId objId = new ObjectId(entity.getTaskStatusId());
-            TaskStatus status = taskStatusRepository.findById(objId).orElse(null);
-            if (status != null) {
-                TaskStatusDTO statusDto = new TaskStatusDTO();
-                statusDto.setId(status.getId());
-                statusDto.setTaskStatusName(status.getTaskStatusName());
-                dto.setTaskStatus(statusDto);
-            } else {
-                dto.setTaskStatus(null);
-            }
-        } else {
-            dto.setTaskStatus(null);
-        }
-
-        // Set DateTime
-        dto.setDateTime(entity.getDateTime());
-
-        // Fetch and map ProblemReport
-        if (entity.getProblemReportId() != null) {
-            CarProblemReport report = carProblemReportRepository.findById(entity.getProblemReportId()).orElse(null);
-            if (report != null) {
-                CarProblemReportDTO reportDto = new CarProblemReportDTO();
-                reportDto.setId(report.getId());
-                reportDto.setCarInfo(GetCarInfoDto(report.getCarId()));
-                reportDto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
-                reportDto.setProblemSummary(report.getProblemSummary());
-                reportDto.setDateTime(report.getDateTime());
-                dto.setProblemReport(reportDto);
-            } else {
-                dto.setProblemReport(null);
-            }
-        } else {
-            dto.setProblemReport(null);
-        }
-
         return dto;
     }
+    // Convert Entity (DBO) to Response DTO
+//    public CarRepairLogResponseDTO toResponseDTO(CarRepairLog entity) {
+//        if (entity == null) return null;
+//
+//        CarRepairLogResponseDTO dto = new CarRepairLogResponseDTO();
+//        dto.setId(entity.getId());
+//
+//        // Fetch and map CarInfo
+//        CarInfo carInfo = carInfoRepository.findById(entity.getCarId()).orElse(null);
+//        if (carInfo != null) {
+////            CarInfoDTO carDto = new CarInfoDTO();
+//
+//            dto.setCar(GetCarInfoDto(carInfo.getId()));
+////            carDto.setId(carInfo.getId());
+////            carDto.setChassisNo(carInfo.getChassisNo());
+////            carDto.setMotorNo(carInfo.getMotorNo());
+////            carDto.setLicensePlate(carInfo.getLicensePlate());
+////            carDto.setBrand(carInfo.getBrand());
+////            carDto.setBrandModel(carInfo.getBrandModel());
+////            carDto.setModelYear(carInfo.getModelYear());
+////            carDto.setFuelType(carInfo.getFuelType());
+////            carDto.setDateTime(carInfo.getDateTime());
+////            dto.setCar(carDto);
+//        } else {
+//            dto.setCar(null);
+//        }
+//
+//        // Fetch and map Creator User
+////        Users user = userRepository.findById(entity.getCreatorUserId()).orElse(null);
+////        UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
+////        if (user != null) {
+////            UserProfileDTO userDto = new UserProfileDTO();
+////            userDto.setUserId(user.getId());
+////            if(userPass != null)
+////                userDto.setUsername(userPass.getUsername()); // چون توی Users نیست
+////            userDto.setFirstName(user.getFirstName());
+////            userDto.setLastName(user.getLastName());
+////            RolesDTO roleDto = new RolesDTO();
+////            roleDto.setId(user.getRoleId());
+////            roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
+////            userDto.setRole(roleDto);
+////            PermissionDTO permissionDto = new PermissionDTO();
+////            permissionDto.setPermissionId(user.getPermissionId());
+////            permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
+////            userDto.setPermission(permissionDto);
+////
+////            dto.setCreatorUser(userDto);
+////        } else {
+////            dto.setCreatorUser(null);
+////        }
+//        dto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
+//
+//        // Set description
+//        dto.setDescription(entity.getDescription());
+//
+//        // Fetch and map TaskStatus
+//        if (entity.getTaskStatusId() != null) {
+//            ObjectId objId = new ObjectId(entity.getTaskStatusId());
+//            TaskStatus status = taskStatusRepository.findById(objId).orElse(null);
+//            if (status != null) {
+//                TaskStatusDTO statusDto = new TaskStatusDTO();
+//                statusDto.setId(status.getId());
+//                statusDto.setTaskStatusName(status.getTaskStatusName());
+//                dto.setTaskStatus(statusDto);
+//            } else {
+//                dto.setTaskStatus(null);
+//            }
+//        } else {
+//            dto.setTaskStatus(null);
+//        }
+//
+//        // Set DateTime
+//        dto.setDateTime(entity.getDateTime());
+//
+//        // Fetch and map ProblemReport
+//        if (entity.getProblemReportId() != null) {
+//            CarProblemReport report = carProblemReportRepository.findById(entity.getProblemReportId()).orElse(null);
+//            if (report != null) {
+//                CarProblemReportDTO reportDto = new CarProblemReportDTO();
+//                reportDto.setId(report.getId());
+//                reportDto.setCarInfo(GetCarInfoDto(report.getCarId()));
+//                reportDto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
+//                reportDto.setProblemSummary(report.getProblemSummary());
+//                reportDto.setDateTime(report.getDateTime());
+//                dto.setProblemReport(reportDto);
+//            } else {
+//                dto.setProblemReport(null);
+//            }
+//        } else {
+//            dto.setProblemReport(null);
+//        }
+//
+//        return dto;
+//    }
 
 
 

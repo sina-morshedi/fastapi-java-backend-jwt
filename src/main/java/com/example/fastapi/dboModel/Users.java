@@ -1,29 +1,32 @@
 package com.example.fastapi.dboModel;
 
 import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
 public class Users {
     @Id
-    private String id;
+    private ObjectId id;
 
     private String firstName;
     private String lastName;
 
-    private String roleId;
-    private String permissionId;
+    private ObjectId roleId;         // تغییر دادیم از String به ObjectId
+    private ObjectId permissionId;   // تغییر دادیم از String به ObjectId
 
     public Users() {}
 
     // --- Getters and Setters ---
 
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getFirstName() {
@@ -43,18 +46,22 @@ public class Users {
     }
 
     public String getRoleId() {
-        return roleId;
+        return roleId != null ? roleId.toHexString() : null;
     }
 
     public void setRoleId(String roleId) {
-        this.roleId = roleId;
+        if (roleId != null && !roleId.isBlank()) {
+            this.roleId = new ObjectId(roleId);
+        }
     }
 
     public String getPermissionId() {
-        return permissionId;
+        return permissionId != null ? permissionId.toHexString() : null;
     }
 
     public void setPermissionId(String permissionId) {
-        this.permissionId = permissionId;
+        if (permissionId != null && !permissionId.isBlank()) {
+            this.permissionId = new ObjectId(permissionId);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.fastapi.dboModel;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -7,25 +8,26 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "userPass")
 public class UserPass {
     @Id
-    private String id;
+    private ObjectId id;
 
     private String username;
-
     private String password;
 
     @Field("user_id")
-    private String userId;  // تغییر نام به userId با @Field مپ شده به user_id
+    private ObjectId userId;  // ✅ تغییر به ObjectId
 
     public UserPass() {}
 
     // Getters and Setters
 
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getUsername() {
@@ -45,10 +47,12 @@ public class UserPass {
     }
 
     public String getUserId() {
-        return userId;
+        return userId != null ? userId.toHexString() : null;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        if (userId != null && !userId.isBlank()) {
+            this.userId = new ObjectId(userId);
+        }
     }
 }

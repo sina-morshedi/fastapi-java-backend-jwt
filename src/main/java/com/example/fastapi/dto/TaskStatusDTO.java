@@ -1,5 +1,7 @@
 package com.example.fastapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TaskStatusDTO {
 
     private String id;

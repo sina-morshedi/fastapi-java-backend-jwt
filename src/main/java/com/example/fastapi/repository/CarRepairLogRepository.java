@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CarRepairLogRepository extends MongoRepository<CarRepairLog, String> {
+public interface CarRepairLogRepository extends MongoRepository<CarRepairLog, String>, CarRepairLogCustomRepository{
     List<CarRepairLog> findByCarId(String carId);
     List<CarRepairLog> findByCreatorUserId(String creatorUserId);
     List<CarRepairLog> findByTaskStatusId(String taskStatusId);
     List<CarRepairLog> findByProblemReportId(String problemReportId);
+
+
 }

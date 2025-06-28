@@ -5,45 +5,50 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Document(collection = "carProblemReport")
 public class CarProblemReport {
 
     @Id
-    private String id;
+    private ObjectId id;
 
-    private String carId;
-    private String creatorUserId;
+    private ObjectId carId;           // ✅ تبدیل به ObjectId
+    private ObjectId creatorUserId;   // ✅ تبدیل به ObjectId
     private String problemSummary;
-    private LocalDateTime dateTime;  // اینجا تاریخ و زمان ذخیره می‌شود
+    private LocalDateTime dateTime;
 
     public CarProblemReport() {}
 
-    // Getters و Setters
+    // --- Getters and Setters ---
 
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getCarId() {
-        return carId;
+        return carId != null ? carId.toHexString() : null;
     }
 
     public void setCarId(String carId) {
-        this.carId = carId;
+        if (carId != null && !carId.isBlank()) {
+            this.carId = new ObjectId(carId);
+        }
     }
 
     public String getCreatorUserId() {
-        return creatorUserId;
+        return creatorUserId != null ? creatorUserId.toHexString() : null;
     }
 
     public void setCreatorUserId(String creatorUserId) {
-        this.creatorUserId = creatorUserId;
+        if (creatorUserId != null && !creatorUserId.isBlank()) {
+            this.creatorUserId = new ObjectId(creatorUserId);
+        }
     }
 
     public String getProblemSummary() {

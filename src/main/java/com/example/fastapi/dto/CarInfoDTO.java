@@ -1,8 +1,11 @@
 package com.example.fastapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class CarInfoDTO {
+
     private String id;
     private String chassisNo;
     private String motorNo;

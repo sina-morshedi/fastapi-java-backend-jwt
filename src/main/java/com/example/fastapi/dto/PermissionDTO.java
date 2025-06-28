@@ -3,7 +3,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class PermissionDTO {
-    @JsonProperty("_id")
+
     private String id;
     private String permissionName;
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RolesDTO {
 
-    @JsonProperty("_id")
     private String id;
     private String roleName;
 

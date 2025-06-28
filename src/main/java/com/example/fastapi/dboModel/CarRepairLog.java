@@ -1,6 +1,7 @@
 package com.example.fastapi.dboModel;
 
 import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
@@ -8,43 +9,48 @@ import java.util.Date;
 public class CarRepairLog {
 
     @Id
-    private String id;
+    private ObjectId id;
 
-    private String carId;
-    private String creatorUserId;
+    private ObjectId carId;              // ✅ تغییر به ObjectId
+    private ObjectId creatorUserId;      // ✅ تغییر به ObjectId
     private String description;
-    private String taskStatusId;
+    private ObjectId taskStatusId;       // ✅ تغییر به ObjectId
     private Date dateTime;
-    private String problemReportId;
+    private ObjectId problemReportId;    // ✅ تغییر به ObjectId
 
     public CarRepairLog() {}
 
-    // Getters and Setters
+    // --- Getters and Setters ---
 
     public String getId() {
-        return id;
+        return id != null ? id.toHexString() : null;
     }
 
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isBlank()) {
+            this.id = new ObjectId(id);
+        }
     }
 
     public String getCarId() {
-        return carId;
+        return carId != null ? carId.toHexString() : null;
     }
 
     public void setCarId(String carId) {
-        this.carId = carId;
+        if (carId != null && !carId.isBlank()) {
+            this.carId = new ObjectId(carId);
+        }
     }
 
     public String getCreatorUserId() {
-        return creatorUserId;
+        return creatorUserId != null ? creatorUserId.toHexString() : null;
     }
 
     public void setCreatorUserId(String creatorUserId) {
-        this.creatorUserId = creatorUserId;
+        if (creatorUserId != null && !creatorUserId.isBlank()) {
+            this.creatorUserId = new ObjectId(creatorUserId);
+        }
     }
-
 
     public String getDescription() {
         return description;
@@ -55,11 +61,13 @@ public class CarRepairLog {
     }
 
     public String getTaskStatusId() {
-        return taskStatusId;
+        return taskStatusId != null ? taskStatusId.toHexString() : null;
     }
 
     public void setTaskStatusId(String taskStatusId) {
-        this.taskStatusId = taskStatusId;
+        if (taskStatusId != null && !taskStatusId.isBlank()) {
+            this.taskStatusId = new ObjectId(taskStatusId);
+        }
     }
 
     public Date getDateTime() {
@@ -71,12 +79,12 @@ public class CarRepairLog {
     }
 
     public String getProblemReportId() {
-        return problemReportId;
+        return problemReportId != null ? problemReportId.toHexString() : null;
     }
 
     public void setProblemReportId(String problemReportId) {
-        this.problemReportId = problemReportId;
+        if (problemReportId != null && !problemReportId.isBlank()) {
+            this.problemReportId = new ObjectId(problemReportId);
+        }
     }
-
-
 }
