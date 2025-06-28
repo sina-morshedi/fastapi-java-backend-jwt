@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class CarRepairLogResponseDTO {
     private String id;
-    private CarInfoDTO car;
+    private CarInfoDTO carInfo;
     private UserProfileDTO creatorUser;
     private String description;                      // nullable
     private TaskStatusDTO taskStatus;                // nullable
@@ -13,12 +13,12 @@ public class CarRepairLogResponseDTO {
 
     public CarRepairLogResponseDTO() {}
 
-    public CarRepairLogResponseDTO(String id, CarInfoDTO car, UserProfileDTO creatorUser,
+    public CarRepairLogResponseDTO(String id, CarInfoDTO carInfo, UserProfileDTO creatorUser,
                                    String description,
                                    TaskStatusDTO taskStatus, Date dateTime,
                                    CarProblemReportDTO problemReport) {
         this.id = id;
-        this.car = car;
+        this.carInfo = carInfo;
         this.creatorUser = creatorUser;
         this.description = description;
         this.taskStatus = taskStatus;
@@ -36,12 +36,12 @@ public class CarRepairLogResponseDTO {
         this.id = id;
     }
 
-    public CarInfoDTO getCar() {
-        return car;
+    public CarInfoDTO getCarInfo() {
+        return carInfo;
     }
 
-    public void setCar(CarInfoDTO car) {
-        this.car = car;
+    public void setCarInfo(CarInfoDTO carInfo) {
+        this.carInfo = carInfo;
     }
 
     public UserProfileDTO getCreatorUser() {

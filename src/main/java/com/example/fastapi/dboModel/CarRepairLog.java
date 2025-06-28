@@ -11,12 +11,12 @@ public class CarRepairLog {
     @Id
     private ObjectId id;
 
-    private ObjectId carId;              // ✅ تغییر به ObjectId
-    private ObjectId creatorUserId;      // ✅ تغییر به ObjectId
+    private ObjectId carId;
+    private ObjectId creatorUserId;
     private String description;
-    private ObjectId taskStatusId;       // ✅ تغییر به ObjectId
+    private ObjectId taskStatusId;
     private Date dateTime;
-    private ObjectId problemReportId;    // ✅ تغییر به ObjectId
+    private ObjectId problemReportId;
 
     public CarRepairLog() {}
 
@@ -82,9 +82,10 @@ public class CarRepairLog {
         return problemReportId != null ? problemReportId.toHexString() : null;
     }
 
-    public void setProblemReportId(String problemReportId) {
-        if (problemReportId != null && !problemReportId.isBlank()) {
-            this.problemReportId = new ObjectId(problemReportId);
+    public void setProblemReportId(String id) {
+        if (id != null && !id.isBlank()) {
+            this.problemReportId = new ObjectId(id);
         }
     }
+
 }

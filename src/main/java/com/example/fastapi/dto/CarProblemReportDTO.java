@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 
 public class CarProblemReportDTO {
 
-    private String id;
+    @JsonProperty("id")
+    private String id = "";  // مقدار پیش‌فرض خالی
+
     private CarInfoDTO carInfo;
     private UserProfileDTO creatorUser;
     private String problemSummary;
@@ -27,7 +29,7 @@ public class CarProblemReportDTO {
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.id = (id != null) ? id : "";
     }
 
     public CarInfoDTO getCarInfo() {

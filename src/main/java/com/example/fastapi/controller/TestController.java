@@ -31,7 +31,7 @@ public class TestController {
 
     @GetMapping("/test")
     public ResponseEntity<?> usersTest(@RequestParam String id) {
-        CarRepairLogResponseDTO data = testService.testService(id);
+        List<CarRepairLogResponseDTO> data = testService.testService(id);
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(data);
