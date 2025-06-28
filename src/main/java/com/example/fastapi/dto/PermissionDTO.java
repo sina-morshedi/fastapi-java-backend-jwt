@@ -1,6 +1,9 @@
 package com.example.fastapi.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class PermissionDTO {
+    @JsonProperty("_id")
     private String id;
     private String permissionName;
 
@@ -11,9 +14,18 @@ public class PermissionDTO {
         this.permissionName = permissionName;
     }
 
-    public String getPermissionId() { return id; }
-    public void setPermissionId(String permissionId) { this.id = permissionId; }
+    public String getId() { return id; }
+    public void setId(String permissionId) { this.id = permissionId; }
 
     public String getPermissionName() { return permissionName; }
     public void setPermissionName(String permissionName) { this.permissionName = permissionName; }
+
+    @Override
+    public String toString() {
+        return "PermissionDTO{" +
+                "id='" + id + '\'' +
+                ", permissionName='" + permissionName + '\'' +
+                '}';
+    }
+
 }

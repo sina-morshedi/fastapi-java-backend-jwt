@@ -22,105 +22,73 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
 
     @Override
-    public  UserProfileDTO findUserProfileByUserId(String userId) {
+    public UserProfileDTO findUserProfileByUserId(String userId) {
+        AggregationOperation matchUserPass = context -> new Document("$match",
+                new Document("user_id", userId));
 
-        MatchOperation matchUserPass = Aggregation.match(Criteria.where("user_id").is(userId));
-
+        AggregationOperation addUserIdObject = context -> new Document("$addFields",
+                new Document("userIdObject", new Document("$toObjectId", "$user_id")));
 
         LookupOperation lookupUsers = LookupOperation.newLookup()
                 .from("users")
-                .localField("user_id")
+                .localField("userIdObject")
                 .foreignField("_id")
                 .as("user");
 
-
         UnwindOperation unwindUser = Aggregation.unwind("user", true);
 
+        AggregationOperation addRoleAndPermissionObjectIds = context -> new Document("$addFields", new Document()
+                .append("roleIdObject", new Document("$toObjectId", "$user.roleId"))
+                .append("permissionIdObject", new Document("$toObjectId", "$user.permissionId"))
+        );
 
-        AggregationOperation addRoleObjectId = context -> new Document("$addFields",
-                new Document("user.roleObjectId", new Document("$toObjectId", "$user.roleId")));
-
-        AggregationOperation addPermissionObjectId = context -> new Document("$addFields",
-                new Document("user.permissionObjectId", new Document("$toObjectId", "$user.permissionId")));
-
-
-        LookupOperation lookupRole = LookupOperation.newLookup()
+        LookupOperation lookupRoles = LookupOperation.newLookup()
                 .from("roles")
-                .localField("user.roleObjectId")
+                .localField("roleIdObject")
                 .foreignField("_id")
                 .as("role");
 
         UnwindOperation unwindRole = Aggregation.unwind("role", true);
 
-        // lookup برای permissions بر اساس permissionObjectId جدید
-        LookupOperation lookupPermission = LookupOperation.newLookup()
+        LookupOperation lookupPermissions = LookupOperation.newLookup()
                 .from("permissions")
-                .localField("user.permissionObjectId")
+                .localField("permissionIdObject")
                 .foreignField("_id")
                 .as("permission");
 
         UnwindOperation unwindPermission = Aggregation.unwind("permission", true);
 
         ProjectionOperation project = Aggregation.project()
-                .andExpression("user_id").as("userId")
-                .and("username").as("username")
+                .andExpression("user._id").as("userId")
+                .andExpression("username").as("username")
                 .and("user.firstName").as("firstName")
                 .and("user.lastName").as("lastName")
-                .and("role._id").as("roleId")
-                .and("role.roleName").as("roleName")
-                .and("permission._id").as("permissionId")
-                .and("permission.permissionName").as("permissionName");
-
-
+                .and("role").as("role")
+                .and("permission").as("permission");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchUserPass,
+                addUserIdObject,
                 lookupUsers,
                 unwindUser,
-                addRoleObjectId,
-                addPermissionObjectId,
-                lookupRole,
+                addRoleAndPermissionObjectIds,
+                lookupRoles,
                 unwindRole,
-                lookupPermission,
+                lookupPermissions,
                 unwindPermission,
                 project
         );
 
-        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "userPass", Document.class);
-        List<Document> mappedResults = results.getMappedResults();
+        AggregationResults<UserProfileDTO> results = mongoTemplate.aggregate(
+                aggregation,
+                "userPass",
+                UserProfileDTO.class
+        );
+        System.out.println(results.getMappedResults());
 
-        if (mappedResults.isEmpty()) {
-            return null;
-        }
-
-        Document doc = mappedResults.get(0);
-
-        UserProfileDTO dto = new UserProfileDTO();
-        dto.setUserId(doc.getString("userId"));
-        dto.setUsername(doc.getString("username"));
-        dto.setFirstName(doc.getString("firstName"));
-        dto.setLastName(doc.getString("lastName"));
-
-        String roleId = doc.getString("roleId");
-        String roleName = doc.getString("roleName");
-        if (roleId != null || roleName != null) {
-            RolesDTO role = new RolesDTO();
-            role.setId(roleId);
-            role.setRoleName(roleName);
-            dto.setRole(role);
-        }
-
-        String permissionId = doc.getString("permissionId");
-        String permissionName = doc.getString("permissionName");
-        if (permissionId != null || permissionName != null) {
-            PermissionDTO permission = new PermissionDTO();
-            permission.setPermissionId(permissionId);
-            permission.setPermissionName(permissionName);
-            dto.setPermission(permission);
-        }
-
-
-
-        return dto;
+        return results.getUniqueMappedResult();
     }
+
+
+
 }

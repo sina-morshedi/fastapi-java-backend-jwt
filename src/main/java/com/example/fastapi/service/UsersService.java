@@ -50,17 +50,19 @@ public class UsersService {
             UsersRepository userRepository,
             UserPassRepository userPassRepository,
             PermissionsRepository permissionsRepository,
-            RolesRepository rolesRepository
+            RolesRepository rolesRepository,
+            UserCustomRepositoryImpl userCustomRepositoryImpl
     ) {
         this.userRepository = userRepository;
         this.userPassRepository = userPassRepository;
         this.permissionsRepository = permissionsRepository;
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.userCustomRepositoryImpl = userCustomRepositoryImpl;
     }
 
     public UserProfileDTO getUserProfileById(String userId) {
-        return usersRepository.findUserProfileByUserId(userId);
+        return userCustomRepositoryImpl.findUserProfileByUserId(userId);
     }
 
     public boolean userLogin(String username, String password) {

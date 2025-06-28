@@ -74,7 +74,7 @@ public class CarRepairLogMapper {
         Permissions permission = permissionsRepository.findById(objId).orElse(null);
 
         PermissionDTO pDto = new PermissionDTO();
-        pDto.setPermissionId(permission.getId());
+        pDto.setId(permission.getId());
         pDto.setPermissionName(permission.getPermissionName());
         return pDto;
     }
@@ -105,7 +105,7 @@ public class CarRepairLogMapper {
             roleDto.setRoleName(GetRolesDto(user.getRoleId()).getRoleName());
             userDto.setRole(roleDto);
             PermissionDTO permissionDto = new PermissionDTO();
-            permissionDto.setPermissionId(user.getPermissionId());
+            permissionDto.setId(user.getPermissionId());
             permissionDto.setPermissionName(GetPermisionsDto(user.getPermissionId()).getPermissionName());
             userDto.setPermission(permissionDto);
 

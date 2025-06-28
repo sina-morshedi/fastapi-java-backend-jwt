@@ -37,5 +37,17 @@ public class UserProfileDTO {
 
     public PermissionDTO getPermission() { return permission; }
     public void setPermission(PermissionDTO permission) { this.permission = permission; }
+
+    @Override
+    public String toString() {
+        return "UserProfileDTO{" +
+                "userId='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", role=" + role +
+                ", permission=" + permission +
+                '}';
+    }
 }
 

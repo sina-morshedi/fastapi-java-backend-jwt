@@ -1,7 +1,10 @@
 package com.example.fastapi.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class RolesDTO {
 
+    @JsonProperty("_id")
     private String id;
     private String roleName;
 
@@ -27,4 +30,13 @@ public class RolesDTO {
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
+
+    @Override
+    public String toString() {
+        return "RolesDTO{" +
+                "id='" + id + '\'' +
+                ", roleName='" + roleName + '\'' +
+                '}';
+    }
+
 }
