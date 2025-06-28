@@ -93,7 +93,7 @@ public class CarRepairLogMapper {
         Users user = userRepository.findById(userid).orElse(null);
 
         if (user != null) {
-            UserPass userPass = userPassRepository.findByUserId(user.getId()).orElse(null);
+            UserPass userPass = userPassRepository.findByUserId(new ObjectId(user.getId())).orElse(null);
             UserProfileDTO userDto = new UserProfileDTO();
             userDto.setUserId(user.getId());
             if(userPass != null)

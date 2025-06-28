@@ -265,7 +265,7 @@ public class UsersService {
         userRepository.save(user);
 
         // Update UserPass (username and optionally password)
-        Optional<UserPass> optionalUserPass = userPassRepository.findByUserId(userId);
+        Optional<UserPass> optionalUserPass = userPassRepository.findByUserId(new ObjectId(userId));
         if (!optionalUserPass.isPresent()) {
             logger.warn("UserPass not found for userId: {}", userId);
             return false;
@@ -293,7 +293,7 @@ public class UsersService {
                 return false;
             }
 
-            Optional<UserPass> userPass = userPassRepository.findByUserId(userId);
+            Optional<UserPass> userPass = userPassRepository.findByUserId(new ObjectId(userId));
 
             usersRepository.deleteById(userId);
 

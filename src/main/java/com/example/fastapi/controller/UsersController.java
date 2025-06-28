@@ -31,13 +31,6 @@ public class UsersController {
     private UsersService userService;
     private UserPass userPass;
 
-    @GetMapping("/test")
-    public ResponseEntity<?> usersTest(@RequestParam String userId) {
-        UserProfileDTO userProfiles = userService.getUserProfileById(userId);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(userProfiles);
-    }
 
     @GetMapping("/")
     public Optional<Users> getByName(@RequestParam String firstName) {
