@@ -8,6 +8,7 @@ import com.example.fastapi.repository.PermissionsRepository;
 import com.example.fastapi.repository.RolesRepository;
 import com.example.fastapi.repository.UserPassRepository;
 import com.example.fastapi.repository.UsersRepository;
+import com.example.fastapi.repository.UserCustomRepositoryImpl;
 import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.dto.RolesDTO;
 import com.example.fastapi.dto.PermissionDTO;
@@ -42,6 +43,7 @@ public class UsersService {
     private final BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private UsersRepository usersRepository;
+    private UserCustomRepositoryImpl userCustomRepositoryImpl;
 
 
     public UsersService(
@@ -55,6 +57,10 @@ public class UsersService {
         this.permissionsRepository = permissionsRepository;
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+    public UserProfileDTO getUserProfileById(String userId) {
+        return usersRepository.findUserProfileByUserId(userId);
     }
 
     public boolean userLogin(String username, String password) {

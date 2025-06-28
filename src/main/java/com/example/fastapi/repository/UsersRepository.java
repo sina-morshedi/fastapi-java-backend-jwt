@@ -16,6 +16,3 @@ public interface UsersRepository extends MongoRepository<Users, String>, UserCus
     long count();
 }
 
-interface UserCustomRepository {
-    List<UserProfileDTO> findUsersWithRolesAndPermissions();
-}

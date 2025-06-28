@@ -22,10 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-
-
-
-
 @CrossOrigin(origins = {"http://localhost:xxxx","https://*.netlify.app"})
 @RestController
 @RequestMapping("/users")
@@ -34,6 +30,14 @@ public class UsersController {
     @Autowired
     private UsersService userService;
     private UserPass userPass;
+
+//    @GetMapping("/test")
+//    public ResponseEntity<?> usersTest(@RequestParam String userId) {
+//        UserProfileDTO userProfiles = userService.getUserProfileById(userId);
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json; charset=UTF-8")
+//                .body(userProfiles);
+//    }
 
     @GetMapping("/")
     public Optional<Users> getByName(@RequestParam String firstName) {
