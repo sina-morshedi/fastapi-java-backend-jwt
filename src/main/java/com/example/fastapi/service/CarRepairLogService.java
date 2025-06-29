@@ -43,8 +43,9 @@ public class CarRepairLogService {
 
     public CarRepairLogResponseDTO createLog(CarRepairLogRequestDTO requestDTO) {
         CarRepairLog entity = carRepairLogMapper.toEntity(requestDTO);
-        CarRepairLogResponseDTO saved = carRepairLogCustomRepositoryImpl.findCarRepairLogById(entity.getId());
-        return saved;
+        CarRepairLog saved = carRepairLogRepository.save(entity);
+        CarRepairLogResponseDTO responseDTO = carRepairLogCustomRepositoryImpl.findCarRepairLogById(saved.getId());
+        return responseDTO;
     }
 
     public List<CarRepairLogResponseDTO> getAllLogs() {
