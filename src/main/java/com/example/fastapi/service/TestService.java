@@ -29,8 +29,9 @@ public class TestService {
         this.carRepairLogCustomRepositoryImpl = carRepairLogCustomRepositoryImpl;
     }
 
-    public List<CarRepairLogResponseDTO> testService(String id)
+    public List<CarRepairLogResponseDTO> testService(String request)
     {
-        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByLicensePlate(id);
+
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskStatusName(request);
     }
 }

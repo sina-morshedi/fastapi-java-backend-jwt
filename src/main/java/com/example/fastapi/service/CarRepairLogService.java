@@ -5,6 +5,7 @@ import com.example.fastapi.dto.CarRepairLogResponseDTO;
 import com.example.fastapi.dto.CarRepairLogRequestDTO;
 import com.example.fastapi.dboModel.CarRepairLog;
 import com.example.fastapi.repository.CarRepairLogRepository;
+import com.example.fastapi.repository.CarRepairLogCustomRepositoryImpl;
 import com.example.fastapi.repository.CarInfoRepository;
 import com.example.fastapi.dboModel.CarInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,24 +29,18 @@ public class CarRepairLogService {
 
     @Autowired
     private CarRepairLogMapper carRepairLogMapper;
+    @Autowired
+    private CarRepairLogCustomRepositoryImpl carRepairLogCustomRepositoryImpl;
+
 
     public List<CarRepairLogResponseDTO> getLogsByLicensePlate(String licensePlate) {
-        Optional<CarInfo> carInfoOpt = carInfoRepository.findByLicensePlate(licensePlate);
-        if (carInfoOpt.isPresent()) {
-            String carId = carInfoOpt.get().getId();
-            List<CarRepairLog> logs = carRepairLogRepository.findByCarId(carId);
-            return logs.stream()
-                    .map(carRepairLogMapper::toResponseDTO)
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByLicensePlate(licensePlate);
     }
 
     public CarRepairLogResponseDTO createLog(CarRepairLogRequestDTO requestDTO) {
         CarRepairLog entity = carRepairLogMapper.toEntity(requestDTO);
-        CarRepairLog saved = carRepairLogRepository.save(entity);
-        return carRepairLogMapper.toResponseDTO(saved);
+        CarRepairLogResponseDTO saved = carRepairLogCustomRepositoryImpl.findCarRepairLogById(entity.getId());
+        return saved;
     }
 
     public List<CarRepairLogResponseDTO> getAllLogs() {

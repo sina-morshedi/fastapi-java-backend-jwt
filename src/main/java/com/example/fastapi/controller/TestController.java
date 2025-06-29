@@ -37,5 +37,13 @@ public class TestController {
                 .body(data);
     }
 
+    @PostMapping("/status")
+    public ResponseEntity<?> usersFindeByStatus(@RequestBody String request) {
+        List<CarRepairLogResponseDTO> data = testService.testService(request);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(data);
+    }
+
 }
 
