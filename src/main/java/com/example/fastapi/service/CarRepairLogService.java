@@ -37,6 +37,10 @@ public class CarRepairLogService {
         return carRepairLogCustomRepositoryImpl.findCarRepairLogsByLicensePlate(licensePlate);
     }
 
+    public List<CarRepairLogResponseDTO> getLogsByTaskStatusName(String taskStatusName) {
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskStatusName(taskStatusName);
+    }
+
     public CarRepairLogResponseDTO createLog(CarRepairLogRequestDTO requestDTO) {
         CarRepairLog entity = carRepairLogMapper.toEntity(requestDTO);
         CarRepairLogResponseDTO saved = carRepairLogCustomRepositoryImpl.findCarRepairLogById(entity.getId());

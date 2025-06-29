@@ -36,6 +36,14 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+    @PostMapping("/task-status-name")
+    public ResponseEntity<?> usersFindeByTaskStatusName(@RequestBody String taskStatusName) {
+        List<CarRepairLogResponseDTO> data = carRepairLogService.getLogsByTaskStatusName(taskStatusName);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(data);
+    }
+
 
     @PostMapping("/create")
     public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {
