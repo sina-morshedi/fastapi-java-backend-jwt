@@ -36,6 +36,14 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+    @GetMapping("/latest-by-license-plate/{licensePlate}")
+    public ResponseEntity<CarRepairLogResponseDTO> getLatestLogsByLicensePlate(@PathVariable String licensePlate) {
+        CarRepairLogResponseDTO logs = carRepairLogService.getLatestLogsByLicensePlate(licensePlate);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
     @PostMapping("/task-status-name")
     public ResponseEntity<?> getLogsByTaskStatusName(@RequestBody String taskStatusName) {
         List<CarRepairLogResponseDTO> data = carRepairLogService.getLogsByTaskStatusName(taskStatusName);
