@@ -49,20 +49,21 @@ public class CarInfoController {
     public ResponseEntity<?> getCarInfoByLicensePlate(@PathVariable String licensePlate) {
         try {
             Optional<CarInfo> car = carInfoService.getCarByLicensePlate(licensePlate);
-            if (car == null) {
+            if (!car.isPresent()) {
                 return ResponseEntity.status(404)
                         .header("Content-Type", "application/json; charset=UTF-8")
                         .body(new ApiResponse("error", "Araç bulunamadı"));
             }
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(car);
+                    .body(car.get());
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(new ApiResponse("error", "Sunucu iç hatası"));
         }
     }
+
 
     @PutMapping("/updateCarInfo/{licensePlate}")
     public ResponseEntity<?> updateCarInfoByLicensePlate(@PathVariable String licensePlate, @RequestBody CarInfo updatedCar) {
