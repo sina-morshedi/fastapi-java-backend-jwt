@@ -50,6 +50,28 @@ public class CarRepairLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(log);
     }
+    @PostMapping("/latest-by-task-status-name")
+    public ResponseEntity<?> getLatestLogsByTaskName(@RequestBody String taskStatusName) {
+
+        if (taskStatusName == null || taskStatusName.trim().isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("son görev durum adı bulunamadı.");
+        }
+
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestLogsByTaskStatusName(taskStatusName);
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Görev durum adı için onarım kaydı bulunamadı: " + taskStatusName);
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
 
     @PostMapping("/task-status-name")
     public ResponseEntity<?> getLogsByTaskStatusName(@RequestBody String taskStatusName) {

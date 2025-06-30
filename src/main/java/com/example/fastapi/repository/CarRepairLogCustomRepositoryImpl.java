@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 
 
+
 import com.example.fastapi.dto.CarRepairLogResponseDTO;
 import java.util.List;
 
@@ -667,6 +668,173 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
+
+    public List<CarRepairLogResponseDTO> findLatestCarRepairLogsByTaskStatusName(String taskStatusName) {
+
+        // Step 1: sort descending by dateTime
+        SortOperation sortByDateTimeDesc = Aggregation.sort(Sort.by(Sort.Direction.DESC, "dateTime"));
+
+        // Step 2: group by carId to keep only latest log
+        GroupOperation groupByCarId = Aggregation.group("carId")
+                .first(Aggregation.ROOT).as("latestLog");
+
+        // Step 3: unwrap latestLog to root
+        ReplaceRootOperation replaceWithLatestLog = Aggregation.replaceRoot("latestLog");
+
+        // Step 4: taskStatus lookup and match
+        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
+                .from("taskStatus")
+                .localField("taskStatusId")
+                .foreignField("_id")
+                .as("taskStatus");
+        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+        MatchOperation matchTaskStatusName = Aggregation.match(
+                Criteria.where("taskStatus.taskStatusName").is(taskStatusName)
+        );
+
+        // Step 5: carInfo lookup
+        LookupOperation lookupCarInfo = LookupOperation.newLookup()
+                .from("carInfo")
+                .localField("carId")
+                .foreignField("_id")
+                .as("carInfo");
+        UnwindOperation unwindCarInfo = Aggregation.unwind("carInfo", true);
+
+        // Step 6: creatorUser lookup + role/permission
+        LookupOperation lookupCreatorUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("creatorUserId")
+                .foreignField("_id")
+                .as("creatorUser");
+        UnwindOperation unwindCreatorUser = Aggregation.unwind("creatorUser", true);
+
+        AggregationOperation addCreatorUserFields = context -> new Document("$addFields",
+                new Document("creatorUser.roleIdObject", new Document("$toObjectId", "$creatorUser.roleId"))
+                        .append("creatorUser.permissionIdObject", new Document("$toObjectId", "$creatorUser.permissionId"))
+        );
+
+        LookupOperation lookupRole = LookupOperation.newLookup()
+                .from("roles")
+                .localField("creatorUser.roleIdObject")
+                .foreignField("_id")
+                .as("creatorUser.role");
+        UnwindOperation unwindRole = Aggregation.unwind("creatorUser.role", true);
+
+        LookupOperation lookupPermission = LookupOperation.newLookup()
+                .from("permissions")
+                .localField("creatorUser.permissionIdObject")
+                .foreignField("_id")
+                .as("creatorUser.permission");
+        UnwindOperation unwindPermission = Aggregation.unwind("creatorUser.permission", true);
+
+        // Step 7: problemReport lookup
+        LookupOperation lookupProblemReport = LookupOperation.newLookup()
+                .from("carProblemReport")
+                .localField("problemReportId")
+                .foreignField("_id")
+                .as("problemReport");
+        UnwindOperation unwindProblemReport = Aggregation.unwind("problemReport", true);
+
+        AggregationOperation addProblemReportFields = context -> new Document("$addFields",
+                new Document("problemReport.carIdObject", new Document("$toObjectId", "$problemReport.carId"))
+                        .append("problemReport.creatorUserIdObject", new Document("$toObjectId", "$problemReport.creatorUserId"))
+        );
+
+        LookupOperation lookupProblemReportCar = LookupOperation.newLookup()
+                .from("carInfo")
+                .localField("problemReport.carIdObject")
+                .foreignField("_id")
+                .as("problemReport.carInfo");
+        UnwindOperation unwindProblemReportCar = Aggregation.unwind("problemReport.carInfo", true);
+
+        LookupOperation lookupProblemReportCreatorUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("problemReport.creatorUserIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser");
+        UnwindOperation unwindProblemReportCreatorUser = Aggregation.unwind("problemReport.creatorUser", true);
+
+        AggregationOperation addProblemReportCreatorUserFields = context -> new Document("$addFields",
+                new Document("problemReport.creatorUser.roleIdObject", new Document("$toObjectId", "$problemReport.creatorUser.roleId"))
+                        .append("problemReport.creatorUser.permissionIdObject", new Document("$toObjectId", "$problemReport.creatorUser.permissionId"))
+        );
+
+        LookupOperation lookupProblemReportCreatorUserRole = LookupOperation.newLookup()
+                .from("roles")
+                .localField("problemReport.creatorUser.roleIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser.role");
+        UnwindOperation unwindProblemReportCreatorUserRole = Aggregation.unwind("problemReport.creatorUser.role", true);
+
+        LookupOperation lookupProblemReportCreatorUserPermission = LookupOperation.newLookup()
+                .from("permissions")
+                .localField("problemReport.creatorUser.permissionIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser.permission");
+        UnwindOperation unwindProblemReportCreatorUserPermission = Aggregation.unwind("problemReport.creatorUser.permission", true);
+
+        AggregationOperation convertProblemReportCreatorUserIdToString = context -> new Document("$addFields",
+                new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
+        );
+
+        // Step 8: project output
+        ProjectionOperation project = Aggregation.project()
+                .and("_id").as("id")
+                .and("carInfo").as("carInfo")
+                .and("creatorUser._id").as("creatorUser.userId")
+                .and("creatorUser.username").as("creatorUser.username")
+                .and("creatorUser.firstName").as("creatorUser.firstName")
+                .and("creatorUser.lastName").as("creatorUser.lastName")
+                .and("creatorUser.role").as("creatorUser.role")
+                .and("creatorUser.permission").as("creatorUser.permission")
+                .and("description").as("description")
+                .and("taskStatus").as("taskStatus")
+                .and("dateTime").as("dateTime")
+                .and("problemReport").as("problemReport");
+
+        // Aggregation pipeline execution
+        Aggregation aggregation = Aggregation.newAggregation(
+                sortByDateTimeDesc,
+                groupByCarId,
+                replaceWithLatestLog,
+                lookupTaskStatus,
+                unwindTaskStatus,
+                matchTaskStatusName,
+                lookupCarInfo,
+                unwindCarInfo,
+                lookupCreatorUser,
+                unwindCreatorUser,
+                addCreatorUserFields,
+                lookupRole,
+                unwindRole,
+                lookupPermission,
+                unwindPermission,
+                lookupProblemReport,
+                unwindProblemReport,
+                addProblemReportFields,
+                lookupProblemReportCar,
+                unwindProblemReportCar,
+                lookupProblemReportCreatorUser,
+                unwindProblemReportCreatorUser,
+                addProblemReportCreatorUserFields,
+                lookupProblemReportCreatorUserRole,
+                unwindProblemReportCreatorUserRole,
+                lookupProblemReportCreatorUserPermission,
+                unwindProblemReportCreatorUserPermission,
+                convertProblemReportCreatorUserIdToString,
+                project
+        );
+
+        AggregationResults<CarRepairLogResponseDTO> results = mongoTemplate.aggregate(
+                aggregation,
+                "carRepairLog",
+                CarRepairLogResponseDTO.class
+        );
+
+        return results.getMappedResults();
+    }
+
+
 
     public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskStatusId(String taskStatusId) {
         LookupOperation lookupCarInfo = LookupOperation.newLookup()

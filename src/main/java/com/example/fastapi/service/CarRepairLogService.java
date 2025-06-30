@@ -40,6 +40,9 @@ public class CarRepairLogService {
     public CarRepairLogResponseDTO getLatestLogsByLicensePlate(String licensePlate) {
         return carRepairLogCustomRepositoryImpl.findLatestCarRepairLogByLicensePlate(licensePlate);
     }
+    public List<CarRepairLogResponseDTO> getLatestLogsByTaskStatusName(String taskStatusName) {
+        return carRepairLogCustomRepositoryImpl.findLatestCarRepairLogsByTaskStatusName(taskStatusName);
+    }
 
     public List<CarRepairLogResponseDTO> getLogsByTaskStatusName(String taskStatusName) {
         return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskStatusName(taskStatusName);
