@@ -17,6 +17,7 @@ public class CarRepairLog {
     private ObjectId taskStatusId;
     private Date dateTime;
     private ObjectId problemReportId;
+    private ObjectId assignedUserId;  // 🆕 فیلد جدید
 
     public CarRepairLog() {}
 
@@ -88,4 +89,15 @@ public class CarRepairLog {
         }
     }
 
+    // Getter و Setter برای assignedUserId
+
+    public String getAssignedUserId() {
+        return assignedUserId != null ? assignedUserId.toHexString() : null;
+    }
+
+    public void setAssignedUserId(String assignedUserId) {
+        if (assignedUserId != null && !assignedUserId.isBlank()) {
+            this.assignedUserId = new ObjectId(assignedUserId);
+        }
+    }
 }

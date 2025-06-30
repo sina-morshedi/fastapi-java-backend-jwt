@@ -5,25 +5,25 @@ import java.util.Date;
 public class CarRepairLogRequestDTO {
     private String carId;
     private String creatorUserId;
-    private String description;       // nullable
-    private String taskStatusId;      // nullable
+    private String assignedUserId;
+    private String description;
+    private String taskStatusId;
     private Date dateTime;
-    private String problemReportId;   // nullable
+    private String problemReportId;
 
     public CarRepairLogRequestDTO() {}
 
-    public CarRepairLogRequestDTO(String carId, String creatorUserId,
+    public CarRepairLogRequestDTO(String carId, String creatorUserId, String assignedUserId,
                                   String description, String taskStatusId,
                                   Date dateTime, String problemReportId) {
         this.carId = carId;
         this.creatorUserId = creatorUserId;
+        this.assignedUserId = assignedUserId;
         this.description = description;
         this.taskStatusId = taskStatusId;
         this.dateTime = dateTime;
         this.problemReportId = problemReportId;
     }
-
-    // Getters and setters
 
     public String getCarId() {
         return carId;
@@ -39,6 +39,14 @@ public class CarRepairLogRequestDTO {
 
     public void setCreatorUserId(String creatorUserId) {
         this.creatorUserId = creatorUserId;
+    }
+
+    public String getAssignedUserId() {
+        return assignedUserId;
+    }
+
+    public void setAssignedUserId(String assignedUserId) {
+        this.assignedUserId = assignedUserId;
     }
 
     public String getDescription() {

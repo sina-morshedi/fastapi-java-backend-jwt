@@ -11,6 +11,7 @@ public interface CarRepairLogRepository extends MongoRepository<CarRepairLog, St
     List<CarRepairLog> findByCarId(String carId);
     List<CarRepairLog> findByCreatorUserId(String creatorUserId);
     List<CarRepairLog> findByTaskStatusId(String taskStatusId);
+    List<CarRepairLog> findByCarIdAndAssignedUserId(String carId, String assignedUserId);
     List<CarRepairLog> findByProblemReportId(String problemReportId);
 
 

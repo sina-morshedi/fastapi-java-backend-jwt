@@ -14,12 +14,13 @@ public class CarRepairLogDTO {
     private String taskStatusId;       // nullable
     private Date dateTime;
     private String problemReportId;    // nullable
+    private String assignedUserId;     // 🔥 NEW FIELD (nullable)
 
     public CarRepairLogDTO() {}
 
     public CarRepairLogDTO(String id, String carId, String creatorUserId, String departmentId,
                            String description, String taskStatusId, Date dateTime,
-                           String problemReportId) {
+                           String problemReportId, String assignedUserId) {
         this.id = id;
         this.carId = carId;
         this.creatorUserId = creatorUserId;
@@ -28,6 +29,7 @@ public class CarRepairLogDTO {
         this.taskStatusId = taskStatusId;
         this.dateTime = dateTime;
         this.problemReportId = problemReportId;
+        this.assignedUserId = assignedUserId;
     }
 
     // Getters and Setters
@@ -94,5 +96,13 @@ public class CarRepairLogDTO {
 
     public void setProblemReportId(String problemReportId) {
         this.problemReportId = problemReportId;
+    }
+
+    public String getAssignedUserId() {
+        return assignedUserId;
+    }
+
+    public void setAssignedUserId(String assignedUserId) {
+        this.assignedUserId = assignedUserId;
     }
 }
