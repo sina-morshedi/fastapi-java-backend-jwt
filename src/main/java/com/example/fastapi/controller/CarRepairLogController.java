@@ -29,8 +29,32 @@ public class CarRepairLogController {
 
 
     @GetMapping("/by-license-plate/{licensePlate}")
-    public ResponseEntity<List<CarRepairLogResponseDTO>> getLogsByLicensePlate(@PathVariable String licensePlate) {
+    public ResponseEntity<?> getLogsByLicensePlate(@PathVariable String licensePlate) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLogsByLicensePlate(licensePlate);
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(licensePlate + "numaralı plakaya ait bilgi bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
+    @GetMapping("/log-for-each-car")
+    public ResponseEntity<?> getLogsByLicensePlate() {
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCar();
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Bilgi bulunamadı.");
+        }
+
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(logs);
