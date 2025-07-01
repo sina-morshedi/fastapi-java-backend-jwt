@@ -58,6 +58,7 @@ public class CarRepairLogMapper {
         CarRepairLog entity = new CarRepairLog();
         entity.setCarId(dto.getCarId());
         entity.setCreatorUserId(dto.getCreatorUserId());
+        entity.setAssignedUserId(dto.getAssignedUserId());
         entity.setDescription(dto.getDescription());
         entity.setTaskStatusId(dto.getTaskStatusId());
         entity.setDateTime(dto.getDateTime());
