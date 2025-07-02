@@ -63,7 +63,7 @@ public class CarRepairLogController {
     @GetMapping("/latest-assigned/{userId}")
     public ResponseEntity<?> getLastLogForEachCarAssignedToUser(@PathVariable String userId) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCarAssignedToUser(userId);
-
+        System.out.println("Received userId: " + userId);
         if (logs == null || logs.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

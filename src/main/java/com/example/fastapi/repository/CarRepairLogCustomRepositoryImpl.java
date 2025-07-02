@@ -1256,7 +1256,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         AggregationOperation replaceRoot = context -> new Document("$replaceRoot", new Document("newRoot", "$latestLog"));
 
         // ✅ 5. فیلتر assignedUserId با userId ورودی
-        MatchOperation matchAssignedUser = Aggregation.match(Criteria.where("assignedUserId").is(userId));
+        MatchOperation matchAssignedUser = Aggregation.match(Criteria.where("assignedUserId").is(new ObjectId(userId)));
 
         // 6. باقی join و جوین‌های تو در تو (creatorUser، assignedUser، taskStatus، problemReport و ...)
         LookupOperation lookupCreatorUser = LookupOperation.newLookup()
