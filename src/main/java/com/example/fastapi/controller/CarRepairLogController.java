@@ -60,6 +60,22 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+    @GetMapping("/latest-assigned/{userId}")
+    public ResponseEntity<?> getLastLogForEachCarAssignedToUser(@PathVariable String userId) {
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCarAssignedToUser(userId);
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Bilgi bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
     @GetMapping("/latest-by-license-plate/{licensePlate}")
     public ResponseEntity<?> getLatestLogsByLicensePlate(@PathVariable String licensePlate) {
         CarRepairLogResponseDTO log = carRepairLogService.getLatestLogsByLicensePlate(licensePlate);
