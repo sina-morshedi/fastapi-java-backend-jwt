@@ -1,6 +1,8 @@
 package com.example.fastapi.dto;
 
 import java.util.Date;
+import java.util.List;
+import com.example.fastapi.dboModel.PartUsed;
 
 public class CarRepairLogRequestDTO {
     private String carId;
@@ -10,12 +12,14 @@ public class CarRepairLogRequestDTO {
     private String taskStatusId;
     private Date dateTime;
     private String problemReportId;
+    private List<PartUsed> partsUsed;
 
     public CarRepairLogRequestDTO() {}
 
     public CarRepairLogRequestDTO(String carId, String creatorUserId, String assignedUserId,
                                   String description, String taskStatusId,
-                                  Date dateTime, String problemReportId) {
+                                  Date dateTime, String problemReportId,
+                                  List<PartUsed> partsUsed) {
         this.carId = carId;
         this.creatorUserId = creatorUserId;
         this.assignedUserId = assignedUserId;
@@ -23,7 +27,10 @@ public class CarRepairLogRequestDTO {
         this.taskStatusId = taskStatusId;
         this.dateTime = dateTime;
         this.problemReportId = problemReportId;
+        this.partsUsed = partsUsed;
     }
+
+    // Getter و Setter برای فیلدهای قبلی...
 
     public String getCarId() {
         return carId;
@@ -79,5 +86,15 @@ public class CarRepairLogRequestDTO {
 
     public void setProblemReportId(String problemReportId) {
         this.problemReportId = problemReportId;
+    }
+
+    // Getter و Setter برای partsUsed
+
+    public List<PartUsed> getPartsUsed() {
+        return partsUsed;
+    }
+
+    public void setPartsUsed(List<PartUsed> partsUsed) {
+        this.partsUsed = partsUsed;
     }
 }

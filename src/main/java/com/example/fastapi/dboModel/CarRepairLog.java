@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
+import java.util.List;
 
 @Document(collection = "carRepairLog")
 public class CarRepairLog {
@@ -18,6 +19,8 @@ public class CarRepairLog {
     private Date dateTime;
     private ObjectId problemReportId;
     private ObjectId assignedUserId;  // 🆕 فیلد جدید
+
+    private List<PartUsed> partsUsed; // ← اضافه کردن فیلد جدید لیست قطعات استفاده شده
 
     public CarRepairLog() {}
 
@@ -89,8 +92,6 @@ public class CarRepairLog {
         }
     }
 
-    // Getter و Setter برای assignedUserId
-
     public String getAssignedUserId() {
         return assignedUserId != null ? assignedUserId.toHexString() : null;
     }
@@ -99,5 +100,15 @@ public class CarRepairLog {
         if (assignedUserId != null && !assignedUserId.isBlank()) {
             this.assignedUserId = new ObjectId(assignedUserId);
         }
+    }
+
+    // Getter و Setter برای partsUsed
+
+    public List<PartUsed> getPartsUsed() {
+        return partsUsed;
+    }
+
+    public void setPartsUsed(List<PartUsed> partsUsed) {
+        this.partsUsed = partsUsed;
     }
 }

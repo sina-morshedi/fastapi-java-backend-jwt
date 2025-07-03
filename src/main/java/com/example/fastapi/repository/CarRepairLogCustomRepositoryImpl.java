@@ -387,7 +387,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("description").as("description")
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
-                .and("problemReport").as("problemReport");
+                .and("problemReport").as("problemReport")
+                .and("partsUsed").as("partsUsed"); // ← اضافه کردن فیلد partsUsed
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -434,6 +435,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
+
 
 
     public CarRepairLogResponseDTO findLatestCarRepairLogByLicensePlate(String licensePlate) {
