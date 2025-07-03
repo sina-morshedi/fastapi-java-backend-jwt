@@ -1,19 +1,21 @@
 package com.example.fastapi.dto;
 
-import java.util.Date;
-import java.util.List;
 import com.example.fastapi.dboModel.PartUsed;
 
+import java.util.Date;
+import java.util.List;
+
 public class CarRepairLogResponseDTO {
+
     private String id;
     private CarInfoDTO carInfo;
     private UserProfileDTO creatorUser;
-    private UserProfileDTO assignedUser;          // 🆕 Assigned user
-    private String description;                    // nullable
-    private TaskStatusDTO taskStatus;              // nullable
+    private UserProfileDTO assignedUser;
+    private String description;
+    private TaskStatusDTO taskStatus;
     private Date dateTime;
-    private CarProblemReportDTO problemReport;     // nullable
-    private List<PartUsed> partsUsed;              // nullable
+    private CarProblemReportDTO problemReport;
+    private List<PartUsed> partsUsed;  // ← اینجا لیست قطعات مصرف شده
 
     public CarRepairLogResponseDTO() {}
 
@@ -34,7 +36,7 @@ public class CarRepairLogResponseDTO {
         this.partsUsed = partsUsed;
     }
 
-    // Getters and Setters
+    // ===== Getters and Setters =====
 
     public String getId() {
         return id;
