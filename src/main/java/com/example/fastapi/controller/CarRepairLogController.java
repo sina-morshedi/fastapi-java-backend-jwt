@@ -2,6 +2,7 @@ package com.example.fastapi.controller;
 
 import com.example.fastapi.dto.CarRepairLogRequestDTO;
 import com.example.fastapi.dto.CarRepairLogResponseDTO;
+import com.example.fastapi.dto.TaskStatusCountDTO;
 import com.example.fastapi.service.CarRepairLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +91,22 @@ public class CarRepairLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(log);
     }
+
+    @GetMapping("/task-status-count")
+    public ResponseEntity<?> getCountCarsByLatestTaskStatus() {
+        List<TaskStatusCountDTO> log = carRepairLogService.getCountCarsByLatestTaskStatus();
+
+        if (log == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Kaydedilmiş bir bilgi bulamadım.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(log);
+    }
+
     @GetMapping("/latest-by-task-status-name/{taskStatusName}")
     public ResponseEntity<?> getLatestLogsByTaskName(@PathVariable String taskStatusName) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestLogsByTaskStatusName(taskStatusName);

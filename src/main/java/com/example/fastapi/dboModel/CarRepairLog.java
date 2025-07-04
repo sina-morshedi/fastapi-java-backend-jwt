@@ -18,9 +18,9 @@ public class CarRepairLog {
     private ObjectId taskStatusId;
     private Date dateTime;
     private ObjectId problemReportId;
-    private ObjectId assignedUserId;  // 🆕 فیلد جدید
+    private ObjectId assignedUserId;
 
-    private List<PartUsed> partsUsed; // ← اضافه کردن فیلد جدید لیست قطعات استفاده شده
+    private List<PartUsed> partsUsed;
 
     public CarRepairLog() {}
 

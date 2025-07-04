@@ -1,5 +1,6 @@
 package com.example.fastapi.service;
 
+import com.example.fastapi.dto.TaskStatusCountDTO;
 import com.example.fastapi.mappers.CarRepairLogMapper;
 import com.example.fastapi.dto.CarRepairLogResponseDTO;
 import com.example.fastapi.dto.CarRepairLogRequestDTO;
@@ -89,5 +90,9 @@ public class CarRepairLogService {
             CarRepairLog updated = carRepairLogRepository.save(existingLog);
             return carRepairLogMapper.toResponseDTO(updated);
         });
+    }
+
+    public List<TaskStatusCountDTO> getCountCarsByLatestTaskStatus(){
+        return carRepairLogCustomRepositoryImpl.countCarsByLatestTaskStatus();
     }
 }

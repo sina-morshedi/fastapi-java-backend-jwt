@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
+import com.example.fastapi.dto.*;
 
 
 
@@ -1217,6 +1218,57 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         return results.getMappedResults();
     }
 
+    public List<TaskStatusCountDTO> countCarsByLatestTaskStatus() {
+        LookupOperation lookupCarInfo = LookupOperation.newLookup()
+                .from("carInfo")
+                .localField("carId")
+                .foreignField("_id")
+                .as("car");
+        UnwindOperation unwindCar = Aggregation.unwind("car", true);
+
+        SortOperation sortByDateDesc = Aggregation.sort(Sort.by(Sort.Direction.DESC, "dateTime"));
+
+        GroupOperation groupByLicensePlate = Aggregation.group("car.licensePlate")
+                .first(Aggregation.ROOT).as("latestLog");
+
+        AggregationOperation replaceRoot = context -> new Document("$replaceRoot", new Document("newRoot", "$latestLog"));
+
+        GroupOperation groupByTaskStatus = Aggregation.group("taskStatusId")
+                .count().as("count");
+
+        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
+                .from("taskStatus")
+                .localField("_id")  // در گروه‌بندی، _id همان taskStatusId است
+                .foreignField("_id")
+                .as("taskStatus");
+
+        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+
+        ProjectionOperation project = Aggregation.project()
+                .and("_id").as("taskStatusId")
+                .and("taskStatus.taskStatusName").as("taskStatusName")
+                .and("count").as("count");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                lookupCarInfo,
+                unwindCar,
+                sortByDateDesc,
+                groupByLicensePlate,
+                replaceRoot,
+                groupByTaskStatus,
+                lookupTaskStatus,
+                unwindTaskStatus,
+                project
+        );
+
+        AggregationResults<TaskStatusCountDTO> results = mongoTemplate.aggregate(
+                aggregation,
+                "carRepairLog",
+                TaskStatusCountDTO.class
+        );
+
+        return results.getMappedResults();
+    }
 
 
     public List<CarRepairLogResponseDTO> findLatestRepairLogForEachCarAssignedToUser(String userId) {
