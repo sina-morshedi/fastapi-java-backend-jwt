@@ -26,6 +26,21 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+    @GetMapping("/by-id/{id}")
+    public ResponseEntity<?> getLogById(@PathVariable String id) {
+        CarRepairLogResponseDTO log = carRepairLogService.getLogById(id);
+
+        if (log == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("bilgi bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(log);
+    }
 
     @GetMapping("/by-license-plate/{licensePlate}")
     public ResponseEntity<?> getLogsByLicensePlate(@PathVariable String licensePlate) {

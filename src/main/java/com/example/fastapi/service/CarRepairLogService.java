@@ -74,9 +74,9 @@ public class CarRepairLogService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<CarRepairLogResponseDTO> getLogById(String id) {
-        return carRepairLogRepository.findById(id)
-                .map(carRepairLogMapper::toResponseDTO);
+    public CarRepairLogResponseDTO getLogById(String id) {
+        CarRepairLogResponseDTO responseDTO = carRepairLogCustomRepositoryImpl.findCarRepairLogById(id);
+        return responseDTO;
     }
 
     public boolean deleteLog(String id) {
