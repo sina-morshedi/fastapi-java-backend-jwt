@@ -892,11 +892,25 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .as("taskStatus");
         UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
 
-        // شرط match: بررسی لیست taskStatusNames و assignedUserId
-        Criteria criteria = Criteria.where("taskStatus.taskStatusName").in(taskStatusNames)
-                .and("assignedUserId").is(new ObjectId(assignedUserId));
+        // فقط فیلتر روی taskStatusNames (assignedUserId فعلاً اعمال نمی‌شود)
+        Criteria criteriaTaskStatus = Criteria.where("taskStatus.taskStatusName").in(taskStatusNames);
+        MatchOperation matchTaskStatus = Aggregation.match(criteriaTaskStatus);
 
-        MatchOperation matchByTaskStatusNamesAndAssignedUserId = Aggregation.match(criteria);
+        // مرتب سازی نزولی بر اساس dateTime
+        SortOperation sortByDateTimeDesc = Aggregation.sort(Sort.Direction.DESC, "dateTime");
+
+        // گروه بندی بر اساس car._id و گرفتن اولین (جدیدترین) لاگ
+        GroupOperation groupByCarId = Aggregation.group("car._id")
+                .first(Aggregation.ROOT).as("latestLog");
+
+        // جایگزین کردن ریشه داکیومنت با latestLog
+        ReplaceRootOperation replaceRootWithLatestLog = Aggregation.replaceRoot("latestLog");
+
+        // اکنون فیلتر بر اساس assignedUserId ورودی
+        Criteria criteriaAssignedUser = Criteria.where("assignedUserId").is(new ObjectId(assignedUserId));
+        MatchOperation matchAssignedUser = Aggregation.match(criteriaAssignedUser);
+
+        // ادامه lookup ها برای problemReport و user های داخل آن
 
         LookupOperation lookupProblemReport = LookupOperation.newLookup()
                 .from("carProblemReport")
@@ -949,16 +963,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
-        // مرحله مرتب سازی نزولی بر اساس dateTime برای گرفتن جدیدترین لاگ
-        SortOperation sortByDateTimeDesc = Aggregation.sort(Sort.Direction.DESC, "dateTime");
-
-        // مرحله گروه‌بندی بر اساس assignedUserId و taskStatus.taskStatusName و گرفتن اولین لاگ (جدیدترین)
-        GroupOperation groupByAssignedUserAndTaskStatus = Aggregation.group("assignedUserId", "taskStatus.taskStatusName")
-                .first(Aggregation.ROOT).as("latestLog");
-
-        // جایگزینی ریشه داکیومنت با جدیدترین لاگ
-        ReplaceRootOperation replaceRootWithLatestLog = Aggregation.replaceRoot("latestLog");
-
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -999,10 +1003,11 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindAssignedUserPermission,
                 lookupTaskStatus,
                 unwindTaskStatus,
-                matchByTaskStatusNamesAndAssignedUserId,
+                matchTaskStatus,
                 sortByDateTimeDesc,
-                groupByAssignedUserAndTaskStatus,
+                groupByCarId,
                 replaceRootWithLatestLog,
+                matchAssignedUser,
                 lookupProblemReport,
                 unwindProblemReport,
                 addNestedProblemFields,
@@ -1027,6 +1032,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
+
 
 
     public List<CarRepairLogResponseDTO> findLatestCarRepairLogsByTaskStatusName(String taskStatusName) {
