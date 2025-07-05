@@ -1,8 +1,6 @@
 package com.example.fastapi.controller;
 
-import com.example.fastapi.dto.CarRepairLogRequestDTO;
-import com.example.fastapi.dto.CarRepairLogResponseDTO;
-import com.example.fastapi.dto.TaskStatusCountDTO;
+import com.example.fastapi.dto.*;
 import com.example.fastapi.service.CarRepairLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -122,6 +120,43 @@ public class CarRepairLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(logs);
     }
+
+    @PostMapping("/latest-by-tasks-status-name-and-userid")
+    public ResponseEntity<?> getLogsByStatusNamesAndUserId(
+            @RequestBody TaskStatusUserRequestDTO request) {
+
+        if (request.getTaskStatusNames() == null || request.getTaskStatusNames().isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("geçersiz istek.");
+        }
+
+        if (request.getAssignedUserId() == null || request.getAssignedUserId().isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("geçersiz istek.");
+        }
+
+        List<CarRepairLogResponseDTO> logs =
+                carRepairLogService.getCarRepairLogsByTaskStatusNamesAndAssignedUserId(
+                        request.getTaskStatusNames(),
+                        request.getAssignedUserId()
+                );
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("kaydı bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
 
 
     @PostMapping("/task-status-name")
