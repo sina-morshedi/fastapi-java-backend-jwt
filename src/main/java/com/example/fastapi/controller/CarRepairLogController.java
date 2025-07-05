@@ -196,7 +196,9 @@ public class CarRepairLogController {
         Optional<CarRepairLogResponseDTO> updated = carRepairLogService.updateLog(id, requestDTO);
 
         if (updated.isPresent()) {
-            return ResponseEntity.ok(updated.get());
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Güncelleme yapıldı.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .header("Content-Type", "application/json; charset=UTF-8")
