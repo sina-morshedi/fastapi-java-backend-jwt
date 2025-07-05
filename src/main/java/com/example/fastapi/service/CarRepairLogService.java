@@ -89,7 +89,6 @@ public class CarRepairLogService {
 
     public Optional<CarRepairLogResponseDTO> updateLog(String id, CarRepairLogRequestDTO requestDTO) {
         return carRepairLogRepository.findById(id).map(existingLog -> {
-            // map updated fields from requestDTO to existingLog entity
             carRepairLogMapper.updateEntityFromDTO(requestDTO, existingLog);
             CarRepairLog updated = carRepairLogRepository.save(existingLog);
             return carRepairLogMapper.toResponseDTO(updated);

@@ -366,8 +366,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
-        // اضافه کردن partsUsed به aggregation
-        UnwindOperation unwindPartsUsed = Aggregation.unwind("partsUsed", true);
 
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
@@ -424,7 +422,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
-                unwindPartsUsed,
                 project
         );
 
