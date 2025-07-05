@@ -140,7 +140,7 @@ public class CarRepairLogController {
         }
 
         List<CarRepairLogResponseDTO> logs =
-                carRepairLogService.getCarRepairLogsByTaskStatusNamesAndAssignedUserId(
+                carRepairLogService.getLatestCarRepairLogsByTaskStatusNamesAndAssignedUserId(
                         request.getTaskStatusNames(),
                         request.getAssignedUserId()
                 );

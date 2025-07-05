@@ -821,7 +821,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         return results.getMappedResults();
     }
 
-    public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskStatusNamesAndAssignedUserId(
+    public List<CarRepairLogResponseDTO> findLatestCarRepairLogsByTaskStatusNamesAndAssignedUserId(
             List<String> taskStatusNames, String assignedUserId) {
 
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
@@ -949,6 +949,16 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
+        // مرحله مرتب سازی نزولی بر اساس dateTime برای گرفتن جدیدترین لاگ
+        SortOperation sortByDateTimeDesc = Aggregation.sort(Sort.Direction.DESC, "dateTime");
+
+        // مرحله گروه‌بندی بر اساس assignedUserId و taskStatus.taskStatusName و گرفتن اولین لاگ (جدیدترین)
+        GroupOperation groupByAssignedUserAndTaskStatus = Aggregation.group("assignedUserId", "taskStatus.taskStatusName")
+                .first(Aggregation.ROOT).as("latestLog");
+
+        // جایگزینی ریشه داکیومنت با جدیدترین لاگ
+        ReplaceRootOperation replaceRootWithLatestLog = Aggregation.replaceRoot("latestLog");
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -989,7 +999,10 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindAssignedUserPermission,
                 lookupTaskStatus,
                 unwindTaskStatus,
-                matchByTaskStatusNamesAndAssignedUserId,  // <-- اینجا شرط جدید
+                matchByTaskStatusNamesAndAssignedUserId,
+                sortByDateTimeDesc,
+                groupByAssignedUserAndTaskStatus,
+                replaceRootWithLatestLog,
                 lookupProblemReport,
                 unwindProblemReport,
                 addNestedProblemFields,
@@ -1014,6 +1027,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
+
 
     public List<CarRepairLogResponseDTO> findLatestCarRepairLogsByTaskStatusName(String taskStatusName) {
 
