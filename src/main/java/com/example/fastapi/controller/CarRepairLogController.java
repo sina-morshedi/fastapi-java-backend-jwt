@@ -59,7 +59,7 @@ public class CarRepairLogController {
     }
 
     @GetMapping("/log-for-each-car")
-    public ResponseEntity<?> getLogsByLicensePlate() {
+    public ResponseEntity<?> getLogsForEachCar() {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCar();
 
         if (logs == null || logs.isEmpty()) {
