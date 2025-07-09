@@ -1,6 +1,7 @@
 package com.example.fastapi.controller;
 
 import com.example.fastapi.dto.*;
+import com.example.fastapi.dto.FilterRequestDTO;
 import com.example.fastapi.service.CarRepairLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
