@@ -227,79 +227,221 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
     public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskNamesAndDateRange(
             List<String> taskStatusNames, Date startDate, Date endDate) {
 
-        // Lookup برای carInfo
+        // Lookup carInfo
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("carId")
                 .foreignField("_id")
-                .as("carInfo");
-        UnwindOperation unwindCarInfo = Aggregation.unwind("carInfo", true);
+                .as("car");
 
-        // Lookup برای taskStatus
-        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
-                .from("taskStatus")
-                .localField("taskStatusId")
-                .foreignField("_id")
-                .as("taskStatus");
-        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+        UnwindOperation unwindCar = Aggregation.unwind("car", true);
 
-        // Lookup برای creatorUser
-        LookupOperation lookupCreatorUser = LookupOperation.newLookup()
-                .from("users")
-                .localField("creatorUserId")
-                .foreignField("_id")
-                .as("creatorUser");
-        UnwindOperation unwindCreatorUser = Aggregation.unwind("creatorUser", true);
-
-        // Lookup برای assignedUser
-        LookupOperation lookupAssignedUser = LookupOperation.newLookup()
-                .from("users")
-                .localField("assignedUserId")
-                .foreignField("_id")
-                .as("assignedUser");
-        UnwindOperation unwindAssignedUser = Aggregation.unwind("assignedUser", true);
-
-        // Lookup برای problemReport
-        LookupOperation lookupProblemReport = LookupOperation.newLookup()
-                .from("problemReport")
-                .localField("problemReportId")
-                .foreignField("_id")
-                .as("problemReport");
-        UnwindOperation unwindProblemReport = Aggregation.unwind("problemReport", true);
-
-        // شرط Match روی نام وضعیت تسک و بازه تاریخ
+        // Match شرط روی taskStatusName و بازه تاریخ
         MatchOperation matchTaskAndDate = Aggregation.match(
                 Criteria.where("taskStatus.taskStatusName").in(taskStatusNames)
                         .and("dateTime").gte(startDate).lte(endDate)
         );
 
-        // Projection برای انتخاب فیلدهای خروجی
-        ProjectionOperation project = Aggregation.project()
-                .andExclude("_id") // اگر می‌خواهی شناسه را حذف کنی
-                .andExpression("_id").as("id")
-                .and("carInfo").as("carInfo")
-                .and("taskStatus").as("taskStatus")
-                .and("creatorUser").as("creatorUser")
-                .and("assignedUser").as("assignedUser")
-                .and("problemReport").as("problemReport")
-                .and("description").as("description")
-                .and("dateTime").as("dateTime")
-                // .and("partsUsed").as("partsUsed") // اگر partsUsed مجموعه یا فیلدی هست، اضافه کن
-                ;
+        // Lookup creatorUser
+        LookupOperation lookupCreatorUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("creatorUserId")
+                .foreignField("_id")
+                .as("creatorUser");
 
-        // ساخت aggregation نهایی با ترتیب درست
+        UnwindOperation unwindCreatorUser = Aggregation.unwind("creatorUser", true);
+
+        // تبدیل رشته roleId و permissionId به ObjectId
+        AggregationOperation addRoleIdObject = context -> new Document("$addFields",
+                new Document("creatorUser.roleIdObject", new Document("$toObjectId", "$creatorUser.roleId"))
+                        .append("creatorUser.permissionIdObject", new Document("$toObjectId", "$creatorUser.permissionId"))
+        );
+
+        // Lookup role و permission برای creatorUser
+        LookupOperation lookupRole = LookupOperation.newLookup()
+                .from("roles")
+                .localField("creatorUser.roleIdObject")
+                .foreignField("_id")
+                .as("creatorUser.role");
+
+        LookupOperation lookupPermission = LookupOperation.newLookup()
+                .from("permissions")
+                .localField("creatorUser.permissionIdObject")
+                .foreignField("_id")
+                .as("creatorUser.permission");
+
+        UnwindOperation unwindRole = Aggregation.unwind("creatorUser.role", true);
+        UnwindOperation unwindPermission = Aggregation.unwind("creatorUser.permission", true);
+
+        // افزودن ObjectId برای assignedUserId (با شرط نال نبودن)
+        AggregationOperation addAssignedUserIdObject = context -> new Document("$addFields",
+                new Document("assignedUserIdObject",
+                        new Document("$cond",
+                                new Document("if", new Document("$and", Arrays.asList(
+                                        new Document("$ne", Arrays.asList("$assignedUserId", null)),
+                                        new Document("$ne", Arrays.asList("$assignedUserId", ""))
+                                )))
+                                        .append("then", new Document("$toObjectId", "$assignedUserId"))
+                                        .append("else", null)
+                        )
+                )
+        );
+
+        // Lookup assignedUser
+        LookupOperation lookupAssignedUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("assignedUserIdObject")
+                .foreignField("_id")
+                .as("assignedUser");
+
+        UnwindOperation unwindAssignedUser = Aggregation.unwind("assignedUser", true);
+
+        // تبدیل رشته roleId و permissionId برای assignedUser
+        AggregationOperation addAssignedUserRolePermissionIdObjects = context -> new Document("$addFields",
+                new Document("assignedUser.roleIdObject", new Document("$toObjectId", "$assignedUser.roleId"))
+                        .append("assignedUser.permissionIdObject", new Document("$toObjectId", "$assignedUser.permissionId"))
+        );
+
+        // Lookup role و permission برای assignedUser
+        LookupOperation lookupAssignedUserRole = LookupOperation.newLookup()
+                .from("roles")
+                .localField("assignedUser.roleIdObject")
+                .foreignField("_id")
+                .as("assignedUser.role");
+
+        LookupOperation lookupAssignedUserPermission = LookupOperation.newLookup()
+                .from("permissions")
+                .localField("assignedUser.permissionIdObject")
+                .foreignField("_id")
+                .as("assignedUser.permission");
+
+        UnwindOperation unwindAssignedUserRole = Aggregation.unwind("assignedUser.role", true);
+        UnwindOperation unwindAssignedUserPermission = Aggregation.unwind("assignedUser.permission", true);
+
+        // Lookup taskStatus
+        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
+                .from("taskStatus")
+                .localField("taskStatusId")
+                .foreignField("_id")
+                .as("taskStatus");
+
+        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+
+        // Lookup problemReport
+        LookupOperation lookupProblemReport = LookupOperation.newLookup()
+                .from("carProblemReport")
+                .localField("problemReportId")
+                .foreignField("_id")
+                .as("problemReport");
+
+        UnwindOperation unwindProblemReport = Aggregation.unwind("problemReport", true);
+
+        // افزودن ObjectId برای فیلدهای nested در problemReport
+        AggregationOperation addNestedProblemFields = context -> new Document("$addFields",
+                new Document("problemReport.carIdObject", new Document("$toObjectId", "$problemReport.carId"))
+                        .append("problemReport.creatorUserIdObject", new Document("$toObjectId", "$problemReport.creatorUserId"))
+        );
+
+        // Lookup برای carInfo در problemReport
+        LookupOperation lookupProblemReportCar = LookupOperation.newLookup()
+                .from("carInfo")
+                .localField("problemReport.carIdObject")
+                .foreignField("_id")
+                .as("problemReport.carInfo");
+
+        // Lookup برای creatorUser در problemReport
+        LookupOperation lookupProblemReportCreatorUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("problemReport.creatorUserIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser");
+
+        UnwindOperation unwindProblemReportCar = Aggregation.unwind("problemReport.carInfo", true);
+        UnwindOperation unwindProblemReportCreatorUser = Aggregation.unwind("problemReport.creatorUser", true);
+
+        // افزودن ObjectId برای role و permission در problemReport.creatorUser
+        AggregationOperation addProblemReportCreatorUserFields = context -> new Document("$addFields",
+                new Document("problemReport.creatorUser.roleIdObject", new Document("$toObjectId", "$problemReport.creatorUser.roleId"))
+                        .append("problemReport.creatorUser.permissionIdObject", new Document("$toObjectId", "$problemReport.creatorUser.permissionId"))
+        );
+
+        // Lookup role و permission در problemReport.creatorUser
+        LookupOperation lookupProblemReportCreatorUserRole = LookupOperation.newLookup()
+                .from("roles")
+                .localField("problemReport.creatorUser.roleIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser.role");
+
+        LookupOperation lookupProblemReportCreatorUserPermission = LookupOperation.newLookup()
+                .from("permissions")
+                .localField("problemReport.creatorUser.permissionIdObject")
+                .foreignField("_id")
+                .as("problemReport.creatorUser.permission");
+
+        UnwindOperation unwindProblemReportCreatorUserRole = Aggregation.unwind("problemReport.creatorUser.role", true);
+        UnwindOperation unwindProblemReportCreatorUserPermission = Aggregation.unwind("problemReport.creatorUser.permission", true);
+
+        // تبدیل ObjectId به String برای problemReport.creatorUser.userId
+        AggregationOperation convertProblemReportCreatorUserIdToString = context -> new Document("$addFields",
+                new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
+        );
+
+        // Projection کامل
+        ProjectionOperation project = Aggregation.project()
+                .and("_id").as("id")
+                .and("car").as("carInfo")
+                .and("creatorUser._id").as("creatorUser.userId")
+                .and("creatorUser.username").as("creatorUser.username")
+                .and("creatorUser.firstName").as("creatorUser.firstName")
+                .and("creatorUser.lastName").as("creatorUser.lastName")
+                .and("creatorUser.role").as("creatorUser.role")
+                .and("creatorUser.permission").as("creatorUser.permission")
+                .and("assignedUser._id").as("assignedUser.userId")
+                .and("assignedUser.username").as("assignedUser.username")
+                .and("assignedUser.firstName").as("assignedUser.firstName")
+                .and("assignedUser.lastName").as("assignedUser.lastName")
+                .and("assignedUser.role").as("assignedUser.role")
+                .and("assignedUser.permission").as("assignedUser.permission")
+                .and("description").as("description")
+                .and("taskStatus").as("taskStatus")
+                .and("dateTime").as("dateTime")
+                .and("problemReport").as("problemReport")
+                .and("partsUsed").as("partsUsed");
+
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
-                unwindCarInfo,
+                unwindCar,
                 lookupTaskStatus,
                 unwindTaskStatus,
+                matchTaskAndDate,
                 lookupCreatorUser,
                 unwindCreatorUser,
+                addRoleIdObject,
+                lookupRole,
+                unwindRole,
+                lookupPermission,
+                unwindPermission,
+                addAssignedUserIdObject,
                 lookupAssignedUser,
                 unwindAssignedUser,
+                addAssignedUserRolePermissionIdObjects,
+                lookupAssignedUserRole,
+                unwindAssignedUserRole,
+                lookupAssignedUserPermission,
+                unwindAssignedUserPermission,
                 lookupProblemReport,
                 unwindProblemReport,
-                matchTaskAndDate,
+                addNestedProblemFields,
+                lookupProblemReportCar,
+                lookupProblemReportCreatorUser,
+                unwindProblemReportCar,
+                unwindProblemReportCreatorUser,
+                addProblemReportCreatorUserFields,
+                lookupProblemReportCreatorUserRole,
+                lookupProblemReportCreatorUserPermission,
+                unwindProblemReportCreatorUserRole,
+                unwindProblemReportCreatorUserPermission,
+                convertProblemReportCreatorUserIdToString,
                 project
         );
 
@@ -311,6 +453,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
+
 
 
     public List<CarRepairLogResponseDTO> findCarRepairLogsByLicensePlate(String licensePlate) {
