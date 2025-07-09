@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 @CrossOrigin(origins = {"http://localhost:xxxx", "https://*.netlify.app"})
 @RestController
@@ -181,6 +184,31 @@ public class CarRepairLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(data);
     }
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<CarRepairLogResponseDTO>> getFilteredCarRepairLogs(
+            @RequestBody FilterRequestDTO filterRequest) {
+
+        // تبدیل رشته‌ها به تاریخ
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        Date start = null;
+        Date end = null;
+        try {
+            start = sdf.parse(filterRequest.getStartDate());
+            end = sdf.parse(filterRequest.getEndDate());
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<CarRepairLogResponseDTO> result = carRepairLogService.getCarRepairLogsByTaskNamesAndDateRange(
+                filterRequest.getTaskStatusNames(),
+                start,
+                end
+        );
+
+        return ResponseEntity.ok(result);
+    }
+
 
 
     @PostMapping("/create")

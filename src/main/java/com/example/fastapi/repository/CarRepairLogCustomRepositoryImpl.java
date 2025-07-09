@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import com.example.fastapi.dto.*;
+import java.util.Date;
 
 
 
@@ -223,6 +224,63 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         return results.getUniqueMappedResult();
     }
 
+    public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskNamesAndDateRange(
+            List<String> taskStatusNames, Date startDate, Date endDate) {
+
+        // مثل قبلی lookup و unwind برای carInfo
+        LookupOperation lookupCarInfo = LookupOperation.newLookup()
+                .from("carInfo")
+                .localField("carId")
+                .foreignField("_id")
+                .as("car");
+
+        UnwindOperation unwindCar = Aggregation.unwind("car", true);
+
+        // lookup برای taskStatus
+        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
+                .from("taskStatus")
+                .localField("taskStatusId")
+                .foreignField("_id")
+                .as("taskStatus");
+
+        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+
+        // شرط match روی taskStatus.taskStatusName در لیست و تاریخ بین startDate و endDate
+        MatchOperation matchTaskAndDate = Aggregation.match(
+                new Criteria().andOperator(
+                        Criteria.where("taskStatus.taskStatusName").in(taskStatusNames),
+                        Criteria.where("dateTime").gte(startDate).lte(endDate)
+                )
+        );
+
+        // بقیه lookup ها، unwind ها و aggregationOperation ها مثل نمونه قبلی...
+
+        // مثال پروژه (projection)
+        ProjectionOperation project = Aggregation.project()
+                .and("_id").as("id")
+                .and("car").as("carInfo")
+                .and("taskStatus").as("taskStatus")
+                .and("dateTime").as("dateTime");
+        // فیلدهای دیگر رو طبق نیاز اضافه کن
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                lookupCarInfo,
+                unwindCar,
+                lookupTaskStatus,
+                unwindTaskStatus,
+                matchTaskAndDate,
+                // بقیه lookup ها و unwind ها...
+                project
+        );
+
+        AggregationResults<CarRepairLogResponseDTO> results = mongoTemplate.aggregate(
+                aggregation,
+                "carRepairLog",
+                CarRepairLogResponseDTO.class
+        );
+
+        return results.getMappedResults();
+    }
 
 
     public List<CarRepairLogResponseDTO> findCarRepairLogsByLicensePlate(String licensePlate) {

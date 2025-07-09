@@ -12,6 +12,7 @@ import com.example.fastapi.dboModel.CarInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 
@@ -97,5 +98,11 @@ public class CarRepairLogService {
 
     public List<TaskStatusCountDTO> getCountCarsByLatestTaskStatus(){
         return carRepairLogCustomRepositoryImpl.countCarsByLatestTaskStatus();
+    }
+
+    public List<CarRepairLogResponseDTO> getCarRepairLogsByTaskNamesAndDateRange(
+            List<String> taskStatusNames, Date startDate, Date endDate){
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskNamesAndDateRange(
+                taskStatusNames,startDate,endDate);
     }
 }
