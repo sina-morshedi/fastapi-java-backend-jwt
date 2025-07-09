@@ -187,7 +187,7 @@ public class CarRepairLogController {
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<CarRepairLogResponseDTO>> getFilteredCarRepairLogs(
+    public ResponseEntity<?> getFilteredCarRepairLogs(
             @RequestBody FilterRequestDTO filterRequest) {
 
         // تبدیل رشته‌ها به تاریخ
@@ -207,7 +207,15 @@ public class CarRepairLogController {
                 end
         );
 
-        return ResponseEntity.ok(result);
+        if (result == null || result.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("kaydı bulunamadı.");
+        }
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(result);
     }
 
 
