@@ -227,49 +227,79 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
     public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskNamesAndDateRange(
             List<String> taskStatusNames, Date startDate, Date endDate) {
 
-        // مثل قبلی lookup و unwind برای carInfo
+        // Lookup برای carInfo
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("carId")
                 .foreignField("_id")
-                .as("car");
+                .as("carInfo");
+        UnwindOperation unwindCarInfo = Aggregation.unwind("carInfo", true);
 
-        UnwindOperation unwindCar = Aggregation.unwind("car", true);
-
-        // lookup برای taskStatus
+        // Lookup برای taskStatus
         LookupOperation lookupTaskStatus = LookupOperation.newLookup()
                 .from("taskStatus")
                 .localField("taskStatusId")
                 .foreignField("_id")
                 .as("taskStatus");
-
         UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
 
-        // شرط match روی taskStatus.taskStatusName در لیست و تاریخ بین startDate و endDate
+        // Lookup برای creatorUser
+        LookupOperation lookupCreatorUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("creatorUserId")
+                .foreignField("_id")
+                .as("creatorUser");
+        UnwindOperation unwindCreatorUser = Aggregation.unwind("creatorUser", true);
+
+        // Lookup برای assignedUser
+        LookupOperation lookupAssignedUser = LookupOperation.newLookup()
+                .from("users")
+                .localField("assignedUserId")
+                .foreignField("_id")
+                .as("assignedUser");
+        UnwindOperation unwindAssignedUser = Aggregation.unwind("assignedUser", true);
+
+        // Lookup برای problemReport
+        LookupOperation lookupProblemReport = LookupOperation.newLookup()
+                .from("problemReport")
+                .localField("problemReportId")
+                .foreignField("_id")
+                .as("problemReport");
+        UnwindOperation unwindProblemReport = Aggregation.unwind("problemReport", true);
+
+        // شرط Match روی نام وضعیت تسک و بازه تاریخ
         MatchOperation matchTaskAndDate = Aggregation.match(
-                new Criteria().andOperator(
-                        Criteria.where("taskStatus.taskStatusName").in(taskStatusNames),
-                        Criteria.where("dateTime").gte(startDate).lte(endDate)
-                )
+                Criteria.where("taskStatus.taskStatusName").in(taskStatusNames)
+                        .and("dateTime").gte(startDate).lte(endDate)
         );
 
-        // بقیه lookup ها، unwind ها و aggregationOperation ها مثل نمونه قبلی...
-
-        // مثال پروژه (projection)
+        // Projection برای انتخاب فیلدهای خروجی
         ProjectionOperation project = Aggregation.project()
-                .and("_id").as("id")
-                .and("car").as("carInfo")
+                .andExclude("_id") // اگر می‌خواهی شناسه را حذف کنی
+                .andExpression("_id").as("id")
+                .and("carInfo").as("carInfo")
                 .and("taskStatus").as("taskStatus")
-                .and("dateTime").as("dateTime");
-        // فیلدهای دیگر رو طبق نیاز اضافه کن
+                .and("creatorUser").as("creatorUser")
+                .and("assignedUser").as("assignedUser")
+                .and("problemReport").as("problemReport")
+                .and("description").as("description")
+                .and("dateTime").as("dateTime")
+                // .and("partsUsed").as("partsUsed") // اگر partsUsed مجموعه یا فیلدی هست، اضافه کن
+                ;
 
+        // ساخت aggregation نهایی با ترتیب درست
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
-                unwindCar,
+                unwindCarInfo,
                 lookupTaskStatus,
                 unwindTaskStatus,
+                lookupCreatorUser,
+                unwindCreatorUser,
+                lookupAssignedUser,
+                unwindAssignedUser,
+                lookupProblemReport,
+                unwindProblemReport,
                 matchTaskAndDate,
-                // بقیه lookup ها و unwind ها...
                 project
         );
 
