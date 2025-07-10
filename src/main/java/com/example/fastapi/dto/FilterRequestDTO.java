@@ -7,15 +7,17 @@ public class FilterRequestDTO{
     private List<String> taskStatusNames;
     private String startDate;  // تاریخ به صورت رشته (مثلاً "yyyy-MM-dd")
     private String endDate;
+    private String licensePlate;
 
     // Constructors
     public FilterRequestDTO() {
     }
 
-    public FilterRequestDTO(List<String> taskStatusNames, String startDate, String endDate) {
+    public FilterRequestDTO(List<String> taskStatusNames, String startDate, String endDate, String licensePlate) {
         this.taskStatusNames = taskStatusNames;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.licensePlate = licensePlate;
     }
 
     // Getters and Setters
@@ -41,5 +43,13 @@ public class FilterRequestDTO{
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 }

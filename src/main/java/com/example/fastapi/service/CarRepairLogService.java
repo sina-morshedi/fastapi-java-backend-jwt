@@ -105,4 +105,10 @@ public class CarRepairLogService {
         return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskNamesAndDateRange(
                 taskStatusNames,startDate,endDate);
     }
+
+    public List<CarRepairLogResponseDTO> getCarRepairLogsByLicensePlateAndTaskNames(
+            String licensePlate, List<String> taskStatusNames){
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogsByLicensePlateAndTaskNames(
+                licensePlate,taskStatusNames);
+    }
 }

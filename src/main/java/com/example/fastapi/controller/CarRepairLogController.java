@@ -186,7 +186,7 @@ public class CarRepairLogController {
                 .body(data);
     }
 
-    @PostMapping("/filter")
+    @PostMapping("/invoice-filter-by-date")
     public ResponseEntity<?> getFilteredCarRepairLogs(
             @RequestBody FilterRequestDTO filterRequest) {
 
@@ -218,7 +218,25 @@ public class CarRepairLogController {
                 .body(result);
     }
 
+    @PostMapping("/invoice-filter-by-licens-plate")
+    public ResponseEntity<?> getCarRepairLogsByLicensePlateAndTaskNames(
+            @RequestBody FilterRequestDTO filterRequest) {
 
+
+        List<CarRepairLogResponseDTO> result = carRepairLogService.getCarRepairLogsByLicensePlateAndTaskNames(
+                filterRequest.getLicensePlate(),filterRequest.getTaskStatusNames()
+        );
+
+        if (result == null || result.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("kaydı bulunamadı.");
+        }
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(result);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {
