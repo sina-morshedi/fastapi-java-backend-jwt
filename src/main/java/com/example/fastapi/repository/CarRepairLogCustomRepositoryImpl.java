@@ -176,7 +176,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
                 .and("partsUsed").as("partsUsed")
-                .and("payments").as("payments");  // اضافه کردن فیلد payments
+                .and("paymentRecords").as("paymentRecords");  // اضافه کردن فیلد payments
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchById,
@@ -385,7 +385,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
                 .and("partsUsed").as("partsUsed")
-                .and("payments").as("payments");  // ← اضافه کردن فیلد payments
+                .and("paymentRecords").as("paymentRecords");  // ← اضافه کردن فیلد payments
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -601,7 +601,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
                 .and("partsUsed").as("partsUsed")
-                .and("payments").as("payments");  // اضافه کردن payments
+                .and("paymentRecords").as("paymentRecords");  // اضافه کردن payments
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
