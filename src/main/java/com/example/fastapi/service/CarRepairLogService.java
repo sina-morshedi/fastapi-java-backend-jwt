@@ -63,6 +63,7 @@ public class CarRepairLogService {
 
     public CarRepairLogResponseDTO createLog(CarRepairLogRequestDTO requestDTO) {
         CarRepairLog entity = carRepairLogMapper.toEntity(requestDTO);
+        entity.setDateTime(new Date());
         CarRepairLog saved = carRepairLogRepository.save(entity);
         CarRepairLogResponseDTO responseDTO = carRepairLogCustomRepositoryImpl.findCarRepairLogById(saved.getId());
         return responseDTO;
@@ -91,6 +92,7 @@ public class CarRepairLogService {
     public Optional<CarRepairLogResponseDTO> updateLog(String id, CarRepairLogRequestDTO requestDTO) {
         return carRepairLogRepository.findById(id).map(existingLog -> {
             carRepairLogMapper.updateEntityFromDTO(requestDTO, existingLog);
+            existingLog.setDateTime(new Date());
             CarRepairLog updated = carRepairLogRepository.save(existingLog);
             return carRepairLogMapper.toResponseDTO(updated);
         });
