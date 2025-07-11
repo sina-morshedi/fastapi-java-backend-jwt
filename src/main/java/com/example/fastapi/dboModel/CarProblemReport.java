@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Document(collection = "carProblemReport")
 public class CarProblemReport {
@@ -15,7 +15,7 @@ public class CarProblemReport {
     private ObjectId carId;           // ✅ تبدیل به ObjectId
     private ObjectId creatorUserId;   // ✅ تبدیل به ObjectId
     private String problemSummary;
-    private LocalDateTime dateTime;
+    private Date dateTime;
 
     public CarProblemReport() {}
 
@@ -59,11 +59,11 @@ public class CarProblemReport {
         this.problemSummary = problemSummary;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }

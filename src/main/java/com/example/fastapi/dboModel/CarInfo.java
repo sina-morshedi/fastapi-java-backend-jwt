@@ -3,7 +3,7 @@ package com.example.fastapi.dboModel;
 import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
+import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "carInfo")
@@ -19,7 +19,7 @@ public class CarInfo {
     private String brandModel;
     private Integer modelYear;
     private String fuelType;
-    private LocalDateTime dateTime;
+    private Date dateTime;
 
     // Default constructor
     public CarInfo() {
@@ -27,7 +27,7 @@ public class CarInfo {
 
     // Constructor with all fields (except id)
     public CarInfo(String chassisNo, String motorNo, String licensePlate, String brand,
-                   String brandModel, Integer modelYear, String fuelType, LocalDateTime dateTime) {
+                   String brandModel, Integer modelYear, String fuelType, Date dateTime) {
         this.chassisNo = chassisNo;
         this.motorNo = motorNo;
         this.licensePlate = licensePlate;
@@ -107,11 +107,11 @@ public class CarInfo {
         this.fuelType = fuelType;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }

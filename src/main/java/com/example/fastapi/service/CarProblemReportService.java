@@ -21,7 +21,7 @@ public class CarProblemReportService {
     private CarInfoRepository carInfoRepository;
 
     public CarProblemReport createReport(CarProblemReport report) {
-
+        report.setDateTime(new Date());
         return reportRepository.save(report);
     }
 
@@ -56,7 +56,7 @@ public class CarProblemReportService {
             existing.setCarId(updatedReport.getCarId());
             existing.setCreatorUserId(updatedReport.getCreatorUserId());
             existing.setProblemSummary(updatedReport.getProblemSummary());
-            existing.setDateTime(updatedReport.getDateTime());
+            existing.setDateTime(new Date());
             return Optional.of(reportRepository.save(existing));
         }
         return Optional.empty();

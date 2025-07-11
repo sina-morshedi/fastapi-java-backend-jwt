@@ -2,7 +2,7 @@ package com.example.fastapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class CarProblemReportDTO {
 
@@ -12,11 +12,11 @@ public class CarProblemReportDTO {
     private CarInfoDTO carInfo;
     private UserProfileDTO creatorUser;
     private String problemSummary;
-    private LocalDateTime dateTime;
+    private Date dateTime;
 
     public CarProblemReportDTO() {}
 
-    public CarProblemReportDTO(String id, CarInfoDTO carInfo, UserProfileDTO creatorUser, String problemSummary, LocalDateTime dateTime) {
+    public CarProblemReportDTO(String id, CarInfoDTO carInfo, UserProfileDTO creatorUser, String problemSummary, Date dateTime) {
         this.id = id;
         this.carInfo = carInfo;
         this.creatorUser = creatorUser;
@@ -56,11 +56,11 @@ public class CarProblemReportDTO {
         this.problemSummary = problemSummary;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }
