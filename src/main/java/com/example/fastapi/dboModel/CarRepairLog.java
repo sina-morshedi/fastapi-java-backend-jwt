@@ -22,7 +22,7 @@ public class CarRepairLog {
 
     private List<PartUsed> partsUsed;
 
-    private List<PaymentRecord> paymentRecords;
+    private List<PaymentRecords> paymentRecords;
 
 
     public CarRepairLog() {}
@@ -115,11 +115,11 @@ public class CarRepairLog {
         this.partsUsed = partsUsed;
     }
 
-    public List<PaymentRecord> getPaymentRecords() {
+    public List<PaymentRecords> getPaymentRecords() {
         return paymentRecords;
     }
 
-    public void setPaymentRecords(List<PaymentRecord> paymentRecords) {
+    public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
     }
 }

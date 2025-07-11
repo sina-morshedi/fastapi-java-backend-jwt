@@ -2,14 +2,14 @@ package com.example.fastapi.dboModel;
 
 import java.util.Date;
 
-public class PaymentRecord {
+public class PaymentRecords {
 
     private Date paymentDate;
     private Double amountPaid;
 
-    public PaymentRecord() {}
+    public PaymentRecords() {}
 
-    public PaymentRecord(Date paymentDate, Double amountPaid) {
+    public PaymentRecords(Date paymentDate, Double amountPaid) {
         this.paymentDate = paymentDate;
         this.amountPaid = amountPaid;
     }

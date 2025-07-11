@@ -1,7 +1,7 @@
 package com.example.fastapi.dto;
 
 import com.example.fastapi.dboModel.PartUsed;
-import com.example.fastapi.dboModel.PaymentRecord;
+import com.example.fastapi.dboModel.PaymentRecords;
 
 
 import java.util.Date;
@@ -18,7 +18,7 @@ public class CarRepairLogResponseDTO {
     private Date dateTime;
     private CarProblemReportDTO problemReport;
     private List<PartUsed> partsUsed;
-    private List<PaymentRecord> paymentRecords;
+    private List<PaymentRecords> paymentRecords;
 
 
     public CarRepairLogResponseDTO() {}
@@ -29,7 +29,7 @@ public class CarRepairLogResponseDTO {
                                    TaskStatusDTO taskStatus, Date dateTime,
                                    CarProblemReportDTO problemReport,
                                    List<PartUsed> partsUsed,
-                                   List<PaymentRecord> paymentRecords) {
+                                   List<PaymentRecords> paymentRecords) {
         this.id = id;
         this.carInfo = carInfo;
         this.creatorUser = creatorUser;
@@ -117,11 +117,11 @@ public class CarRepairLogResponseDTO {
         this.partsUsed = partsUsed;
     }
 
-    public List<PaymentRecord> getPaymentRecords() {
+    public List<PaymentRecords> getPaymentRecords() {
         return paymentRecords;
     }
 
-    public void setPaymentRecords(List<PaymentRecord> paymentRecords) {
+    public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
     }
 
