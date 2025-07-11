@@ -3,6 +3,7 @@ package com.example.fastapi.dto;
 import java.util.Date;
 import java.util.List;
 import com.example.fastapi.dboModel.PartUsed;
+import com.example.fastapi.dboModel.PaymentRecord;
 
 public class CarRepairLogRequestDTO {
     private String carId;
@@ -14,12 +15,16 @@ public class CarRepairLogRequestDTO {
     private String problemReportId;
     private List<PartUsed> partsUsed;
 
+    private List<PaymentRecord> payments;
+
+
     public CarRepairLogRequestDTO() {}
 
     public CarRepairLogRequestDTO(String carId, String creatorUserId, String assignedUserId,
                                   String description, String taskStatusId,
                                   Date dateTime, String problemReportId,
-                                  List<PartUsed> partsUsed) {
+                                  List<PartUsed> partsUsed,
+                                  List<PaymentRecord> payments) {
         this.carId = carId;
         this.creatorUserId = creatorUserId;
         this.assignedUserId = assignedUserId;
@@ -28,7 +33,9 @@ public class CarRepairLogRequestDTO {
         this.dateTime = dateTime;
         this.problemReportId = problemReportId;
         this.partsUsed = partsUsed;
+        this.payments = payments;
     }
+
 
     // Getter و Setter برای فیلدهای قبلی...
 
@@ -97,4 +104,13 @@ public class CarRepairLogRequestDTO {
     public void setPartsUsed(List<PartUsed> partsUsed) {
         this.partsUsed = partsUsed;
     }
+
+    public List<PaymentRecord> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentRecord> payments) {
+        this.payments = payments;
+    }
+
 }

@@ -22,6 +22,9 @@ public class CarRepairLog {
 
     private List<PartUsed> partsUsed;
 
+    private List<PaymentRecord> payments;
+
+
     public CarRepairLog() {}
 
     // --- Getters and Setters ---
@@ -110,5 +113,13 @@ public class CarRepairLog {
 
     public void setPartsUsed(List<PartUsed> partsUsed) {
         this.partsUsed = partsUsed;
+    }
+
+    public List<PaymentRecord> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentRecord> payments) {
+        this.payments = payments;
     }
 }

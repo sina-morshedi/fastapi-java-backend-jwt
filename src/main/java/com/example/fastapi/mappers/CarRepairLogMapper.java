@@ -60,6 +60,13 @@ public class CarRepairLogMapper {
             entity.setPartsUsed(new ArrayList<>());
         }
 
+        // Set payments list
+        if (dto.getPayments() != null) {
+            entity.setPayments(dto.getPayments());
+        } else {
+            entity.setPayments(new ArrayList<>());
+        }
+
         return entity;
     }
 
@@ -69,11 +76,42 @@ public class CarRepairLogMapper {
 
         CarRepairLogResponseDTO dto = new CarRepairLogResponseDTO();
         dto.setId(entity.getId());
+        dto.setCarInfo(GetCarInfoDto(entity.getCarId()));
+        dto.setCreatorUser(GetUserDTO(entity.getCreatorUserId()));
+        dto.setAssignedUser(GetUserDTO(entity.getAssignedUserId()));
+        dto.setDescription(entity.getDescription());
+        dto.setTaskStatus(
+            taskStatusRepository.findById(new ObjectId(entity.getTaskStatusId())).map(ts -> {
+                TaskStatusDTO tsDto = new TaskStatusDTO();
+                tsDto.setId(ts.getId());
+                tsDto.setTaskStatusName(ts.getTaskStatusName());
+                return tsDto;
+            }).orElse(null)
+        );
 
-        // در صورت نیاز فیلدهای دیگر را مقداردهی کن
+
+
+
+        dto.setDateTime(entity.getDateTime());
+
+        dto.setProblemReport(
+                carProblemReportRepository.findById(entity.getProblemReportId()).map(pr -> {
+                    CarProblemReportDTO prDto = new CarProblemReportDTO();
+                    prDto.setId(pr.getId());
+                    prDto.setProblemSummary(pr.getProblemSummary());
+                    return prDto;
+                }).orElse(null)
+        );
+
+
+        dto.setPartsUsed(entity.getPartsUsed() != null ? entity.getPartsUsed() : new ArrayList<>());
+
+        // 🔥 اضافه کردن payments
+        dto.setPayments(entity.getPayments() != null ? entity.getPayments() : new ArrayList<>());
 
         return dto;
     }
+
 
     // آپدیت انتیتی با داده‌های DTO (برای Update)
     public void updateEntityFromDTO(CarRepairLogRequestDTO dto, CarRepairLog entity) {
@@ -97,6 +135,14 @@ public class CarRepairLogMapper {
         } else {
             entity.setPartsUsed(new ArrayList<>());
         }
+
+        // Update payments list
+        if (dto.getPayments() != null) {
+            entity.setPayments(dto.getPayments());
+        } else {
+            entity.setPayments(new ArrayList<>());
+        }
+
     }
 
     // توابع کمکی (مثلاً برای گرفتن DTO های تو در تو از دیتابیس)
