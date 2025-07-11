@@ -62,9 +62,9 @@ public class CarRepairLogMapper {
 
         // Set payments list
         if (dto.getPaymentRecords() != null) {
-            entity.setPayments(dto.getPaymentRecords());
+            entity.setPaymentRecords(dto.getPaymentRecords());
         } else {
-            entity.setPayments(new ArrayList<>());
+            entity.setPaymentRecords(new ArrayList<>());
         }
 
         return entity;
@@ -107,7 +107,7 @@ public class CarRepairLogMapper {
         dto.setPartsUsed(entity.getPartsUsed() != null ? entity.getPartsUsed() : new ArrayList<>());
 
         // 🔥 اضافه کردن payments
-        dto.setPayments(entity.getPayments() != null ? entity.getPayments() : new ArrayList<>());
+        dto.setPayments(entity.getPaymentRecords() != null ? entity.getPaymentRecords() : new ArrayList<>());
 
         return dto;
     }
@@ -138,9 +138,9 @@ public class CarRepairLogMapper {
 
         // Update payments list
         if (dto.getPaymentRecords() != null) {
-            entity.setPayments(dto.getPaymentRecords());
+            entity.setPaymentRecords(dto.getPaymentRecords());
         } else {
-            entity.setPayments(new ArrayList<>());
+            entity.setPaymentRecords(new ArrayList<>());
         }
 
     }
