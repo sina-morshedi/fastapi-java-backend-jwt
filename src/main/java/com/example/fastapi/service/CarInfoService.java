@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class CarInfoService {
@@ -38,7 +38,7 @@ public class CarInfoService {
 
         // Set current date and time if not provided
         if (carInfo.getDateTime() == null) {
-            carInfo.setDateTime(LocalDateTime.now());
+            carInfo.setDateTime(new Date());
         }
 
         // Save the car information to MongoDB
