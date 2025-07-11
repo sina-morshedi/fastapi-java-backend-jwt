@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 
 import java.util.List;
 import java.util.Optional;
@@ -103,10 +105,35 @@ public class CarRepairLogService {
     }
 
     public List<CarRepairLogResponseDTO> getCarRepairLogsByTaskNamesAndDateRange(
-            List<String> taskStatusNames, Date startDate, Date endDate){
+            List<String> taskStatusNames, Date start, Date end) {
+
+        // تاریخ قطع (CutOff) که از اون به بعد تاریخ‌ها UTC هستند
+        final ZonedDateTime cutOffZoned = ZonedDateTime.of(2025, 7, 11, 17, 47, 0, 0, ZoneId.of("UTC"));
+
+        // تبدیل start و end به ZonedDateTime
+        ZonedDateTime startZdt = ZonedDateTime.ofInstant(start.toInstant(), ZoneId.systemDefault());
+        ZonedDateTime endZdt = ZonedDateTime.ofInstant(end.toInstant(), ZoneId.systemDefault());
+
+        // اگر start یا end بعد از CutOff هست، تاریخ‌ها رو به UTC تبدیل کن
+        if (startZdt.isAfter(cutOffZoned)) {
+            start = Date.from(startZdt.withZoneSameInstant(ZoneId.of("UTC")).toInstant());
+        } else {
+            // برای قبل از CutOff می‌تونی به صورت local باقی بذاری یا هر منطق دلخواه
+            start = Date.from(startZdt.toInstant());
+        }
+
+        if (endZdt.isAfter(cutOffZoned)) {
+            end = Date.from(endZdt.withZoneSameInstant(ZoneId.of("UTC")).toInstant());
+        } else {
+            end = Date.from(endZdt.toInstant());
+        }
+
+        // حالا از start و end اصلاح شده برای query استفاده کن
+        // فرضا کد نمونه (بسته به دیتابیس شما تغییر داره)
         return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskNamesAndDateRange(
-                taskStatusNames,startDate,endDate);
+                taskStatusNames,start,end);
     }
+
 
     public List<CarRepairLogResponseDTO> getCarRepairLogsByLicensePlateAndTaskNames(
             String licensePlate, List<String> taskStatusNames){
