@@ -178,12 +178,11 @@ public class CarRepairLogController {
 
 
 
-    @PostMapping("/task-status-name")
-    public ResponseEntity<?> getLogsByTaskStatusName(@RequestBody String taskStatusName) {
+    @GetMapping("/task-status-name")
+    public ResponseEntity<?> getLogsByTaskStatusName(@RequestParam String taskStatusName) {
+        System.out.println("Received taskStatusName: " + taskStatusName);
         List<CarRepairLogResponseDTO> data = carRepairLogService.getLogsByTaskStatusName(taskStatusName);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(data);
+        return ResponseEntity.ok().body(data);
     }
 
     @PostMapping("/invoice-filter-by-date")
