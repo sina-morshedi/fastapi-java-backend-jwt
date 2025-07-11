@@ -15,7 +15,7 @@ public class CarRepairLogRequestDTO {
     private String problemReportId;
     private List<PartUsed> partsUsed;
 
-    private List<PaymentRecord> payments;
+    private List<PaymentRecord> paymentRecords;
 
 
     public CarRepairLogRequestDTO() {}
@@ -24,7 +24,7 @@ public class CarRepairLogRequestDTO {
                                   String description, String taskStatusId,
                                   Date dateTime, String problemReportId,
                                   List<PartUsed> partsUsed,
-                                  List<PaymentRecord> payments) {
+                                  List<PaymentRecord> paymentRecords) {
         this.carId = carId;
         this.creatorUserId = creatorUserId;
         this.assignedUserId = assignedUserId;
@@ -33,7 +33,7 @@ public class CarRepairLogRequestDTO {
         this.dateTime = dateTime;
         this.problemReportId = problemReportId;
         this.partsUsed = partsUsed;
-        this.payments = payments;
+        this.paymentRecords = paymentRecords;
     }
 
 
@@ -105,12 +105,12 @@ public class CarRepairLogRequestDTO {
         this.partsUsed = partsUsed;
     }
 
-    public List<PaymentRecord> getPayments() {
-        return payments;
+    public List<PaymentRecord> getPaymentRecords() {
+        return paymentRecords;
     }
 
-    public void setPayments(List<PaymentRecord> payments) {
-        this.payments = payments;
+    public void setPaymentRecords(List<PaymentRecord> paymentRecords) {
+        this.paymentRecords = paymentRecords;
     }
 
 }

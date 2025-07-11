@@ -61,8 +61,8 @@ public class CarRepairLogMapper {
         }
 
         // Set payments list
-        if (dto.getPayments() != null) {
-            entity.setPayments(dto.getPayments());
+        if (dto.getPaymentRecords() != null) {
+            entity.setPayments(dto.getPaymentRecords());
         } else {
             entity.setPayments(new ArrayList<>());
         }
@@ -137,8 +137,8 @@ public class CarRepairLogMapper {
         }
 
         // Update payments list
-        if (dto.getPayments() != null) {
-            entity.setPayments(dto.getPayments());
+        if (dto.getPaymentRecords() != null) {
+            entity.setPayments(dto.getPaymentRecords());
         } else {
             entity.setPayments(new ArrayList<>());
         }
