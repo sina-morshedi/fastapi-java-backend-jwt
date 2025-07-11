@@ -26,7 +26,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         this.mongoTemplate = mongoTemplate;
     }
 
-
     @Override
     public CarRepairLogResponseDTO findCarRepairLogById(String id) {
         MatchOperation matchById = Aggregation.match(Criteria.where("_id").is(new ObjectId(id)));
@@ -176,7 +175,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // اضافه کردن فیلد partsUsed
+                .and("partsUsed").as("partsUsed")
+                .and("payments").as("payments");  // اضافه کردن فیلد payments
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchById,
@@ -365,7 +365,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
-
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -385,7 +384,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");
+                .and("partsUsed").as("partsUsed")
+                .and("payments").as("payments");  // ← اضافه کردن فیلد payments
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -436,7 +436,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
     public List<CarRepairLogResponseDTO> findCarRepairLogsByLicensePlateAndTaskNames(
             String licensePlate, List<String> taskStatusNames) {
 
-        // Lookup carInfo
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("carId")
@@ -445,12 +444,10 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindCar = Aggregation.unwind("car", true);
 
-        // Match پلاک
         MatchOperation matchByLicensePlate = Aggregation.match(
                 Criteria.where("car.licensePlate").is(licensePlate)
         );
 
-        // Lookup taskStatus
         LookupOperation lookupTaskStatus = LookupOperation.newLookup()
                 .from("taskStatus")
                 .localField("taskStatusId")
@@ -459,12 +456,10 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
 
-        // Match taskStatusName
         MatchOperation matchByTaskStatusName = Aggregation.match(
                 Criteria.where("taskStatus.taskStatusName").in(taskStatusNames)
         );
 
-        // ادامه عملیات‌های قبلی
         LookupOperation lookupCreatorUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("creatorUserId")
@@ -534,7 +529,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindAssignedUserRole = Aggregation.unwind("assignedUser.role", true);
         UnwindOperation unwindAssignedUserPermission = Aggregation.unwind("assignedUser.permission", true);
 
-        // Lookup problemReport و زیر lookupها
         LookupOperation lookupProblemReport = LookupOperation.newLookup()
                 .from("carProblemReport")
                 .localField("problemReportId")
@@ -587,7 +581,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
-        // ✅ Projection نهایی
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -607,9 +600,9 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");
+                .and("partsUsed").as("partsUsed")
+                .and("payments").as("payments");  // اضافه کردن payments
 
-        // نهایی
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
                 unwindCar,
@@ -660,7 +653,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
     public List<CarRepairLogResponseDTO> findCarRepairLogsByTaskNamesAndDateRange(
             List<String> taskStatusNames, Date startDate, Date endDate) {
 
-        // Lookup carInfo
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("carId")
@@ -669,13 +661,19 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindCar = Aggregation.unwind("car", true);
 
-        // Match شرط روی taskStatusName و بازه تاریخ
+        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
+                .from("taskStatus")
+                .localField("taskStatusId")
+                .foreignField("_id")
+                .as("taskStatus");
+
+        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
+
         MatchOperation matchTaskAndDate = Aggregation.match(
                 Criteria.where("taskStatus.taskStatusName").in(taskStatusNames)
                         .and("dateTime").gte(startDate).lte(endDate)
         );
 
-        // Lookup creatorUser
         LookupOperation lookupCreatorUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("creatorUserId")
@@ -684,13 +682,11 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindCreatorUser = Aggregation.unwind("creatorUser", true);
 
-        // تبدیل رشته roleId و permissionId به ObjectId
         AggregationOperation addRoleIdObject = context -> new Document("$addFields",
                 new Document("creatorUser.roleIdObject", new Document("$toObjectId", "$creatorUser.roleId"))
                         .append("creatorUser.permissionIdObject", new Document("$toObjectId", "$creatorUser.permissionId"))
         );
 
-        // Lookup role و permission برای creatorUser
         LookupOperation lookupRole = LookupOperation.newLookup()
                 .from("roles")
                 .localField("creatorUser.roleIdObject")
@@ -706,7 +702,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindRole = Aggregation.unwind("creatorUser.role", true);
         UnwindOperation unwindPermission = Aggregation.unwind("creatorUser.permission", true);
 
-        // افزودن ObjectId برای assignedUserId (با شرط نال نبودن)
         AggregationOperation addAssignedUserIdObject = context -> new Document("$addFields",
                 new Document("assignedUserIdObject",
                         new Document("$cond",
@@ -720,7 +715,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 )
         );
 
-        // Lookup assignedUser
         LookupOperation lookupAssignedUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("assignedUserIdObject")
@@ -729,13 +723,11 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindAssignedUser = Aggregation.unwind("assignedUser", true);
 
-        // تبدیل رشته roleId و permissionId برای assignedUser
         AggregationOperation addAssignedUserRolePermissionIdObjects = context -> new Document("$addFields",
                 new Document("assignedUser.roleIdObject", new Document("$toObjectId", "$assignedUser.roleId"))
                         .append("assignedUser.permissionIdObject", new Document("$toObjectId", "$assignedUser.permissionId"))
         );
 
-        // Lookup role و permission برای assignedUser
         LookupOperation lookupAssignedUserRole = LookupOperation.newLookup()
                 .from("roles")
                 .localField("assignedUser.roleIdObject")
@@ -751,16 +743,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindAssignedUserRole = Aggregation.unwind("assignedUser.role", true);
         UnwindOperation unwindAssignedUserPermission = Aggregation.unwind("assignedUser.permission", true);
 
-        // Lookup taskStatus
-        LookupOperation lookupTaskStatus = LookupOperation.newLookup()
-                .from("taskStatus")
-                .localField("taskStatusId")
-                .foreignField("_id")
-                .as("taskStatus");
-
-        UnwindOperation unwindTaskStatus = Aggregation.unwind("taskStatus", true);
-
-        // Lookup problemReport
         LookupOperation lookupProblemReport = LookupOperation.newLookup()
                 .from("carProblemReport")
                 .localField("problemReportId")
@@ -769,20 +751,17 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         UnwindOperation unwindProblemReport = Aggregation.unwind("problemReport", true);
 
-        // افزودن ObjectId برای فیلدهای nested در problemReport
         AggregationOperation addNestedProblemFields = context -> new Document("$addFields",
                 new Document("problemReport.carIdObject", new Document("$toObjectId", "$problemReport.carId"))
                         .append("problemReport.creatorUserIdObject", new Document("$toObjectId", "$problemReport.creatorUserId"))
         );
 
-        // Lookup برای carInfo در problemReport
         LookupOperation lookupProblemReportCar = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("problemReport.carIdObject")
                 .foreignField("_id")
                 .as("problemReport.carInfo");
 
-        // Lookup برای creatorUser در problemReport
         LookupOperation lookupProblemReportCreatorUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("problemReport.creatorUserIdObject")
@@ -792,13 +771,11 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindProblemReportCar = Aggregation.unwind("problemReport.carInfo", true);
         UnwindOperation unwindProblemReportCreatorUser = Aggregation.unwind("problemReport.creatorUser", true);
 
-        // افزودن ObjectId برای role و permission در problemReport.creatorUser
         AggregationOperation addProblemReportCreatorUserFields = context -> new Document("$addFields",
                 new Document("problemReport.creatorUser.roleIdObject", new Document("$toObjectId", "$problemReport.creatorUser.roleId"))
                         .append("problemReport.creatorUser.permissionIdObject", new Document("$toObjectId", "$problemReport.creatorUser.permissionId"))
         );
 
-        // Lookup role و permission در problemReport.creatorUser
         LookupOperation lookupProblemReportCreatorUserRole = LookupOperation.newLookup()
                 .from("roles")
                 .localField("problemReport.creatorUser.roleIdObject")
@@ -814,12 +791,10 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindProblemReportCreatorUserRole = Aggregation.unwind("problemReport.creatorUser.role", true);
         UnwindOperation unwindProblemReportCreatorUserPermission = Aggregation.unwind("problemReport.creatorUser.permission", true);
 
-        // تبدیل ObjectId به String برای problemReport.creatorUser.userId
         AggregationOperation convertProblemReportCreatorUserIdToString = context -> new Document("$addFields",
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
-        // Projection کامل
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -887,7 +862,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         return results.getMappedResults();
     }
 
-
     public CarRepairLogResponseDTO findLatestCarRepairLogByLicensePlate(String licensePlate) {
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
@@ -929,11 +903,26 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         UnwindOperation unwindRole = Aggregation.unwind("creatorUser.role", true);
         UnwindOperation unwindPermission = Aggregation.unwind("creatorUser.permission", true);
 
+        // تبدیل assignedUserId به ObjectId قبل از Lookup
+        AggregationOperation addAssignedUserIdObject = context -> new Document("$addFields",
+                new Document("assignedUserIdObject",
+                        new Document("$cond",
+                                new Document("if", new Document("$and", Arrays.asList(
+                                        new Document("$ne", Arrays.asList("$assignedUserId", null)),
+                                        new Document("$ne", Arrays.asList("$assignedUserId", ""))
+                                )))
+                                        .append("then", new Document("$toObjectId", "$assignedUserId"))
+                                        .append("else", null)
+                        )
+                )
+        );
+
         LookupOperation lookupAssignedUser = LookupOperation.newLookup()
                 .from("users")
-                .localField("assignedUserId")
+                .localField("assignedUserIdObject")
                 .foreignField("_id")
                 .as("assignedUser");
+
         UnwindOperation unwindAssignedUser = Aggregation.unwind("assignedUser", true);
 
         AggregationOperation addAssignedUserRolePermissionIds = context -> new Document("$addFields",
@@ -1014,6 +1003,15 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
+        // اضافه کردن lookup برای paymentRecord
+        LookupOperation lookupPaymentRecord = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")  // فرض می‌کنیم کلید مرتبط همین id است، اگر متفاوت است اصلاح کنید
+                .foreignField("carRepairLogId") // فرض می‌کنیم در paymentRecord فیلدی به نام carRepairLogId برای ارتباط است
+                .as("paymentRecord");
+
+        UnwindOperation unwindPaymentRecord = Aggregation.unwind("paymentRecord", true);
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -1033,7 +1031,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // اضافه کردن partsUsed
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecord").as("paymentRecord"); // اضافه کردن paymentRecord به خروجی
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -1048,6 +1047,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindRole,
                 lookupPermission,
                 unwindPermission,
+                addAssignedUserIdObject,
                 lookupAssignedUser,
                 unwindAssignedUser,
                 addAssignedUserRolePermissionIds,
@@ -1070,6 +1070,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
+                lookupPaymentRecord,
+                unwindPaymentRecord,
                 project
         );
 
@@ -1206,6 +1208,15 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
+        // اضافه کردن lookup برای paymentRecord
+        LookupOperation lookupPaymentRecord = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")  // فرض کلید ارتباط
+                .foreignField("carRepairLogId")
+                .as("paymentRecord");
+
+        UnwindOperation unwindPaymentRecord = Aggregation.unwind("paymentRecord", true);
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -1225,7 +1236,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // اضافه شده
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecord").as("paymentRecord");  // اضافه شده
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -1260,6 +1272,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
+                lookupPaymentRecord,
+                unwindPaymentRecord,
                 project
         );
 
@@ -1405,6 +1419,13 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
+        // اضافه کردن lookup برای paymentRecord (بدون unwind چون ممکنه چند رکورد باشه)
+        LookupOperation lookupPaymentRecord = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")
+                .foreignField("carRepairLogId")
+                .as("paymentRecord");
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -1424,7 +1445,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecord").as("paymentRecord");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -1463,6 +1485,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
+                lookupPaymentRecord, // اضافه شده
                 project
         );
 
@@ -1474,8 +1497,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
-
-
 
     public List<CarRepairLogResponseDTO> findLatestCarRepairLogsByTaskStatusName(String taskStatusName) {
 
@@ -1607,11 +1628,18 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         // ** اضافه کردن lookup برای partsUsed **
         LookupOperation lookupPartsUsed = LookupOperation.newLookup()
                 .from("partsUsed")
-                .localField("partsUsedIds")  // فرض بر این است که در سند carRepairLog آرایه ObjectId هست
+                .localField("partsUsedIds")
                 .foreignField("_id")
                 .as("partsUsed");
 
-        // پروژه خروجی با partsUsed
+        // ** اضافه کردن lookup برای paymentRecord **
+        LookupOperation lookupPaymentRecord = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")
+                .foreignField("carRepairLogId")
+                .as("paymentRecord");
+
+        // پروژه خروجی با partsUsed و paymentRecord
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("carInfo").as("carInfo")
@@ -1631,7 +1659,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // اضافه شده
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecord").as("paymentRecord");  // اضافه شده
 
         Aggregation aggregation = Aggregation.newAggregation(
                 sortByDateTimeDesc,
@@ -1669,7 +1698,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 lookupProblemReportCreatorUserPermission,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
-                lookupPartsUsed,            // اضافه شده
+                lookupPartsUsed,
+                lookupPaymentRecord,      // اضافه شده
                 project
         );
 
@@ -1803,7 +1833,21 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         AggregationOperation convertProblemReportCreatorUserIdToString = context -> new Document("$addFields",
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id")));
 
-        // 9. Projection نهایی شامل partsUsed
+        // ** اضافه کردن lookup برای partsUsed **
+        LookupOperation lookupPartsUsed = LookupOperation.newLookup()
+                .from("partsUsed")
+                .localField("partsUsedIds")
+                .foreignField("_id")
+                .as("partsUsed");
+
+        // ** اضافه کردن lookup برای paymentRecord **
+        LookupOperation lookupPaymentRecord = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")
+                .foreignField("carRepairLogId")
+                .as("paymentRecord");
+
+        // 9. Projection نهایی شامل partsUsed و paymentRecord
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -1823,7 +1867,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // ✅ اضافه کردن مستقیم از خود سند
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecord").as("paymentRecord");  // اضافه شده
 
         // نهایی‌سازی aggregation
         Aggregation aggregation = Aggregation.newAggregation(
@@ -1862,6 +1907,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
+                lookupPartsUsed,
+                lookupPaymentRecord,  // اضافه شده
                 project
         );
 
@@ -1926,9 +1973,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         return results.getMappedResults();
     }
 
-
     public List<CarRepairLogResponseDTO> findLatestRepairLogForEachCarAssignedToUser(String userId) {
-        // 1. Join carInfo
         LookupOperation lookupCarInfo = LookupOperation.newLookup()
                 .from("carInfo")
                 .localField("carId")
@@ -1936,20 +1981,15 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .as("car");
         UnwindOperation unwindCar = Aggregation.unwind("car", true);
 
-        // 2. مرتب‌سازی بر اساس جدیدترین زمان
         SortOperation sortByDateDesc = Aggregation.sort(Sort.by(Sort.Direction.DESC, "dateTime"));
 
-        // 3. گروه‌بندی روی پلاک ماشین برای گرفتن آخرین لاگ
         GroupOperation groupByLicensePlate = Aggregation.group("car.licensePlate")
                 .first(Aggregation.ROOT).as("latestLog");
 
-        // 4. انتقال latestLog به root
         AggregationOperation replaceRoot = context -> new Document("$replaceRoot", new Document("newRoot", "$latestLog"));
 
-        // 5. فیلتر assignedUserId با userId ورودی
         MatchOperation matchAssignedUser = Aggregation.match(Criteria.where("assignedUserId").is(new ObjectId(userId)));
 
-        // 6. باقی joins
         LookupOperation lookupCreatorUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("creatorUserId")
@@ -1979,10 +2019,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                                         new Document("$ne", Arrays.asList("$assignedUserId", null)),
                                         new Document("$ne", Arrays.asList("$assignedUserId", "")))))
                                         .append("then", new Document("$toObjectId", "$assignedUserId"))
-                                        .append("else", null)
-                        )
-                )
-        );
+                                        .append("else", null))));
         LookupOperation lookupAssignedUser = LookupOperation.newLookup()
                 .from("users")
                 .localField("assignedUserIdObject")
@@ -2051,7 +2088,13 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
         AggregationOperation convertProblemReportCreatorUserIdToString = context -> new Document("$addFields",
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id")));
 
-        // 7. نهایی‌سازی projection (اضافه کردن partsUsed)
+        // ✅ اضافه کردن lookup برای paymentRecords
+        LookupOperation lookupPaymentRecords = LookupOperation.newLookup()
+                .from("paymentRecord")
+                .localField("_id")
+                .foreignField("carRepairLogId")
+                .as("paymentRecords");
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -2071,7 +2114,8 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");  // ← این خط اضافه شد
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecords").as("paymentRecords");  // ← ✅ این خط اضافه شد
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -2110,6 +2154,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 unwindProblemReportCreatorUserRole,
                 unwindProblemReportCreatorUserPermission,
                 convertProblemReportCreatorUserIdToString,
+                lookupPaymentRecords, // ← ✅ اضافه شده
                 project
         );
 
@@ -2121,8 +2166,5 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
-
-
-
 
 }
