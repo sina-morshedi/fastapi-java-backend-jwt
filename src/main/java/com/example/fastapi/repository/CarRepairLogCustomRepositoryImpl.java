@@ -365,6 +365,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 new Document("problemReport.creatorUser.userId", new Document("$toString", "$problemReport.creatorUser._id"))
         );
 
+
         ProjectionOperation project = Aggregation.project()
                 .and("_id").as("id")
                 .and("car").as("carInfo")
@@ -384,8 +385,7 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed")
-                .and("payments").as("payments");  // ← اضافه کردن فیلد payments
+                .and("partsUsed").as("partsUsed");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
@@ -432,7 +432,6 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
 
         return results.getMappedResults();
     }
-
 
     public List<CarRepairLogResponseDTO> findCarRepairLogsByLicensePlateAndTaskNames(
             String licensePlate, List<String> taskStatusNames) {
