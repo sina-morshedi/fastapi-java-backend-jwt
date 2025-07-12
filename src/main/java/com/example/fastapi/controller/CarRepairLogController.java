@@ -10,9 +10,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.time.LocalTime;
+
+
+import java.time.format.DateTimeParseException;
 
 @CrossOrigin(origins = {"http://localhost:xxxx", "https://*.netlify.app"})
 @RestController
@@ -186,56 +193,56 @@ public class CarRepairLogController {
     }
 
     @PostMapping("/invoice-filter-by-date")
-    public ResponseEntity<?> getFilteredCarRepairLogs(
-            @RequestBody FilterRequestDTO filterRequest) {
-
-        // تبدیل رشته‌ها به تاریخ
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        Date start = null;
-        Date end = null;
+    public ResponseEntity<?> getFilteredCarRepairLogs(@RequestBody FilterRequestDTO filterRequest) {
         try {
-            start = sdf.parse(filterRequest.getStartDate());
-            end = sdf.parse(filterRequest.getEndDate());
-        } catch (ParseException e) {
-            return ResponseEntity.badRequest().build();
-        }
+            // تبدیل رشته‌های ISO به Instant (UTC)
+            Instant start = filterRequest.getStartDate();
+            Instant end = filterRequest.getEndDate();
 
-        List<CarRepairLogResponseDTO> result = carRepairLogService.getCarRepairLogsByTaskNamesAndDateRange(
-                filterRequest.getTaskStatusNames(),
-                start,
-                end
-        );
+            List<CarRepairLogResponseDTO> result = carRepairLogService.getCarRepairLogsByTaskNamesAndDateRange(
+                    filterRequest.getTaskStatusNames(),
+                    start,
+                    end
+            );
 
-        if (result == null || result.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
+            if (result == null || result.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("kaydı bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("kaydı bulunamadı.");
+                    .body(result);
+
+        } catch (DateTimeParseException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Geçersiz tarih formatı. ISO-8601 bekleniyor.");
         }
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(result);
     }
+
 
     @PostMapping("/invoice-filter-by-licens-plate")
     public ResponseEntity<?> getCarRepairLogsByLicensePlateAndTaskNames(
             @RequestBody FilterRequestDTO filterRequest) {
 
-
         List<CarRepairLogResponseDTO> result = carRepairLogService.getCarRepairLogsByLicensePlateAndTaskNames(
-                filterRequest.getLicensePlate(),filterRequest.getTaskStatusNames()
+                filterRequest.getLicensePlate(),
+                filterRequest.getTaskStatusNames()
         );
 
         if (result == null || result.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("kaydı bulunamadı.");
+                    .body("Kaydı bulunamadı.");
         }
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(result);
     }
+
 
     @PostMapping("/create")
     public ResponseEntity<CarRepairLogResponseDTO> createLog(@RequestBody CarRepairLogRequestDTO requestDTO) {

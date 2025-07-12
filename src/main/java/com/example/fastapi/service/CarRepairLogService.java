@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.time.Instant;
+import java.util.List;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -105,33 +108,34 @@ public class CarRepairLogService {
     }
 
     public List<CarRepairLogResponseDTO> getCarRepairLogsByTaskNamesAndDateRange(
-            List<String> taskStatusNames, Date start, Date end) {
+            List<String> taskStatusNames, Instant start, Instant end) {
 
-        // تاریخ قطع (CutOff) که از اون به بعد تاریخ‌ها UTC هستند
+        // تاریخ CutOff که از این تاریخ به بعد اطلاعات UTC ذخیره شدن
         final ZonedDateTime cutOffZoned = ZonedDateTime.of(2025, 7, 11, 17, 47, 0, 0, ZoneId.of("UTC"));
 
-        // تبدیل start و end به ZonedDateTime
-        ZonedDateTime startZdt = ZonedDateTime.ofInstant(start.toInstant(), ZoneId.systemDefault());
-        ZonedDateTime endZdt = ZonedDateTime.ofInstant(end.toInstant(), ZoneId.systemDefault());
+        // تبدیل Instant به ZonedDateTime با منطقه زمانی UTC
+        ZonedDateTime startZdt = ZonedDateTime.ofInstant(start, ZoneId.of("UTC"));
+        ZonedDateTime endZdt = ZonedDateTime.ofInstant(end, ZoneId.of("UTC"));
 
-        // اگر start یا end بعد از CutOff هست، تاریخ‌ها رو به UTC تبدیل کن
-        if (startZdt.isAfter(cutOffZoned)) {
-            start = Date.from(startZdt.withZoneSameInstant(ZoneId.of("UTC")).toInstant());
-        } else {
-            // برای قبل از CutOff می‌تونی به صورت local باقی بذاری یا هر منطق دلخواه
-            start = Date.from(startZdt.toInstant());
+        // اصلاح تاریخ‌ها بر اساس CutOff
+        if (startZdt.isBefore(cutOffZoned)) {
+            // اگر قبل از CutOff است، تبدیل به ZonedDateTime با منطقه لوکال سرور (یا منطقه مورد نظر)
+            ZonedDateTime localStartZdt = startZdt.withZoneSameInstant(ZoneId.systemDefault());
+            start = localStartZdt.toInstant();
         }
 
-        if (endZdt.isAfter(cutOffZoned)) {
-            end = Date.from(endZdt.withZoneSameInstant(ZoneId.of("UTC")).toInstant());
-        } else {
-            end = Date.from(endZdt.toInstant());
+        if (endZdt.isBefore(cutOffZoned)) {
+            ZonedDateTime localEndZdt = endZdt.withZoneSameInstant(ZoneId.systemDefault());
+            end = localEndZdt.toInstant();
         }
 
-        // حالا از start و end اصلاح شده برای query استفاده کن
-        // فرضا کد نمونه (بسته به دیتابیس شما تغییر داره)
+        // تبدیل Instant به Date (اگر لازم باشد، مثلا برای query دیتابیس)
+        Date startDate = Date.from(start);
+        Date endDate = Date.from(end);
+
+        // فراخوانی متد ریپازیتوری با تاریخ‌های اصلاح شده
         return carRepairLogCustomRepositoryImpl.findCarRepairLogsByTaskNamesAndDateRange(
-                taskStatusNames,start,end);
+                taskStatusNames, startDate, endDate);
     }
 
 

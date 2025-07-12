@@ -1,26 +1,25 @@
 package com.example.fastapi.dto;
 
+import java.time.Instant;
 import java.util.List;
 
-public class FilterRequestDTO{
+public class FilterRequestDTO {
 
     private List<String> taskStatusNames;
-    private String startDate;  // تاریخ به صورت رشته (مثلاً "yyyy-MM-dd")
-    private String endDate;
+    private Instant startDate;       // ← تاریخ با زمان کامل به‌صورت UTC
+    private Instant endDate;         // ← همین‌طور
     private String licensePlate;
 
-    // Constructors
     public FilterRequestDTO() {
     }
 
-    public FilterRequestDTO(List<String> taskStatusNames, String startDate, String endDate, String licensePlate) {
+    public FilterRequestDTO(List<String> taskStatusNames, Instant startDate, Instant endDate, String licensePlate) {
         this.taskStatusNames = taskStatusNames;
         this.startDate = startDate;
         this.endDate = endDate;
         this.licensePlate = licensePlate;
     }
 
-    // Getters and Setters
     public List<String> getTaskStatusNames() {
         return taskStatusNames;
     }
@@ -29,19 +28,19 @@ public class FilterRequestDTO{
         this.taskStatusNames = taskStatusNames;
     }
 
-    public String getStartDate() {
+    public Instant getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Instant startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public Instant getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Instant endDate) {
         this.endDate = endDate;
     }
 
