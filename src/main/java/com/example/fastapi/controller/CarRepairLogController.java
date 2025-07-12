@@ -249,7 +249,7 @@ public class CarRepairLogController {
     public ResponseEntity<?> updateLog(@PathVariable String id, @RequestBody CarRepairLogRequestDTO requestDTO) {
         Optional<CarRepairLogResponseDTO> updated = carRepairLogService.updateLog(id, requestDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(updated);
     }
