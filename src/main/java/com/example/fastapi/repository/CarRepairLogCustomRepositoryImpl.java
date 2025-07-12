@@ -814,7 +814,10 @@ public class CarRepairLogCustomRepositoryImpl implements CarRepairLogCustomRepos
                 .and("taskStatus").as("taskStatus")
                 .and("dateTime").as("dateTime")
                 .and("problemReport").as("problemReport")
-                .and("partsUsed").as("partsUsed");
+                .and("partsUsed").as("partsUsed")
+                .and("paymentRecords").as("paymentRecords");
+
+
 
         Aggregation aggregation = Aggregation.newAggregation(
                 lookupCarInfo,
