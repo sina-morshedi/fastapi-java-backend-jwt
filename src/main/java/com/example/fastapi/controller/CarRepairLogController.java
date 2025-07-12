@@ -249,15 +249,9 @@ public class CarRepairLogController {
     public ResponseEntity<?> updateLog(@PathVariable String id, @RequestBody CarRepairLogRequestDTO requestDTO) {
         Optional<CarRepairLogResponseDTO> updated = carRepairLogService.updateLog(id, requestDTO);
 
-        if (updated.isPresent()) {
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Güncelleme yapıldı.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Log bulunamadı");
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(updated);
     }
 
 
