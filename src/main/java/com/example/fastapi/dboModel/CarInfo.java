@@ -21,6 +21,8 @@ public class CarInfo {
     private String fuelType;
     private Date dateTime;
 
+    private ObjectId customerId;
+
     // Default constructor
     public CarInfo() {
     }
@@ -113,5 +115,15 @@ public class CarInfo {
 
     public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public String getCustomerId() {
+        return customerId != null ? customerId.toHexString() : null;
+    }
+
+    public void setCustomerId(String customerId) {
+        if (customerId != null && !customerId.isBlank()) {
+            this.customerId = new ObjectId(customerId);
+        }
     }
 }

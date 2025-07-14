@@ -1,8 +1,5 @@
 package com.example.fastapi.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public class CarInfoDTO {
@@ -17,8 +14,25 @@ public class CarInfoDTO {
     private String fuelType;
     private Date dateTime;
 
-    public CarInfoDTO() {}
+    // Constructors
+    public CarInfoDTO() {
+    }
 
+    public CarInfoDTO(String id, String chassisNo, String motorNo, String licensePlate,
+                      String brand, String brandModel, Integer modelYear,
+                      String fuelType, Date dateTime) {
+        this.id = id;
+        this.chassisNo = chassisNo;
+        this.motorNo = motorNo;
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.brandModel = brandModel;
+        this.modelYear = modelYear;
+        this.fuelType = fuelType;
+        this.dateTime = dateTime;
+    }
+
+    // Getters & Setters
     public String getId() {
         return id;
     }
@@ -90,4 +104,5 @@ public class CarInfoDTO {
     public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
+
 }
