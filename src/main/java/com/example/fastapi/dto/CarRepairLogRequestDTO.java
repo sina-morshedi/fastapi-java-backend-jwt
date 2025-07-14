@@ -17,6 +17,9 @@ public class CarRepairLogRequestDTO {
 
     private List<PaymentRecords> paymentRecords;
 
+    private String customerId;
+
+
 
     public CarRepairLogRequestDTO() {}
 
@@ -24,7 +27,8 @@ public class CarRepairLogRequestDTO {
                                   String description, String taskStatusId,
                                   Date dateTime, String problemReportId,
                                   List<PartUsed> partsUsed,
-                                  List<PaymentRecords> paymentRecords) {
+                                  List<PaymentRecords> paymentRecords,
+                                  String customerId) {
         this.carId = carId;
         this.creatorUserId = creatorUserId;
         this.assignedUserId = assignedUserId;
@@ -34,7 +38,9 @@ public class CarRepairLogRequestDTO {
         this.problemReportId = problemReportId;
         this.partsUsed = partsUsed;
         this.paymentRecords = paymentRecords;
+        this.customerId = customerId;
     }
+
 
 
     // Getter و Setter برای فیلدهای قبلی...
@@ -111,6 +117,14 @@ public class CarRepairLogRequestDTO {
 
     public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 
 }

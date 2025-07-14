@@ -20,16 +20,24 @@ public class CarRepairLogResponseDTO {
     private List<PartUsed> partsUsed;
     private List<PaymentRecords> paymentRecords;
 
+    private CustomerDTO customer; // new field
+
 
     public CarRepairLogResponseDTO() {}
 
-    public CarRepairLogResponseDTO(String id, CarInfoDTO carInfo, UserProfileDTO creatorUser,
-                                   UserProfileDTO assignedUser,
-                                   String description,
-                                   TaskStatusDTO taskStatus, Date dateTime,
-                                   CarProblemReportDTO problemReport,
-                                   List<PartUsed> partsUsed,
-                                   List<PaymentRecords> paymentRecords) {
+    public CarRepairLogResponseDTO(
+            String id,
+            CarInfoDTO carInfo,
+            UserProfileDTO creatorUser,
+            UserProfileDTO assignedUser,
+            String description,
+            TaskStatusDTO taskStatus,
+            Date dateTime,
+            CarProblemReportDTO problemReport,
+            List<PartUsed> partsUsed,
+            List<PaymentRecords> paymentRecords,
+            CustomerDTO customer // <-- اضافه شده
+    ) {
         this.id = id;
         this.carInfo = carInfo;
         this.creatorUser = creatorUser;
@@ -40,7 +48,9 @@ public class CarRepairLogResponseDTO {
         this.problemReport = problemReport;
         this.partsUsed = partsUsed;
         this.paymentRecords = paymentRecords;
+        this.customer = customer;
     }
+
 
 
     // ===== Getters and Setters =====
@@ -123,6 +133,14 @@ public class CarRepairLogResponseDTO {
 
     public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
+    }
+
+    public CustomerDTO getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(CustomerDTO customer) {
+        this.customer = customer;
     }
 
 }

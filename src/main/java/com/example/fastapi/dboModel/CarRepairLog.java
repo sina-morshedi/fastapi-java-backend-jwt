@@ -20,10 +20,10 @@ public class CarRepairLog {
     private ObjectId problemReportId;
     private ObjectId assignedUserId;
 
+    private ObjectId customerId;  // فیلد جدید برای ارتباط با کالکشن مشتریان
+
     private List<PartUsed> partsUsed;
-
     private List<PaymentRecords> paymentRecords;
-
 
     public CarRepairLog() {}
 
@@ -105,7 +105,15 @@ public class CarRepairLog {
         }
     }
 
-    // Getter و Setter برای partsUsed
+    public String getCustomerId() {
+        return customerId != null ? customerId.toHexString() : null;
+    }
+
+    public void setCustomerId(String customerId) {
+        if (customerId != null && !customerId.isBlank()) {
+            this.customerId = new ObjectId(customerId);
+        }
+    }
 
     public List<PartUsed> getPartsUsed() {
         return partsUsed;

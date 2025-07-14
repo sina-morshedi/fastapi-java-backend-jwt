@@ -1,5 +1,6 @@
 package com.example.fastapi.repository;
 
+import com.example.fastapi.dboModel.CarProblemReport;
 import com.example.fastapi.dboModel.Customer;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -11,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends MongoRepository<Customer, ObjectId> {
 
+    Optional<Customer> findById(String carId);
     Optional<Customer> findByFullName(String fullName);
 
     Optional<Customer> findByPhone(String phone);

@@ -69,10 +69,21 @@ public class CarRepairLogService {
     public CarRepairLogResponseDTO createLog(CarRepairLogRequestDTO requestDTO) {
         CarRepairLog entity = carRepairLogMapper.toEntity(requestDTO);
         entity.setDateTime(new Date());
+        // entity.setCustomerId(requestDTO.getCustomerId()); // اگر در مپر انجام نشده
         CarRepairLog saved = carRepairLogRepository.save(entity);
-        CarRepairLogResponseDTO responseDTO = carRepairLogCustomRepositoryImpl.findCarRepairLogById(saved.getId());
-        return responseDTO;
+        return carRepairLogCustomRepositoryImpl.findCarRepairLogById(saved.getId());
     }
+
+    public Optional<CarRepairLogResponseDTO> updateLog(String id, CarRepairLogRequestDTO requestDTO) {
+        return carRepairLogRepository.findById(id).map(existingLog -> {
+            carRepairLogMapper.updateEntityFromDTO(requestDTO, existingLog);
+            // existingLog.setCustomerId(requestDTO.getCustomerId()); // اگر در مپر انجام نشده
+            existingLog.setDateTime(new Date());
+            CarRepairLog updated = carRepairLogRepository.save(existingLog);
+            return carRepairLogMapper.toResponseDTO(updated);
+        });
+    }
+
 
     public List<CarRepairLogResponseDTO> getAllLogs() {
         List<CarRepairLog> allLogs = carRepairLogRepository.findAll();
@@ -94,14 +105,6 @@ public class CarRepairLogService {
         return false;
     }
 
-    public Optional<CarRepairLogResponseDTO> updateLog(String id, CarRepairLogRequestDTO requestDTO) {
-        return carRepairLogRepository.findById(id).map(existingLog -> {
-            carRepairLogMapper.updateEntityFromDTO(requestDTO, existingLog);
-            existingLog.setDateTime(new Date());
-            CarRepairLog updated = carRepairLogRepository.save(existingLog);
-            return carRepairLogMapper.toResponseDTO(updated);
-        });
-    }
 
     public List<TaskStatusCountDTO> getCountCarsByLatestTaskStatus(){
         return carRepairLogCustomRepositoryImpl.countCarsByLatestTaskStatus();
