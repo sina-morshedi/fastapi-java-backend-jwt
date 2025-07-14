@@ -29,10 +29,15 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    // دریافت مشتری بر اساس Id
     public Optional<Customer> getCustomerById(String id) {
         if (id == null || id.isBlank()) return Optional.empty();
         return customerRepository.findById(new ObjectId(id));
+    }
+
+
+    public List<Customer> searchCustomersByName(String name) {
+        if (name == null || name.isBlank()) return List.of();
+        return customerRepository.findByFullNameContainingIgnoreCase(name);
     }
 
     // ویرایش مشتری (ابتدا چک کن مشتری وجود دارد)

@@ -74,6 +74,22 @@ public class CustomerController {
         }
     }
 
+    // İsimle müşteri ara (örnek: /customers/search?name=Ali)
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchCustomerByName(@RequestParam String name) {
+        List<Customer> matchedCustomers = customerService.searchCustomersByName(name);
+
+        if (matchedCustomers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Girilen isimle eşleşen müşteri bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(matchedCustomers);
+    }
+
 
     // Müşteri güncelle
     @PutMapping("/{id}")
