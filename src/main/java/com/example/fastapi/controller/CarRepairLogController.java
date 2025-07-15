@@ -260,7 +260,7 @@ public class CarRepairLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(updated);
     }
-////
+
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteLog(@PathVariable String id) {

@@ -173,6 +173,8 @@ public class CarRepairLogMapper {
     }
 
     private UserProfileDTO getUserDTO(String userId) {
+        if (userId == null) return null;
+
         Users user = userRepository.findById(userId).orElse(null);
 
         if (user != null) {
