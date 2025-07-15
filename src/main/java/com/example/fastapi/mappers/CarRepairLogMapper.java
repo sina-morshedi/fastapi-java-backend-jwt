@@ -91,14 +91,18 @@ public class CarRepairLogMapper {
                 }).orElse(null)
         );
         dto.setDateTime(entity.getDateTime());
-        dto.setProblemReport(
-                carProblemReportRepository.findById(entity.getProblemReportId()).map(pr -> {
-                    CarProblemReportDTO prDto = new CarProblemReportDTO();
-                    prDto.setId(pr.getId());
-                    prDto.setProblemSummary(pr.getProblemSummary());
-                    return prDto;
-                }).orElse(null)
-        );
+        if (entity.getProblemReportId() != null && !entity.getProblemReportId().isEmpty()) {
+            dto.setProblemReport(
+                    carProblemReportRepository.findById(entity.getProblemReportId()).map(pr -> {
+                        CarProblemReportDTO prDto = new CarProblemReportDTO();
+                        prDto.setId(pr.getId());
+                        prDto.setProblemSummary(pr.getProblemSummary());
+                        return prDto;
+                    }).orElse(null)
+            );
+        } else {
+            dto.setProblemReport(null);
+        }
         dto.setPartsUsed(entity.getPartsUsed() != null ? entity.getPartsUsed() : new ArrayList<>());
         dto.setPaymentRecords(entity.getPaymentRecords() != null ? entity.getPaymentRecords() : new ArrayList<>());
 
