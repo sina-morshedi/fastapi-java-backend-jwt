@@ -113,13 +113,21 @@ public class CarRepairLogMapper {
 
         entity.setCarId(dto.getCarId());
         entity.setCreatorUserId(dto.getCreatorUserId());
-        entity.setAssignedUserId(dto.getAssignedUserId());
-        entity.setDescription(dto.getDescription());
         entity.setTaskStatusId(dto.getTaskStatusId());
         entity.setDateTime(dto.getDateTime());
-        entity.setProblemReportId(dto.getProblemReportId());
         entity.setCustomerId(dto.getCustomerId());  // اضافه شده
 
+        if (dto.getAssignedUserId() != null && !dto.getAssignedUserId().isEmpty()) {
+            entity.setAssignedUserId(dto.getAssignedUserId());
+        }
+
+        if (dto.getDescription() != null && !dto.getDescription().isEmpty()) {
+            entity.setDescription(dto.getDescription());
+        }
+
+        if (dto.getProblemReportId() != null && !dto.getProblemReportId().isEmpty()) {
+            entity.setProblemReportId(dto.getProblemReportId());
+        }
         if (dto.getPartsUsed() != null) {
             entity.setPartsUsed(dto.getPartsUsed().stream()
                     .map(partDto -> new PartUsed(
@@ -129,13 +137,13 @@ public class CarRepairLogMapper {
                     )).collect(Collectors.toList())
             );
         } else {
-            entity.setPartsUsed(new ArrayList<>());
+//            entity.setPartsUsed(new ArrayList<>());
         }
 
         if (dto.getPaymentRecords() != null) {
             entity.setPaymentRecords(dto.getPaymentRecords());
         } else {
-            entity.setPaymentRecords(new ArrayList<>());
+//            entity.setPaymentRecords(new ArrayList<>());
         }
     }
 
