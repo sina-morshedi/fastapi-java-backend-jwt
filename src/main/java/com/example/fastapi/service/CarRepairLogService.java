@@ -1,9 +1,7 @@
 package com.example.fastapi.service;
 
-import com.example.fastapi.dto.TaskStatusCountDTO;
+import com.example.fastapi.dto.*;
 import com.example.fastapi.mappers.CarRepairLogMapper;
-import com.example.fastapi.dto.CarRepairLogResponseDTO;
-import com.example.fastapi.dto.CarRepairLogRequestDTO;
 import com.example.fastapi.dboModel.CarRepairLog;
 import com.example.fastapi.repository.CarRepairLogRepository;
 import com.example.fastapi.repository.CarRepairLogCustomRepositoryImpl;
@@ -47,6 +45,11 @@ public class CarRepairLogService {
     public List<CarRepairLogResponseDTO> getLatestRepairLogForEachCar() {
         return carRepairLogCustomRepositoryImpl.findLatestRepairLogForEachCar();
     }
+    public List<CarRepairLogResponseDTO> getLatestRepairLogForEachCarFiltered(String customerFullName,
+                                                                              String taskStatusName) {
+        return carRepairLogCustomRepositoryImpl.findLatestRepairLogForEachCarFiltered(customerFullName,taskStatusName);
+    }
+
     public List<CarRepairLogResponseDTO> getLatestRepairLogForEachCarAssignedToUser(String userId) {
         return carRepairLogCustomRepositoryImpl.findLatestRepairLogForEachCarAssignedToUser(userId);
     }

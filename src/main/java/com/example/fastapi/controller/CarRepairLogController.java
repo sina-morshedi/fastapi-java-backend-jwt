@@ -85,6 +85,28 @@ public class CarRepairLogController {
                 .body(logs);
     }
 
+    @GetMapping("/log-for-each-car-customer-task-filter")
+    public ResponseEntity<?> getLatestRepairLogForEachCarFiltered(
+            @RequestParam(required = false) String customerFullName,
+            @RequestParam(required = false) String taskStatusName
+    ) {
+        List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCarFiltered(
+                customerFullName,
+                taskStatusName
+        );
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Bilgi bulunamadı.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(logs);
+    }
+
     @GetMapping("/latest-assigned/{userId}")
     public ResponseEntity<?> getLastLogForEachCarAssignedToUser(@PathVariable String userId) {
         List<CarRepairLogResponseDTO> logs = carRepairLogService.getLatestRepairLogForEachCarAssignedToUser(userId);
