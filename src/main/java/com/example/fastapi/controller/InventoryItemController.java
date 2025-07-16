@@ -31,7 +31,7 @@ public class InventoryItemController {
             // در صورت خطای تکراری، پاسخ مناسب با کد وضعیت 400 (Bad Request) برگردان
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(Map.of("error", e.getMessage()));
+                    .body(e.getMessage());
         } catch (Exception e) {
             // برای سایر خطاها می‌توانی پاسخ عمومی بدهی
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
