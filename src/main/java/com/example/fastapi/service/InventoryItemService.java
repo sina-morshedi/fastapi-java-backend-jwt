@@ -18,9 +18,20 @@ public class InventoryItemService {
 
     // افزودن قطعه جدید
     public InventoryItem addItem(InventoryItem item) {
+        // Barkod kontrolü
+        if (inventoryItemRepository.existsByBarcode(item.getBarcode())) {
+            throw new IllegalArgumentException("Aynı barkoda sahip bir parça zaten mevcut.");
+        }
+
+        // Parça adı kontrolü
+        if (inventoryItemRepository.existsByPartName(item.getPartName())) {
+            throw new IllegalArgumentException("Aynı parçaya sahip bir parça zaten mevcut.");
+        }
+
         item.setCreatedAt(new Date());
         item.setUpdatedAt(new Date());
         item.setIsActive(true);
+
         return inventoryItemRepository.save(item);
     }
 
@@ -127,7 +138,6 @@ public class InventoryItemService {
         item.setQuantity(currentQuantity + incrementAmount);
         inventoryItemRepository.save(item);
 
-        // اگر بخواهی اینجا هم می‌توانی لاگ اضافه کردن موجودی ثبت کنی
 
         return Optional.of(item);
     }

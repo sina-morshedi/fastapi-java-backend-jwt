@@ -22,11 +22,24 @@ public class InventoryItemController {
     // افزودن قطعه جدید
     @PostMapping("/add")
     public ResponseEntity<Object> addInventoryItem(@RequestBody InventoryItem item) {
-        InventoryItem savedItem = inventoryItemService.addItem(item);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(savedItem);
+        try {
+            InventoryItem savedItem = inventoryItemService.addItem(item);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(savedItem);
+        } catch (IllegalArgumentException e) {
+            // در صورت خطای تکراری، پاسخ مناسب با کد وضعیت 400 (Bad Request) برگردان
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            // برای سایر خطاها می‌توانی پاسخ عمومی بدهی
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(Map.of("error", "Internal server error"));
+        }
     }
+
 
     // گرفتن لیست تمام قطعات فعال
     @GetMapping("/list")
