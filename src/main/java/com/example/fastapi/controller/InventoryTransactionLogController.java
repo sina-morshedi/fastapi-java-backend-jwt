@@ -25,7 +25,7 @@ public class InventoryTransactionLogController {
             InventoryTransactionLog savedTransaction = inventoryTransactionLogService.addTransaction(transaction);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(savedTransaction);
+                    .body("Parça çıkışı başarıyla kaydedildi.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Content-Type", "application/json; charset=UTF-8")

@@ -118,7 +118,7 @@ public class InventoryItemController {
 
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
-                .body(updated.get());
+                .body("İlgili parçanın bilgileri güncellendi.");
     }
 
     // حذف منطقی (غیرفعال کردن قطعه)
@@ -129,7 +129,7 @@ public class InventoryItemController {
         if (!success) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Silinecek parça bulunamadı."); // قطعه‌ای برای حذف پیدا نشد
+                    .body("Bu parça pasif hale getirilmiştir, stoktan çıkış yapılamaz."); // قطعه‌ای برای حذف پیدا نشد
         }
 
         return ResponseEntity.noContent().build();
@@ -175,7 +175,7 @@ public class InventoryItemController {
 
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
-                .body(updatedItem.get());
+                .body("İlgili parça stoktan düşüldü.");
     }
 
 
@@ -201,7 +201,7 @@ public class InventoryItemController {
 
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json; charset=UTF-8")
-                .body(updatedItem.get());
+                .body("İlgili parça stoğa eklendi.");
     }
 
 }

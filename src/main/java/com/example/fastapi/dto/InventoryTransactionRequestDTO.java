@@ -2,41 +2,37 @@ package com.example.fastapi.dto;
 
 import java.time.LocalDateTime;
 
-public class InventoryTransactionLogDTO {
+public class InventoryTransactionRequestDTO {
 
     public enum TransactionType {
-        SALE,           // فروش
-        CONSUMPTION,    // مصرف در تعمیرگاه
-        RETURN_SALE,    // بازگشت از فروش
-        RETURN_CONSUMPTION, // بازگشت از مصرف تعمیرگاه
-        DAMAGE          // خرابی یا دور ریختن قطعه
+        SALE,
+        CONSUMPTION,
+        RETURN_SALE,
+        RETURN_CONSUMPTION,
+        DAMAGE
     }
 
-    private String id;
+    private String id;               // می‌تونید این رو اختیاری در نظر بگیرید
+    private String carInfoId;
+    private String customerId;
+    private String creatorUserId;
+    private String inventoryItemId;
 
-    private String carInfoId;       // شناسه ماشین
-    private String customerId;      // شناسه مشتری
-    private String userId;          // شناسه کاربر ثبت کننده
-    private String inventoryItemId; // شناسه قطعه
+    private int quantity;
+    private TransactionType type;
+    private String description;
+    private LocalDateTime dateTime;
 
-    private int quantity;           // تعداد قطعات مصرف شده یا برگشتی
-
-    private TransactionType type;  // نوع تراکنش
-
-    private String description;     // توضیحات (nullable)
-
-    private LocalDateTime dateTime; // زمان ثبت تراکنش
-
-    public InventoryTransactionLogDTO() {
+    public InventoryTransactionRequestDTO() {
     }
 
-    public InventoryTransactionLogDTO(String id, String carInfoId, String customerId, String userId,
-                                      String inventoryItemId, int quantity, TransactionType type,
-                                      String description, LocalDateTime dateTime) {
+    public InventoryTransactionRequestDTO(String id, String carInfoId, String customerId, String creatorUserId,
+                                          String inventoryItemId, int quantity, TransactionType type,
+                                          String description, LocalDateTime dateTime) {
         this.id = id;
         this.carInfoId = carInfoId;
         this.customerId = customerId;
-        this.userId = userId;
+        this.creatorUserId = creatorUserId;
         this.inventoryItemId = inventoryItemId;
         this.quantity = quantity;
         this.type = type;
@@ -44,7 +40,7 @@ public class InventoryTransactionLogDTO {
         this.dateTime = dateTime;
     }
 
-    // --- Getters and Setters ---
+    // Getter و Setter ها
 
     public String getId() {
         return id;
@@ -70,12 +66,12 @@ public class InventoryTransactionLogDTO {
         this.customerId = customerId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getCreatorUserId() {
+        return creatorUserId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setCreatorUserId(String creatorUserId) {
+        this.creatorUserId = creatorUserId;
     }
 
     public String getInventoryItemId() {
