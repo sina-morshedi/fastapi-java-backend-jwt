@@ -9,7 +9,8 @@ public class InventoryTransactionResponseDTO {
         CONSUMPTION,
         RETURN_SALE,
         RETURN_CONSUMPTION,
-        DAMAGE
+        DAMAGE,
+        INCOMING
     }
 
     private String id;

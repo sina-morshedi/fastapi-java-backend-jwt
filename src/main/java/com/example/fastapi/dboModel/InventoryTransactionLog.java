@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
 public class InventoryTransactionLog {
 
     public enum TransactionType {
-        SALE,               // فروش
-        CONSUMPTION,        // مصرف در تعمیرگاه
-        RETURN_SALE,        // بازگشت از فروش
-        RETURN_CONSUMPTION, // بازگشت از مصرف تعمیرگاه
-        DAMAGE              // خرابی یا دور ریختن قطعه
+        SALE,
+        CONSUMPTION,
+        RETURN_SALE,
+        RETURN_CONSUMPTION,
+        DAMAGE,
+        INCOMING
     }
 
     @Id
