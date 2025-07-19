@@ -1,6 +1,7 @@
 package com.example.fastapi.controller;
 
 import com.example.fastapi.dboModel.InventoryTransactionLog;
+import com.example.fastapi.dto.InventoryTransactionResponseDTO;
 import com.example.fastapi.service.InventoryTransactionLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class InventoryTransactionLogController {
     // Tüm işlemleri listele
     @GetMapping("/list")
     public ResponseEntity<Object> getAllTransactions() {
-        List<InventoryTransactionLog> transactions = inventoryTransactionLogService.getAllTransactions();
+        List<InventoryTransactionResponseDTO> transactions = inventoryTransactionLogService.getAllTransactions();
 
         if (transactions == null || transactions.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -54,52 +55,52 @@ public class InventoryTransactionLogController {
     }
 
     // ID ile işlem getir
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getTransactionById(@PathVariable String id) {
-        Optional<InventoryTransactionLog> transactionOpt = inventoryTransactionLogService.getTransactionById(id);
-
-        if (transactionOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("İşlem bulunamadı");
-        }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(transactionOpt.get());
-    }
-
-    // İşlem sil
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteTransaction(@PathVariable String id) {
-        boolean deleted = inventoryTransactionLogService.deleteTransactionById(id);
-
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Silinecek işlem bulunamadı");
-        }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body("İşlem başarıyla silindi");
-    }
-
-
-    // İşlem türüne göre arama
-    @GetMapping("/searchByType")
-    public ResponseEntity<Object> searchByType(@RequestParam InventoryTransactionLog.TransactionType type) {
-        List<InventoryTransactionLog> transactions = inventoryTransactionLogService.getTransactionsByType(type);
-
-        if (transactions == null || transactions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Bu türde işlem bulunamadı");
-        }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(transactions);
-    }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Object> getTransactionById(@PathVariable String id) {
+//        Optional<InventoryTransactionLog> transactionOpt = inventoryTransactionLogService.getTransactionById(id);
+//
+//        if (transactionOpt.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .header("Content-Type", "application/json; charset=UTF-8")
+//                    .body("İşlem bulunamadı");
+//        }
+//
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json; charset=UTF-8")
+//                .body(transactionOpt.get());
+//    }
+//
+//    // İşlem sil
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<Object> deleteTransaction(@PathVariable String id) {
+//        boolean deleted = inventoryTransactionLogService.deleteTransactionById(id);
+//
+//        if (!deleted) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .header("Content-Type", "application/json; charset=UTF-8")
+//                    .body("Silinecek işlem bulunamadı");
+//        }
+//
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json; charset=UTF-8")
+//                .body("İşlem başarıyla silindi");
+//    }
+//
+//
+//    // İşlem türüne göre arama
+//    @GetMapping("/searchByType")
+//    public ResponseEntity<Object> searchByType(@RequestParam InventoryTransactionLog.TransactionType type) {
+//        List<InventoryTransactionLog> transactions = inventoryTransactionLogService.getTransactionsByType(type);
+//
+//        if (transactions == null || transactions.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .header("Content-Type", "application/json; charset=UTF-8")
+//                    .body("Bu türde işlem bulunamadı");
+//        }
+//
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json; charset=UTF-8")
+//                .body(transactions);
+//    }
 
 }

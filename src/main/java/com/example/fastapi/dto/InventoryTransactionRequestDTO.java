@@ -15,7 +15,7 @@ public class InventoryTransactionRequestDTO {
     private String id;               // می‌تونید این رو اختیاری در نظر بگیرید
     private String carInfoId;
     private String customerId;
-    private String creatorUserId;
+    private String userId;
     private String inventoryItemId;
 
     private int quantity;
@@ -32,7 +32,7 @@ public class InventoryTransactionRequestDTO {
         this.id = id;
         this.carInfoId = carInfoId;
         this.customerId = customerId;
-        this.creatorUserId = creatorUserId;
+        this.userId = creatorUserId;
         this.inventoryItemId = inventoryItemId;
         this.quantity = quantity;
         this.type = type;
@@ -66,12 +66,12 @@ public class InventoryTransactionRequestDTO {
         this.customerId = customerId;
     }
 
-    public String getCreatorUserId() {
-        return creatorUserId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setCreatorUserId(String creatorUserId) {
-        this.creatorUserId = creatorUserId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getInventoryItemId() {
