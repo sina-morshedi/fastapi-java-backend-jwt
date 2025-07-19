@@ -2,6 +2,7 @@ package com.example.fastapi.dto;
 
 import java.time.LocalDateTime;
 
+
 public class InventoryTransactionRequestDTO {
 
     public enum TransactionType {
@@ -15,7 +16,7 @@ public class InventoryTransactionRequestDTO {
     private String id;               // می‌تونید این رو اختیاری در نظر بگیرید
     private String carInfoId;
     private String customerId;
-    private String userId;
+    private String creatorUserId;
     private String inventoryItemId;
 
     private int quantity;
@@ -32,7 +33,7 @@ public class InventoryTransactionRequestDTO {
         this.id = id;
         this.carInfoId = carInfoId;
         this.customerId = customerId;
-        this.userId = creatorUserId;
+        this.creatorUserId = creatorUserId;
         this.inventoryItemId = inventoryItemId;
         this.quantity = quantity;
         this.type = type;
@@ -66,12 +67,12 @@ public class InventoryTransactionRequestDTO {
         this.customerId = customerId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getCreatorUserId() {
+        return creatorUserId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void getCreatorUserId(String userId) {
+        this.creatorUserId = userId;
     }
 
     public String getInventoryItemId() {
@@ -113,4 +114,20 @@ public class InventoryTransactionRequestDTO {
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
+
+    @Override
+    public String toString() {
+        return "InventoryTransactionRequestDTO{" +
+                "id='" + id + '\'' +
+                ", carInfoId='" + carInfoId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", creatorUserId='" + creatorUserId + '\'' +
+                ", inventoryItemId='" + inventoryItemId + '\'' +
+                ", quantity=" + quantity +
+                ", type=" + type +
+                ", description='" + description + '\'' +
+                ", dateTime=" + dateTime +
+                '}';
+    }
+
 }

@@ -92,9 +92,6 @@ public class InventoryTransactionLogCustomRepositoryImpl implements InventoryTra
 
         List<InventoryTransactionResponseDTO> list = results.getMappedResults();
 
-        // (دلخواه) چاپ خروجی برای دیباگ
-        list.forEach(item -> System.out.println(item));
-
         return list;
     }
 }

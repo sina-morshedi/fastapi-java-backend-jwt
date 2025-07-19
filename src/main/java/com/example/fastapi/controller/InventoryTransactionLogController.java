@@ -1,6 +1,7 @@
 package com.example.fastapi.controller;
 
 import com.example.fastapi.dboModel.InventoryTransactionLog;
+import com.example.fastapi.dto.InventoryTransactionRequestDTO;
 import com.example.fastapi.dto.InventoryTransactionResponseDTO;
 import com.example.fastapi.service.InventoryTransactionLogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,9 @@ public class InventoryTransactionLogController {
 
     // Yeni işlem ekle
     @PostMapping("/add")
-    public ResponseEntity<Object> addTransaction(@RequestBody InventoryTransactionLog transaction) {
+    public ResponseEntity<Object> addTransaction(@RequestBody InventoryTransactionRequestDTO transaction) {
         try {
+            System.out.println("Received DTO: " + transaction.toString());
             InventoryTransactionLog savedTransaction = inventoryTransactionLogService.addTransaction(transaction);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")

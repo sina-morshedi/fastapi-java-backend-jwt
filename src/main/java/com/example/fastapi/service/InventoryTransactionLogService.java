@@ -1,9 +1,11 @@
 package com.example.fastapi.service;
 
 import com.example.fastapi.dboModel.InventoryTransactionLog;
+import com.example.fastapi.dto.InventoryTransactionRequestDTO;
 import com.example.fastapi.dto.InventoryTransactionResponseDTO;
 import com.example.fastapi.repository.InventoryTransactionLogRepository;
 import com.example.fastapi.repository.InventoryTransactionLogCustomRepositoryImpl;
+import com.example.fastapi.mappers.InventoryTransactionMapper;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class InventoryTransactionLogService {
 
     private final InventoryTransactionLogRepository repository;
+
     private final InventoryTransactionLogCustomRepositoryImpl inventoryTransactionLogCustomRepositoryImpl;
 
     public InventoryTransactionLogService(InventoryTransactionLogRepository repository,
@@ -23,9 +26,12 @@ public class InventoryTransactionLogService {
     }
 
     // اضافه کردن تراکنش جدید
-    public InventoryTransactionLog addTransaction(InventoryTransactionLog transactionLog) {
-        return repository.save(transactionLog);
+    public InventoryTransactionLog addTransaction(InventoryTransactionRequestDTO dto) {
+        System.out.println("Received DTO: " + dto.toString());
+        InventoryTransactionLog entity = InventoryTransactionMapper.toEntity(dto);
+        return repository.save(entity);
     }
+
 
     // گرفتن همه تراکنش‌ها
     public List<InventoryTransactionResponseDTO> getAllTransactions() {

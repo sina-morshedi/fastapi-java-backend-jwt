@@ -24,7 +24,7 @@ public class InventoryTransactionLog {
 
     private ObjectId carInfoId;       // شناسه ماشین
     private ObjectId customerId;      // شناسه مشتری
-    private ObjectId userId;          // شناسه کاربر ثبت کننده
+    private ObjectId creatorUserId;          // شناسه کاربر ثبت کننده
     private ObjectId inventoryItemId; // شناسه قطعه مورد نظر
 
     private int quantity;             // تعداد قطعات مصرف شده یا برگشتی
@@ -42,11 +42,11 @@ public class InventoryTransactionLog {
         this.dateTime = LocalDateTime.now();
     }
 
-    public InventoryTransactionLog(ObjectId carInfoId, ObjectId customerId, ObjectId userId, ObjectId inventoryItemId,
+    public InventoryTransactionLog(ObjectId carInfoId, ObjectId customerId, ObjectId creatorUserId, ObjectId inventoryItemId,
                                    int quantity, TransactionType type, @Nullable String description) {
         this.carInfoId = carInfoId;
         this.customerId = customerId;
-        this.userId = userId;
+        this.creatorUserId = creatorUserId;
         this.inventoryItemId = inventoryItemId;
         this.quantity = quantity;
         this.type = type;
@@ -82,12 +82,12 @@ public class InventoryTransactionLog {
         this.customerId = customerId;
     }
 
-    public ObjectId getUserId() {
-        return userId;
+    public ObjectId getCreatorUserId() {
+        return creatorUserId;
     }
 
-    public void setUserId(ObjectId userId) {
-        this.userId = userId;
+    public void setCreatorUserId(ObjectId creatorUserId) {
+        this.creatorUserId = creatorUserId;
     }
 
     public ObjectId getInventoryItemId() {
