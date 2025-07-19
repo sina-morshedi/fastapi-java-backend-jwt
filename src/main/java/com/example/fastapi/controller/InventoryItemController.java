@@ -36,7 +36,7 @@ public class InventoryItemController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Internal server error");
+                    .body("Internal server error.");
         }
     }
     // افزودن قطعه جدید
