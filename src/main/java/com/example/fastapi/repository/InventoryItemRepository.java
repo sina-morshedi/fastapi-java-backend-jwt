@@ -9,22 +9,24 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Repository
 public interface InventoryItemRepository extends MongoRepository<InventoryItem, ObjectId> {
 
-    // پیدا کردن با بارکد (برای چک‌کردن یکتایی)
     Optional<InventoryItem> findByBarcode(String barcode);
 
-    // فقط آیتم‌های فعال
     List<InventoryItem> findByIsActiveTrue();
 
-    // جستجو بر اساس نام قطعه (مثلاً برای فیلتر در فرانت)
+    Page<InventoryItem> findByIsActiveTrue(Pageable pageable);
+
     List<InventoryItem> findByPartNameContainingIgnoreCase(String partName);
 
-    // آیتم‌هایی که تعدادشون کمتر از مقدار مشخصه (مثلاً هشدار کم بودن موجودی)
     List<InventoryItem> findByQuantityLessThan(int threshold);
 
     boolean existsByBarcode(String barcode);
+
     boolean existsByPartName(String partName);
 
 }

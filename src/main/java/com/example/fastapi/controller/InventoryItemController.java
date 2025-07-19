@@ -12,6 +12,11 @@ import java.util.Map;
 
 import com.example.fastapi.dto.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 @RequestMapping("/inventory")
 public class InventoryItemController {
@@ -19,6 +24,12 @@ public class InventoryItemController {
     @Autowired
     private InventoryItemService inventoryItemService;
 
+    @GetMapping("/inventory-items")
+    public Page<InventoryItem> getInventoryItems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return inventoryItemService.getActiveInventoryItemsPaged(page, size);
+    }
     // افزودن قطعه جدید
     @PostMapping("/add")
     public ResponseEntity<Object> addInventoryItem(@RequestBody InventoryItem item) {

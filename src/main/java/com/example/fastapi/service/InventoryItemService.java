@@ -10,12 +10,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
 @Service
 public class InventoryItemService {
 
     @Autowired
     private InventoryItemRepository inventoryItemRepository;
 
+
+    public Page<InventoryItem> getActiveInventoryItemsPaged(int page, int size) {
+        return inventoryItemRepository.findByIsActiveTrue(PageRequest.of(page, size));
+    }
     // افزودن قطعه جدید
     public InventoryItem addItem(InventoryItem item) {
         // Barkod kontrolü
