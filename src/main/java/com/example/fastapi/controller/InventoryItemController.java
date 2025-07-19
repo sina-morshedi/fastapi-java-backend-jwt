@@ -175,7 +175,7 @@ public class InventoryItemController {
 
     // کاهش تعداد قطعه
     @PostMapping("/decrementQuantity")
-    public ResponseEntity<Object> decrementQuantity(@RequestBody InventoryQuantityChangeRequestDTO request) {
+    public ResponseEntity<Object> decrementQuantity(@RequestBody InventoryChangeRequestDTO request) {
         String itemId = request.getItemId();
         int decrementAmount = request.getAmount();
 
@@ -185,7 +185,7 @@ public class InventoryItemController {
                     .body("Geçersiz itemId veya decrementAmount");
         }
 
-        Optional<InventoryItem> updatedItem = inventoryItemService.decrementQuantity(itemId, decrementAmount);
+        Optional<InventoryItem> updatedItem = inventoryItemService.decrementQuantity(request);
 
         if (updatedItem.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -201,7 +201,7 @@ public class InventoryItemController {
 
 
     @PostMapping("/incrementQuantity")
-    public ResponseEntity<Object> incrementQuantity(@RequestBody InventoryQuantityChangeRequestDTO request) {
+    public ResponseEntity<Object> incrementQuantity(@RequestBody InventoryChangeRequestDTO request) {
         String itemId = request.getItemId();
         int incrementAmount = request.getAmount();
 
@@ -211,7 +211,7 @@ public class InventoryItemController {
                     .body("Geçersiz itemId veya incrementAmount"); // ورودی نامعتبر
         }
 
-        Optional<InventoryItem> updatedItem = inventoryItemService.incrementQuantity(itemId, incrementAmount);
+        Optional<InventoryItem> updatedItem = inventoryItemService.incrementQuantity(request);
 
         if (updatedItem.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

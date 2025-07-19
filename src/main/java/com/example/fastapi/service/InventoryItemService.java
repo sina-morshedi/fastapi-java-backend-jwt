@@ -1,12 +1,14 @@
 package com.example.fastapi.service;
 
 import com.example.fastapi.dboModel.InventoryItem;
+import com.example.fastapi.dto.InventoryChangeRequestDTO;
 import com.example.fastapi.repository.InventoryItemRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,7 +114,11 @@ public class InventoryItemService {
         return false;
     }
 
-    public Optional<InventoryItem> decrementQuantity(String itemId, int decrementAmount) {
+    public Optional<InventoryItem> decrementQuantity(InventoryChangeRequestDTO request) {
+        String itemId = request.getItemId();
+        int decrementAmount = request.getAmount();
+        Date date = request.getUpdatedAt();
+
         Optional<InventoryItem> itemOpt = inventoryItemRepository.findById(new ObjectId(itemId));
         if (itemOpt.isEmpty()) {
             return Optional.empty(); // قطعه پیدا نشد
@@ -126,14 +132,18 @@ public class InventoryItemService {
         }
 
         item.setQuantity(currentQuantity - decrementAmount);
-        inventoryItemRepository.save(item);
 
-        // اگر بخواهی اینجا می‌توانی لاگ مصرف اضافه کنی
+        item.setUpdatedAt(date);
+        inventoryItemRepository.save(item);
 
         return Optional.of(item);
     }
 
-    public Optional<InventoryItem> incrementQuantity(String itemId, int incrementAmount) {
+    public Optional<InventoryItem> incrementQuantity(InventoryChangeRequestDTO request) {
+        String itemId = request.getItemId();
+        int incrementAmount = request.getAmount();
+        Date date = request.getUpdatedAt();
+
         Optional<InventoryItem> itemOpt = inventoryItemRepository.findById(new ObjectId(itemId));
         if (itemOpt.isEmpty()) {
             return Optional.empty(); // قطعه پیدا نشد
@@ -142,13 +152,13 @@ public class InventoryItemService {
         InventoryItem item = itemOpt.get();
 
         int currentQuantity = item.getQuantity() != null ? item.getQuantity() : 0;
-
         item.setQuantity(currentQuantity + incrementAmount);
-        inventoryItemRepository.save(item);
 
+        item.setUpdatedAt(date);
+
+        inventoryItemRepository.save(item); // حتماً ذخیره شود
 
         return Optional.of(item);
     }
-
 
 }
