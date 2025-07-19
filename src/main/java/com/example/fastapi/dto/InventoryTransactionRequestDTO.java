@@ -10,7 +10,8 @@ public class InventoryTransactionRequestDTO {
         CONSUMPTION,
         RETURN_SALE,
         RETURN_CONSUMPTION,
-        DAMAGE
+        DAMAGE,
+        INCOMING
     }
 
     private String id;               // می‌تونید این رو اختیاری در نظر بگیرید
