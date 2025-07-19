@@ -25,10 +25,19 @@ public class InventoryItemController {
     private InventoryItemService inventoryItemService;
 
     @GetMapping("/inventory-items")
-    public Page<InventoryItem> getInventoryItems(
+    public ResponseEntity<Object> getInventoryItems(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return inventoryItemService.getActiveInventoryItemsPaged(page, size);
+        try {
+            Page<InventoryItem> items = inventoryItemService.getActiveInventoryItemsPaged(page, size);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(items);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(Map.of("error", "Internal server error"));
+        }
     }
     // افزودن قطعه جدید
     @PostMapping("/add")
