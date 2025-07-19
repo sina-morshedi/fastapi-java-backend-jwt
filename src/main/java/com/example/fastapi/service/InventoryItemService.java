@@ -142,7 +142,7 @@ public class InventoryItemService {
     public Optional<InventoryItem> incrementQuantity(InventoryChangeRequestDTO request) {
         String itemId = request.getItemId();
         int incrementAmount = request.getAmount();
-        Date date = request.getUpdatedAt();
+        Date updatedAt = request.getUpdatedAt();
 
         Optional<InventoryItem> itemOpt = inventoryItemRepository.findById(new ObjectId(itemId));
         if (itemOpt.isEmpty()) {
@@ -154,11 +154,22 @@ public class InventoryItemService {
         int currentQuantity = item.getQuantity() != null ? item.getQuantity() : 0;
         item.setQuantity(currentQuantity + incrementAmount);
 
-        item.setUpdatedAt(date);
+        // اگر قیمت خرید موجود بود، به‌روزرسانی شود
+        if (request.getPurchasePrice() != null) {
+            item.setPurchasePrice(request.getPurchasePrice());
+        }
 
-        inventoryItemRepository.save(item); // حتماً ذخیره شود
+        // اگر قیمت فروش موجود بود، به‌روزرسانی شود
+        if (request.getSalePrice() != null) {
+            item.setSalePrice(request.getSalePrice());
+        }
+
+        item.setUpdatedAt(updatedAt);
+
+        inventoryItemRepository.save(item);
 
         return Optional.of(item);
     }
+
 
 }
