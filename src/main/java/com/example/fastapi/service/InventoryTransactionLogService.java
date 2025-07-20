@@ -61,27 +61,26 @@ public List<InventoryTransactionResponseDTO> findTransactionsByDateRangePaginate
         int page,
         int size
 ) {
-    // تبدیل رشته به LocalDate
-    LocalDate startDate = LocalDate.parse(startDateStr);
-    LocalDate endDate = LocalDate.parse(endDateStr);
+    // 1. پارس رشته‌های ورودی به ZonedDateTime یا OffsetDateTime (با فرض فرمت ISO8601 و زون UTC)
+    ZonedDateTime startUtc = ZonedDateTime.parse(startDateStr);
+    ZonedDateTime endUtc = ZonedDateTime.parse(endDateStr);
 
-    // منطقه زمانی ترکیه
-    ZoneId zoneId = ZoneId.of("Europe/Istanbul");
+    // 2. تبدیل زمان UTC به منطقه زمانی ترکیه
+    ZoneId istanbulZone = ZoneId.of("Europe/Istanbul");
+    ZonedDateTime startIstanbul = startUtc.withZoneSameInstant(istanbulZone);
+    ZonedDateTime endIstanbul = endUtc.withZoneSameInstant(istanbulZone);
 
-    // ساخت ZonedDateTime برای شروع و پایان روز با منطقه زمانی ترکیه
-    ZonedDateTime startZdt = startDate.atStartOfDay(zoneId);
-    ZonedDateTime endZdt = endDate.atTime(LocalTime.MAX).atZone(zoneId);
+    // 3. حالا اگر دیتابیس با LocalDateTime کار می‌کند، می‌توانیم LocalDateTime بگیریم
+    LocalDateTime startLocal = startIstanbul.toLocalDateTime();
+    LocalDateTime endLocal = endIstanbul.toLocalDateTime();
 
-    // تبدیل ZonedDateTime به LocalDateTime برای استفاده در اگریگیشن
-    LocalDateTime startLocalDateTime = startZdt.toLocalDateTime();
-    LocalDateTime endLocalDateTime = endZdt.toLocalDateTime();
-
-    // حالا متد اصلی اگریگیشن رو صدا بزن
+    // 4. کال کردن متد ریپازیتوری با بازه زمانی دقیق
     List<InventoryTransactionResponseDTO> results = inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRangePaginated(
-            startLocalDateTime, endLocalDateTime, page, size);
+            startLocal, endLocal, page, size);
 
     return results;
 }
+
 
 //
 //    // گرفتن تراکنش بر اساس آیدی
