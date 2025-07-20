@@ -10,8 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Date;
 import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 
 @RestController
@@ -56,6 +59,57 @@ public class InventoryTransactionLogController {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(transactions);
     }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Object> getAllTransactionsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<InventoryTransactionResponseDTO> transactions = inventoryTransactionLogService.findAllTransactionsPaginated(page, size);
+
+        if (transactions == null || transactions.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Hiç işlem bulunamadı");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(transactions);
+    }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<Object> getTransactionsByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime start = LocalDateTime.parse(startDate, formatter);
+            LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+
+            List<InventoryTransactionResponseDTO> transactions = inventoryTransactionLogService.findTransactionsByDateRangePaginated(start, end, page, size);
+
+            if (transactions == null || transactions.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Belirtilen tarih aralığında işlem bulunamadı");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(transactions);
+
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Geçersiz tarih formatı. Format: yyyy-MM-dd'T'HH:mm:ss");
+        }
+    }
+
+
 
     // ID ile işlem getir
 //    @GetMapping("/{id}")

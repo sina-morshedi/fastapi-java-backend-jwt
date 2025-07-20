@@ -9,8 +9,9 @@ import com.example.fastapi.mappers.InventoryTransactionMapper;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Date;
 
 @Service
 public class InventoryTransactionLogService {
@@ -36,6 +37,16 @@ public class InventoryTransactionLogService {
     // گرفتن همه تراکنش‌ها
     public List<InventoryTransactionResponseDTO> getAllTransactions() {
         return inventoryTransactionLogCustomRepositoryImpl.findAllTransactions();
+    }
+
+
+    public List<InventoryTransactionResponseDTO> findAllTransactionsPaginated(int page, int size) {
+        return inventoryTransactionLogCustomRepositoryImpl.findAllTransactionsPaginated(page, size);
+    }
+
+
+    public List<InventoryTransactionResponseDTO> findTransactionsByDateRangePaginated(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
+        return inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRangePaginated(startDate, endDate, page, size);
     }
 //
 //    // گرفتن تراکنش بر اساس آیدی
