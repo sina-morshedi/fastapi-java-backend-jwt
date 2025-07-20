@@ -35,11 +35,16 @@ public class InventoryTransactionLogService {
 
     // اضافه کردن تراکنش جدید
     public InventoryTransactionLog addTransaction(InventoryTransactionRequestDTO dto) {
-        System.out.println("Received DTO: " + dto.toString());
         InventoryTransactionLog entity = InventoryTransactionMapper.toEntity(dto);
+
+        // زمان فعلی سرور در تایمزون استانبول
+        ZoneId istanbulZone = ZoneId.of("Europe/Istanbul");
+        LocalDateTime nowInIstanbul = LocalDateTime.now(istanbulZone);
+
+        entity.setDateTime(nowInIstanbul);
+
         return repository.save(entity);
     }
-
 
     // گرفتن همه تراکنش‌ها
     public List<InventoryTransactionResponseDTO> getAllTransactions() {

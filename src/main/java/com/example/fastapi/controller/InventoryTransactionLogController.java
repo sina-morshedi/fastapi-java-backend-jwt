@@ -28,7 +28,6 @@ public class InventoryTransactionLogController {
     @PostMapping("/add")
     public ResponseEntity<Object> addTransaction(@RequestBody InventoryTransactionRequestDTO transaction) {
         try {
-            System.out.println("Received DTO: " + transaction.toString());
             InventoryTransactionLog savedTransaction = inventoryTransactionLogService.addTransaction(transaction);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
