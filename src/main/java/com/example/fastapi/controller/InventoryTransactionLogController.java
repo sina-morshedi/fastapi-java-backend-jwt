@@ -80,17 +80,16 @@ public class InventoryTransactionLogController {
 
     @GetMapping("/date-range")
     public ResponseEntity<Object> getTransactionsByDateRange(
-            @RequestParam String startDate,
-            @RequestParam String endDate,
+            @RequestParam String startDate,   // مثلا "2025-07-20"
+            @RequestParam String endDate,     // مثلا "2025-07-22"
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            LocalDateTime start = LocalDateTime.parse(startDate, formatter);
-            LocalDateTime end = LocalDateTime.parse(endDate, formatter);
-
-            List<InventoryTransactionResponseDTO> transactions = inventoryTransactionLogService.findTransactionsByDateRangePaginated(start, end, page, size);
+            // متد سرویس ورودی رشته رو تبدیل میکنه و عملیات رو انجام میده
+            List<InventoryTransactionResponseDTO> transactions =
+                    inventoryTransactionLogService.findTransactionsByDateRangePaginated(
+                            startDate, endDate, page, size);
 
             if (transactions == null || transactions.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -105,9 +104,14 @@ public class InventoryTransactionLogController {
         } catch (DateTimeParseException e) {
             return ResponseEntity.badRequest()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Geçersiz tarih formatı. Format: yyyy-MM-dd'T'HH:mm:ss");
+                    .body("Geçersiz tarih formatı. Format: yyyy-MM-dd");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Bir hata oluştu: " + e.getMessage());
         }
     }
+
 
 
 
