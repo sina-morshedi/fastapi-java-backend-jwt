@@ -1,7 +1,9 @@
 package com.example.fastapi.controller;
 
+import com.example.fastapi.config.ContextHolder;
 import com.example.fastapi.dboModel.CarProblemReport;
 import com.example.fastapi.service.CarProblemReportService;
+import com.example.fastapi.service.JwtService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,81 +22,203 @@ public class CarProblemReportController {
     @Autowired
     private CarProblemReportService reportService;
 
+    @Autowired
+    private JwtService jwtService;
+
+    private ResponseEntity<Object> unauthorizedResponse() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    private ResponseEntity<Object> invalidTokenResponse() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+    }
+
+    private String extractToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        return authHeader.substring(7);
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<?> createReport(@RequestBody CarProblemReport report) {
-        CarProblemReport created = reportService.createReport(report);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(created);
+    public ResponseEntity<?> createReport(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody CarProblemReport report) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            CarProblemReport created = reportService.createReport(report);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(created);
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<CarProblemReport>> getAllReports() {
-        List<CarProblemReport> reports = reportService.getAllReports();
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(reports);
+    public ResponseEntity<?> getAllReports(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<CarProblemReport> reports = reportService.getAllReports();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(reports);
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getReportById(@PathVariable String id) {
-        Optional<CarProblemReport> report = reportService.getReportById(id);
-        if (report.isPresent()) {
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(report.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Rapor bulunamadı");
+    public ResponseEntity<?> getReportById(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<CarProblemReport> report = reportService.getReportById(id);
+            if (report.isPresent()) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body(report.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Rapor bulunamadı");
+            }
+        } finally {
+            ContextHolder.clear();
         }
     }
 
     @GetMapping("/by-car/{carId}")
-    public ResponseEntity<List<CarProblemReport>> getReportsByCarId(@PathVariable String carId) {
-        List<CarProblemReport> reports = reportService.getReportsByCarId(carId);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(reports);
+    public ResponseEntity<?> getReportsByCarId(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String carId) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<CarProblemReport> reports = reportService.getReportsByCarId(carId);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(reports);
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<CarProblemReport>> getReportsByCreatorUserId(@PathVariable String userId) {
-        List<CarProblemReport> reports = reportService.getReportsByCreatorUserId(userId);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(reports);
+    public ResponseEntity<?> getReportsByCreatorUserId(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String userId) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<CarProblemReport> reports = reportService.getReportsByCreatorUserId(userId);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(reports);
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @GetMapping("/by-license-plate/{licensePlate}")
-    public ResponseEntity<List<CarProblemReport>> getReportsByLicensePlate(@PathVariable String licensePlate) {
-        List<CarProblemReport> reports = reportService.getReportsByLicensePlate(licensePlate);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(reports);
+    public ResponseEntity<?> getReportsByLicensePlate(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String licensePlate) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<CarProblemReport> reports = reportService.getReportsByLicensePlate(licensePlate);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(reports);
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateReport(@PathVariable String id, @RequestBody CarProblemReport updatedReport) {
-        Optional<CarProblemReport> updated = reportService.updateReport(id, updatedReport);
-        return updated
-                .map(r -> ResponseEntity.ok("Rapor başarıyla güncellendi"))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("Content-Type", "application/json; charset=UTF-8")
-                        .body("Rapor bulunamadı"));
+    public ResponseEntity<?> updateReport(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id,
+            @RequestBody CarProblemReport updatedReport) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<CarProblemReport> updated = reportService.updateReport(id, updatedReport);
+            return updated
+                    .map(r -> ResponseEntity.ok("Rapor başarıyla güncellendi"))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .header("Content-Type", "application/json; charset=UTF-8")
+                            .body("Rapor bulunamadı"));
+        } finally {
+            ContextHolder.clear();
+        }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteReport(@PathVariable String id) {
-        boolean deleted = reportService.deleteReport(id);
-        if (deleted) {
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Rapor başarıyla silindi");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Rapor bulunamadı");
+    public ResponseEntity<?> deleteReport(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            boolean deleted = reportService.deleteReport(id);
+            if (deleted) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Rapor başarıyla silindi");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Rapor bulunamadı");
+            }
+        } finally {
+            ContextHolder.clear();
         }
     }
 }

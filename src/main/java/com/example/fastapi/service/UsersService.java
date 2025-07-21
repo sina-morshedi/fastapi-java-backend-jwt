@@ -14,6 +14,14 @@ import com.example.fastapi.dto.RolesDTO;
 import com.example.fastapi.dto.PermissionDTO;
 import com.example.fastapi.dto.RegisterDTO;
 import com.example.fastapi.dto.UpdateUserDTO;
+import com.example.fastapi.config.ContextHolder;
+import com.example.fastapi.service.DynamicMongoService;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import com.mongodb.client.MongoCollection;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 
 import org.bson.types.ObjectId;
@@ -44,14 +52,19 @@ public class UsersService {
     @Autowired
     private UsersRepository usersRepository;
     private UserCustomRepositoryImpl userCustomRepositoryImpl;
+    private DynamicMongoService dynamicMongoService;
 
+
+    private final MongoTemplate mongoTemplate;
 
     public UsersService(
             UsersRepository userRepository,
             UserPassRepository userPassRepository,
             PermissionsRepository permissionsRepository,
             RolesRepository rolesRepository,
-            UserCustomRepositoryImpl userCustomRepositoryImpl
+            UserCustomRepositoryImpl userCustomRepositoryImpl,
+            DynamicMongoService dynamicMongoServic,
+            MongoTemplate mongoTemplate
     ) {
         this.userRepository = userRepository;
         this.userPassRepository = userPassRepository;
@@ -59,6 +72,8 @@ public class UsersService {
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.userCustomRepositoryImpl = userCustomRepositoryImpl;
+        this.dynamicMongoService = dynamicMongoServic;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public UserProfileDTO getUserProfileById(String userId) {
@@ -66,20 +81,31 @@ public class UsersService {
     }
 
     public boolean userLogin(String username, String password) {
-        Optional<UserPass> obj = userPassRepository.findByUsername(username);
-        if (obj.isPresent()) {
-            String hashedPassword = obj.get().getPassword();
+        try {
+            // mongoTemplate داینامیک از طریق spring به این کلاس تزریق شده فرض می‌کنیم
+            Document userDoc = mongoTemplate.findOne(
+                    Query.query(Criteria.where("username").is(username)),
+                    Document.class,
+                    "userPass"
+            );
+
+            if (userDoc == null) {
+                return false;
+            }
+
+            String hashedPassword = userDoc.getString("password");
+
             if (passwordEncoder.matches(password, hashedPassword)) {
                 return true;
             } else {
-                logger.info("Password mismatch for user: {}", username);
                 return false;
             }
-        } else {
-            logger.info("User not found: {}", username);
-            return false;
+        } finally {
+            // حذف ContextHolder حتماً در controller انجام شود و اینجا نیاز نیست
         }
     }
+
+
 
     public boolean usernameExists(String username) {
         return userPassRepository.findByUsername(username).isPresent();
@@ -177,56 +203,78 @@ public class UsersService {
         return result;
     }
 
-
-
-
     public long countAllUser() {
-        return userRepository.count();
+            return userRepository.count();
     }
+
     public UserProfileDTO getUserProfile(String username, String password) {
-        Optional<UserPass> userPassOpt = userPassRepository.findByUsername(username);
-        if (userPassOpt.isEmpty()) {
+        // 1. چک کردن ContextHolder
+        String storeName = ContextHolder.getStoreName();
+        if (storeName == null) {
+            throw new IllegalStateException("Store name is not set in ContextHolder");
+        }
+
+        // 2. گرفتن UserPass document با MongoTemplate
+        Document userPassDoc = mongoTemplate.getCollection("userPass")
+                .find(new Document("username", username))
+                .first();
+
+        if (userPassDoc == null) {
             return null;
         }
 
-        UserPass userPass = userPassOpt.get();
-
-        // بررسی رمز عبور
-        if (!passwordEncoder.matches(password, userPass.getPassword())) {
+        // 3. بررسی پسورد
+        String hashedPassword = userPassDoc.getString("password");
+        if (!passwordEncoder.matches(password, hashedPassword)) {
             return null;
         }
 
-        Optional<Users> userOpt = userRepository.findById(userPass.getUserId());
-        if (userOpt.isEmpty()) {
+        // 4. گرفتن user_id از userPassDoc
+        ObjectId userIdObj = userPassDoc.getObjectId("user_id");
+        if (userIdObj == null) {
+            return null;
+        }
+        String userId = userIdObj.toHexString();
+
+        // 5. واکشی user document
+        Document userDoc = mongoTemplate.getCollection("users")
+                .find(new Document("_id", new ObjectId(userId)))
+                .first();
+
+        if (userDoc == null) {
             return null;
         }
 
-        Users user = userOpt.get();
-
-        // واکشی رول و پرمیشن با استفاده از id
-        RolesDTO roleDTO = null;
-        if (user.getRoleId() != null) {
-            Optional<Roles> roleOpt = rolesRepository.findById(new ObjectId(user.getRoleId()));
-            roleDTO = roleOpt.map(role -> new RolesDTO(role.getId(), role.getRoleName()))
-                    .orElse(new RolesDTO(null, "Unknown Role"));
-        } else {
-            roleDTO = new RolesDTO(null, "Unknown Role");
+        // 6. واکشی role
+        RolesDTO roleDTO = new RolesDTO(null, "Unknown Role");
+        ObjectId roleIdObj = userDoc.getObjectId("roleId");
+        if (roleIdObj != null) {
+            Document roleDoc = mongoTemplate.getCollection("roles")
+                    .find(new Document("_id", roleIdObj))
+                    .first();
+            if (roleDoc != null) {
+                roleDTO = new RolesDTO(roleDoc.getObjectId("_id").toHexString(), roleDoc.getString("roleName"));
+            }
         }
 
-        PermissionDTO permissionDTO = null;
-        if (user.getPermissionId() != null) {
-            Optional<Permissions> permissionOpt = permissionsRepository.findById(new ObjectId(user.getPermissionId()));
-            permissionDTO = permissionOpt.map(p -> new PermissionDTO(p.getId(), p.getPermissionName()))
-                    .orElse(new PermissionDTO(null, "Unknown Permission"));
-        } else {
-            permissionDTO = new PermissionDTO(null, "Unknown Permission");
+        // 7. واکشی permission
+        PermissionDTO permissionDTO = new PermissionDTO(null, "Unknown Permission");
+        ObjectId permissionIdObj = userDoc.getObjectId("permissionId");
+        if (permissionIdObj != null) {
+            Document permissionDoc = mongoTemplate.getCollection("permissions")
+                    .find(new Document("_id", permissionIdObj))
+                    .first();
+            if (permissionDoc != null) {
+                permissionDTO = new PermissionDTO(permissionDoc.getObjectId("_id").toHexString(), permissionDoc.getString("permissionName"));
+            }
         }
 
+        // 8. ساخت و برگرداندن UserProfileDTO
         return new UserProfileDTO(
-                user.getId(),
+                userDoc.getObjectId("_id").toHexString(),
                 username,
-                user.getFirstName(),
-                user.getLastName(),
+                userDoc.getString("firstName"),
+                userDoc.getString("lastName"),
                 roleDTO,
                 permissionDTO
         );

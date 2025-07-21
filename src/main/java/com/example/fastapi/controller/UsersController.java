@@ -1,5 +1,6 @@
 package com.example.fastapi.controller;
 
+import com.example.fastapi.config.ContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +14,7 @@ import com.example.fastapi.dboModel.Users;
 import com.example.fastapi.dboModel.UserPass;
 import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.dto.UpdateUserDTO;
-import com.example.fastapi.dto.RegisterDTO;
+import com.example.fastapi.service.JwtService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -30,71 +31,187 @@ public class UsersController {
     @Autowired
     private UsersService userService;
     private UserPass userPass;
+    @Autowired
+    private JwtService jwtService;
 
+
+    public UsersController(JwtService jwtService, UsersService userService) {
+        this.jwtService = jwtService;
+        this.userService = userService;
+    }
 
     @GetMapping("/")
-    public Optional<Users> getByName(@RequestParam String firstName) {
-        Optional<Users> users = userService.getByFirstName(firstName);
-        return users;
+    public ResponseEntity<?> getByName(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String firstName) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String token = authHeader.substring(7);
+
+        if (!jwtService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+
+        String storeName = jwtService.getStoreNameFromToken(token);
+        ContextHolder.setStoreName(storeName);
+
+        try {
+            Optional<Users> users = userService.getByFirstName(firstName);
+            return ResponseEntity.ok().body(users);
+        } finally {
+            ContextHolder.clear();
+        }
     }
+
 
     // Controller
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers() {
-        List<UserProfileDTO> userProfiles = userService.getAllUsersWithUsernames();
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(userProfiles);
-    }
+    public ResponseEntity<?> getAllUsers(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
 
-    @GetMapping("/count")
-    public ResponseEntity<?> countAllUsers() {
-        long count = userService.countAllUser();
-        Map<String, Long> response = new HashMap<>();
-        response.put("count", count);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(response);
-    }
+        String token = authHeader.substring(7);
 
-    @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        boolean success = userService.userLogin(username,password);
-        UserProfileDTO profile = userService.getUserProfile(username, password);
-        if (success) {
+        if (!jwtService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+
+        String storeName = jwtService.getStoreNameFromToken(token);
+        ContextHolder.setStoreName(storeName);
+
+        try {
+            List<UserProfileDTO> userProfiles = userService.getAllUsersWithUsernames();
 
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(profile);
+                    .body(userProfiles);
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
+
+
+    @GetMapping("/count")
+    public ResponseEntity<?> countAllUsers(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String token = authHeader.substring(7);
+
+        if (!jwtService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+
+        String storeName = jwtService.getStoreNameFromToken(token);
+
+        ContextHolder.setStoreName(storeName);
+        long count = userService.countAllUser();
+        ContextHolder.clear();
+
+        Map<String, Long> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestParam String username,
+                                   @RequestParam String password,
+                                   @RequestParam String storeName) {
+        ContextHolder.setStoreName(storeName);
+        boolean success = userService.userLogin(username, password);
+        if (success) {
+            UserProfileDTO profile = userService.getUserProfile(username, password);
+
+            // تولید توکن JWT (فرض بر این است که jwtService دارید)
+            String token = jwtService.generateToken(username, storeName, profile.getRole().getRoleName());
+
+            // پاسخ شامل توکن و پروفایل کاربر
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("token", token);
+            responseBody.put("profile", profile);
+
+            ContextHolder.clear();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(responseBody);
         } else {
+            ContextHolder.clear();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body("Geçersiz kullanıcı adı veya şifre");
         }
     }
 
+
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UpdateUserDTO dto) {
+    public ResponseEntity<?> updateUser(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id,
+            @RequestBody UpdateUserDTO dto) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String token = authHeader.substring(7);
+
+        if (!jwtService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+
+        String storeName = jwtService.getStoreNameFromToken(token);
+        ContextHolder.setStoreName(storeName);
+
         try {
             boolean success = userService.updateUser(id, dto);
-            if(success) {
+            if (success) {
                 return ResponseEntity.ok("Kullanıcı başarıyla güncellendi");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Güncelleme başarısız oldu");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hata: " + e.getMessage());
+        } finally {
+            ContextHolder.clear();
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
-        boolean success = userService.deleteUserById(id);
-        if (success) {
-            return ResponseEntity.ok("Kullanıcı başarıyla silindi.");
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Kullanıcı silinemedi.");
+    public ResponseEntity<?> deleteUser(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String token = authHeader.substring(7);
+
+        if (!jwtService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+
+        String storeName = jwtService.getStoreNameFromToken(token);
+        ContextHolder.setStoreName(storeName);
+
+        try {
+            boolean success = userService.deleteUserById(id);
+            if (success) {
+                return ResponseEntity.ok("Kullanıcı başarıyla silindi.");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Kullanıcı silinemedi.");
+            }
+        } finally {
+            ContextHolder.clear();
         }
     }
 

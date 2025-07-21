@@ -1,21 +1,19 @@
 package com.example.fastapi.controller;
 
+import com.example.fastapi.config.ContextHolder;
 import com.example.fastapi.dboModel.InventoryItem;
+import com.example.fastapi.dto.InventoryChangeRequestDTO;
 import com.example.fastapi.service.InventoryItemService;
+import com.example.fastapi.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
-
-import com.example.fastapi.dto.*;
-
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/inventory")
@@ -24,10 +22,36 @@ public class InventoryItemController {
     @Autowired
     private InventoryItemService inventoryItemService;
 
+    @Autowired
+    private JwtService jwtService;
+
+    private ResponseEntity<Object> unauthorizedResponse() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    private ResponseEntity<Object> invalidTokenResponse() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+    }
+
+    private String extractToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        return authHeader.substring(7);
+    }
+
     @GetMapping("/inventory-items")
     public ResponseEntity<Object> getInventoryItems(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
         try {
             Page<InventoryItem> items = inventoryItemService.getActiveInventoryItemsPaged(page, size);
             return ResponseEntity.ok()
@@ -37,191 +61,307 @@ public class InventoryItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body("Internal server error.");
+        } finally {
+            ContextHolder.clear();
         }
     }
-    // افزودن قطعه جدید
+
     @PostMapping("/add")
-    public ResponseEntity<Object> addInventoryItem(@RequestBody InventoryItem item) {
+    public ResponseEntity<Object> addInventoryItem(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody InventoryItem item) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
         try {
             InventoryItem savedItem = inventoryItemService.addItem(item);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(savedItem);
         } catch (IllegalArgumentException e) {
-            // در صورت خطای تکراری، پاسخ مناسب با کد وضعیت 400 (Bad Request) برگردان
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(e.getMessage());
         } catch (Exception e) {
-            // برای سایر خطاها می‌توانی پاسخ عمومی بدهی
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(Map.of("error", "Internal server error"));
+        } finally {
+            ContextHolder.clear();
         }
     }
 
-
-    // گرفتن لیست تمام قطعات فعال
     @GetMapping("/list")
-    public ResponseEntity<Object> getAllItems() {
-        List<InventoryItem> items = inventoryItemService.getAllItems();
+    public ResponseEntity<Object> getAllItems(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-        if (items == null || items.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<InventoryItem> items = inventoryItemService.getAllItems();
+
+            if (items == null || items.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Depoda hiç parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Depoda hiç parça bulunamadı."); // هیچ قطعه‌ای در انبار پیدا نشد
+                    .body(items);
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(items);
     }
 
-    // گرفتن قطعه بر اساس ID
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getItemById(@PathVariable String id) {
-        Optional<InventoryItem> itemOpt = inventoryItemService.getItemById(id);
+    public ResponseEntity<Object> getItemById(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
 
-        if (itemOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventoryItem> itemOpt = inventoryItemService.getItemById(id);
+
+            if (itemOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Parça bulunamadı."); // قطعه پیدا نشد
+                    .body(itemOpt.get());
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(itemOpt.get());
     }
 
-    // جستجو بر اساس نام قطعه
     @GetMapping("/search")
-    public ResponseEntity<Object> searchByPartName(@RequestParam String keyword) {
-        List<InventoryItem> items = inventoryItemService.searchByPartName(keyword);
+    public ResponseEntity<Object> searchByPartName(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String keyword) {
 
-        if (items == null || items.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<InventoryItem> items = inventoryItemService.searchByPartName(keyword);
+
+            if (items == null || items.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Aradığınız isimde parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Aradığınız isimde parça bulunamadı."); // قطعه‌ای با این نام پیدا نشد
+                    .body(items);
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(items);
     }
 
-    // جستجو بر اساس بارکد
     @GetMapping("/barcode")
-    public ResponseEntity<Object> getItemByBarcode(@RequestParam String barcode) {
-        Optional<InventoryItem> itemOpt = inventoryItemService.getItemByBarcode(barcode);
+    public ResponseEntity<Object> getItemByBarcode(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String barcode) {
 
-        if (itemOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventoryItem> itemOpt = inventoryItemService.getItemByBarcode(barcode);
+
+            if (itemOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Barkod ile parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Barkod ile parça bulunamadı."); // قطعه با این بارکد پیدا نشد
+                    .body(itemOpt.get());
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(itemOpt.get());
     }
 
-    // به‌روزرسانی قطعه
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> updateItem(@PathVariable String id, @RequestBody InventoryItem updatedItem) {
-        Optional<InventoryItem> updated = inventoryItemService.updateItem(id, updatedItem);
+    public ResponseEntity<Object> updateItem(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id,
+            @RequestBody InventoryItem updatedItem) {
 
-        if (updated.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventoryItem> updated = inventoryItemService.updateItem(id, updatedItem);
+
+            if (updated.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Güncellenecek parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Güncellenecek parça bulunamadı."); // قطعه‌ای برای بروزرسانی پیدا نشد
+                    .body("İlgili parçanın bilgileri güncellendi.");
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body("İlgili parçanın bilgileri güncellendi.");
     }
 
-    // حذف منطقی (غیرفعال کردن قطعه)
     @DeleteMapping("/deactivate/{id}")
-    public ResponseEntity<Object> deactivateItem(@PathVariable String id) {
-        boolean success = inventoryItemService.deactivateItem(id);
+    public ResponseEntity<Object> deactivateItem(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
 
-        if (!success) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Bu parça pasif hale getirilmiştir, stoktan çıkış yapılamaz."); // قطعه‌ای برای حذف پیدا نشد
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            boolean success = inventoryItemService.deactivateItem(id);
+
+            if (!success) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Bu parça pasif hale getirilmiştir, stoktan çıkış yapılamaz.");
+            }
+
+            return ResponseEntity.noContent().build();
+        } finally {
+            ContextHolder.clear();
         }
-
-        return ResponseEntity.noContent().build();
     }
 
-    // حذف کامل یک قطعه (delete واقعی از دیتابیس)
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteItem(@PathVariable String id) {
-        Optional<InventoryItem> itemOpt = inventoryItemService.getItemById(id);
+    public ResponseEntity<Object> deleteItem(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id) {
 
-        if (itemOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventoryItem> itemOpt = inventoryItemService.getItemById(id);
+
+            if (itemOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Silinecek parça bulunamadı.");
+            }
+
+            inventoryItemService.deleteItem(id);
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Silinecek parça bulunamadı."); // قطعه‌ای برای حذف پیدا نشد
+                    .body("Parça başarıyla silindi.");
+        } finally {
+            ContextHolder.clear();
         }
-
-        inventoryItemService.deleteItem(id);
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body("Parça başarıyla silindi."); // قطعه با موفقیت حذف شد
     }
 
-    // کاهش تعداد قطعه
     @PostMapping("/decrementQuantity")
-    public ResponseEntity<Object> decrementQuantity(@RequestBody InventoryChangeRequestDTO request) {
-        String itemId = request.getItemId();
-        int decrementAmount = request.getAmount();
+    public ResponseEntity<Object> decrementQuantity(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody InventoryChangeRequestDTO request) {
 
-        if (itemId == null || decrementAmount <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            String itemId = request.getItemId();
+            int decrementAmount = request.getAmount();
+
+            if (itemId == null || decrementAmount <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Geçersiz itemId veya decrementAmount");
+            }
+
+            Optional<InventoryItem> updatedItem = inventoryItemService.decrementQuantity(request);
+
+            if (updatedItem.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Parça bulunamadı veya yeterli stok yok");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Geçersiz itemId veya decrementAmount");
+                    .body("İlgili parça stoktan düşüldü.");
+        } finally {
+            ContextHolder.clear();
         }
-
-        Optional<InventoryItem> updatedItem = inventoryItemService.decrementQuantity(request);
-
-        if (updatedItem.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Parça bulunamadı veya yeterli stok yok");
-        }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body("İlgili parça stoktan düşüldü.");
     }
-
-
 
     @PostMapping("/incrementQuantity")
-    public ResponseEntity<Object> incrementQuantity(@RequestBody InventoryChangeRequestDTO request) {
-        String itemId = request.getItemId();
-        int incrementAmount = request.getAmount();
+    public ResponseEntity<Object> incrementQuantity(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody InventoryChangeRequestDTO request) {
 
-        if (itemId == null || incrementAmount <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            String itemId = request.getItemId();
+            int incrementAmount = request.getAmount();
+
+            if (itemId == null || incrementAmount <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Geçersiz itemId veya incrementAmount");
+            }
+
+            Optional<InventoryItem> updatedItem = inventoryItemService.incrementQuantity(request);
+
+            if (updatedItem.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Parça bulunamadı");
+            }
+
+            return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Geçersiz itemId veya incrementAmount"); // ورودی نامعتبر
+                    .body("İlgili parça stoğa eklendi.");
+        } finally {
+            ContextHolder.clear();
         }
-
-        Optional<InventoryItem> updatedItem = inventoryItemService.incrementQuantity(request);
-
-        if (updatedItem.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Parça bulunamadı"); // قطعه پیدا نشد
-        }
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body("İlgili parça stoğa eklendi.");
     }
-
 }
