@@ -51,9 +51,12 @@ public class TaskStatusController {
             String taskName = requestBody.get("taskName");
             Optional<TaskStatusDTO> optionalStatus = taskStatusService.getByTaskStatusName(taskName);
             if (optionalStatus.isPresent()) {
-                return ResponseEntity.ok(optionalStatus.get());
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body(optionalStatus.get());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
                         .body("'" + taskName + "' adlı görev durumu bulunamadı");
             }
         } finally {
