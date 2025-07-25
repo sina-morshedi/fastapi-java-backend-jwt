@@ -26,6 +26,36 @@ public class InventoryItemService {
     public Page<InventoryItem> getActiveInventoryItemsPaged(int page, int size) {
         return inventoryItemRepository.findByIsActiveTrue(PageRequest.of(page, size));
     }
+
+    public String generateNextBarcode(String prefix) {
+        List<InventoryItem> items = inventoryItemRepository.findByIsActiveTrueAndBarcodeStartingWith(prefix);
+
+        int maxNumber = 0;
+
+        for (InventoryItem item : items) {
+            String barcode = item.getBarcode();
+            if (barcode == null || barcode.length() <= prefix.length()) continue;
+
+            String numberPart = barcode.substring(prefix.length());
+
+            try {
+                int num = Integer.parseInt(numberPart);
+                if (num > maxNumber) {
+                    maxNumber = num;
+                }
+            } catch (NumberFormatException e) {
+                // ignore invalid number parts
+            }
+        }
+
+        int nextNumber = maxNumber + 1;
+
+        // تبدیل عدد به رشته 6 رقمی با صفر پر شده
+        String formattedNumber = String.format("%06d", nextNumber);
+
+        return prefix + formattedNumber;
+    }
+
     // افزودن قطعه جدید
     public InventoryItem addItem(InventoryItem item) {
         // Barkod kontrolü

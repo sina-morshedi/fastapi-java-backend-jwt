@@ -66,6 +66,32 @@ public class InventoryItemController {
         }
     }
 
+    @GetMapping("/inventory-barcodes/next-barcode")
+    public ResponseEntity<Object> getNextBarcodeStartingWith(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String prefix) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            String nextBarcode = inventoryItemService.generateNextBarcode(prefix);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(nextBarcode);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Internal server error.");
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
+
     @PostMapping("/add")
     public ResponseEntity<Object> addInventoryItem(
             @RequestHeader(value = "Authorization", required = false) String authHeader,

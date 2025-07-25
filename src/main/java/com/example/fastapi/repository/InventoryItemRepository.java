@@ -25,6 +25,8 @@ public interface InventoryItemRepository extends MongoRepository<InventoryItem, 
 
     List<InventoryItem> findByQuantityLessThan(int threshold);
 
+    List<InventoryItem> findByIsActiveTrueAndBarcodeStartingWith(String prefix);
+
     boolean existsByBarcode(String barcode);
 
     boolean existsByPartName(String partName);
