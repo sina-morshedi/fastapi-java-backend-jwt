@@ -66,7 +66,7 @@ public class InventoryItemController {
         }
     }
 
-    @GetMapping("/inventory-barcodes/next-barcode")
+    @GetMapping("/next-barcode")
     public ResponseEntity<Object> getNextBarcodeStartingWith(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam String prefix) {
