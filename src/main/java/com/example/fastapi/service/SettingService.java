@@ -5,6 +5,7 @@ import com.example.fastapi.repository.SettingRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.fastapi.dto.SettingStatusDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,10 @@ public class SettingService {
         settingRepository.deleteById(id);
     }
 
+    public Optional<SettingStatusDTO> getSettingStatusByStoreName(String storeName) {
+        return settingRepository.findByStoreName(storeName)
+                .map(s -> new SettingStatusDTO(s.isInventoryEnabled(), s.isCustomerEnabled()));
+    }
     public void deleteSettingByStoreName(String storeName) {
         settingRepository.deleteByStoreName(storeName);
     }
