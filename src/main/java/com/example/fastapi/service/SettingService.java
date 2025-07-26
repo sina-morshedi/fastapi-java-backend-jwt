@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.fastapi.dto.SettingStatusDTO;
+import com.example.fastapi.config.ContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +16,9 @@ public class SettingService {
 
     private final SettingRepository settingRepository;
 
-
     @Autowired
     public SettingService(SettingRepository settingRepository) {
+
         this.settingRepository = settingRepository;
     }
 
@@ -41,10 +42,26 @@ public class SettingService {
         settingRepository.deleteById(id);
     }
 
-    public Optional<SettingStatusDTO> getSettingStatusByStoreName(String storeName) {
-        return settingRepository.findByStoreName(storeName)
-                .map(s -> new SettingStatusDTO(s.isInventoryEnabled(), s.isCustomerEnabled()));
-    }
+//    public Optional<SettingStatusDTO> getSettingStatusByStoreName(String storeName) {
+//        System.out.println("StoreName received: '" + storeName + "'");
+//
+//        Optional<Setting> result = settingCentralRepository.findByStoreName(storeName);
+//
+//        if (result.isEmpty()) {
+//            System.out.println("→ findByStoreName نتیجه نداشت!");
+//            return Optional.empty();
+//        }
+//
+//        Setting setting = result.get();
+//
+//        System.out.println("→ نتیجه یافت شد، مقدار inventoryEnabled = " + setting.isInventoryEnabled());
+//
+//        return Optional.of(new SettingStatusDTO(
+//                setting.isInventoryEnabled(),
+//                setting.isCustomerEnabled()
+//        ));
+//    }
+
     public void deleteSettingByStoreName(String storeName) {
         settingRepository.deleteByStoreName(storeName);
     }

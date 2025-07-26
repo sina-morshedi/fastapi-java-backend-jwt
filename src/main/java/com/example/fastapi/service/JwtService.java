@@ -31,7 +31,11 @@ public class JwtService {
      * @param role      نقش کاربر
      * @return توکن JWT به صورت رشته
      */
-    public String generateToken(String username, String storeName, String role) {
+    public String generateToken(String username,
+                                String storeName,
+                                String role,
+                                boolean inventoryEnabled,
+                                boolean customerEnabled) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMillis);
 
@@ -39,6 +43,8 @@ public class JwtService {
                 .setSubject(username)
                 .claim("storeName", storeName)
                 .claim("role", role)
+                .claim("inventoryEnabled", inventoryEnabled)
+                .claim("customerEnabled", customerEnabled)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey)

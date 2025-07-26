@@ -11,10 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import com.example.fastapi.service.UsersService;
 import com.example.fastapi.dboModel.Users;
+import com.example.fastapi.dboModel.Setting;
 import com.example.fastapi.dboModel.UserPass;
 import com.example.fastapi.dto.UserProfileDTO;
 import com.example.fastapi.dto.UpdateUserDTO;
 import com.example.fastapi.service.JwtService;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -33,6 +38,9 @@ public class UsersController {
     private UserPass userPass;
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private MongoTemplate centralMongoTemplate;
 
 
     public UsersController(JwtService jwtService, UsersService userService) {
@@ -125,29 +133,40 @@ public class UsersController {
     public ResponseEntity<?> login(@RequestParam String username,
                                    @RequestParam String password,
                                    @RequestParam String storeName) {
+
         ContextHolder.setStoreName(storeName);
+
         boolean success = userService.userLogin(username, password);
-        if (success) {
-            UserProfileDTO profile = userService.getUserProfile(username, password);
 
-            // تولید توکن JWT (فرض بر این است که jwtService دارید)
-            String token = jwtService.generateToken(username, storeName, profile.getRole().getRoleName());
-
-            // پاسخ شامل توکن و پروفایل کاربر
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("token", token);
-            responseBody.put("profile", profile);
-
+        if (!success) {
             ContextHolder.clear();
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(responseBody);
-        } else {
-            ContextHolder.clear();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body("Geçersiz kullanıcı adı veya şifre");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Geçersiz kullanıcı adı veya şifre");
         }
+
+        // گرفتن تنظیمات شعبه از دیتابیس مرکزی
+        Query query = Query.query(Criteria.where("storeName").is(storeName));
+        Setting setting = centralMongoTemplate.findOne(query, Setting.class, "settings");
+
+        if (setting == null) {
+            ContextHolder.clear();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mağaza bulunamadı");
+        }
+
+        UserProfileDTO profile = userService.getUserProfile(username, password);
+        String token = jwtService.generateToken(
+                username,
+                storeName,
+                profile.getRole().getRoleName(),
+                setting.isInventoryEnabled(),
+                setting.isCustomerEnabled());
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("token", token);
+        responseBody.put("profile", profile);
+        ContextHolder.clear();
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(responseBody);
     }
 
 

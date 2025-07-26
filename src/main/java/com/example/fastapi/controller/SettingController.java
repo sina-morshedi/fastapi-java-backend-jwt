@@ -1,12 +1,9 @@
 package com.example.fastapi.controller;
 
-import com.example.fastapi.config.ContextHolder;
 import com.example.fastapi.dboModel.Setting;
-import com.example.fastapi.dto.SettingStatusDTO;
 import com.example.fastapi.service.SettingService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,20 +45,6 @@ public class SettingController {
         return ResponseEntity.ok(settings);
     }
 
-    @GetMapping("/status/{storeName}")
-    public ResponseEntity<?> getSettingStatus(@PathVariable String storeName) {
-
-            Optional<SettingStatusDTO> status = settingService.getSettingStatusByStoreName(storeName);
-            if (status.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("Content-Type", "application/json; charset=UTF-8")
-                        .body("Setting not found for store: " + storeName);
-            }
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(status.get());
-
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Setting> updateSetting(@PathVariable String id, @RequestBody Setting setting) {

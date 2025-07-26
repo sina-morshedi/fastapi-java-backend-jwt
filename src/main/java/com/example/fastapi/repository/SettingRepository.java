@@ -26,4 +26,6 @@ public interface SettingRepository extends MongoRepository<Setting, ObjectId> {
     // پیدا کردن همه تنظیمات که مشتری فعال دارند
     List<Setting> findByCustomerEnabledTrue();
 
+
+
 }
