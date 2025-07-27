@@ -56,60 +56,65 @@ public class InventoryTransactionLogService {
         return inventoryTransactionLogCustomRepositoryImpl.findAllTransactionsPaginated(page, size);
     }
 
+    public List<InventoryTransactionResponseDTO> findTransactionsByDateRange(String startDateStr, String endDateStr) {
+        ZonedDateTime startUtc = ZonedDateTime.parse(startDateStr);
+        ZonedDateTime endUtc = ZonedDateTime.parse(endDateStr);
 
-//    public List<InventoryTransactionResponseDTO> findTransactionsByDateRangePaginated(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
-//        return inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRangePaginated(startDate, endDate, page, size);
-//    }
-public List<InventoryTransactionResponseDTO> findTransactionsByDateRangePaginated(
-        String startDateStr,
-        String endDateStr,
-        int page,
-        int size
-) {
-    // 1. پارس رشته‌های ورودی به ZonedDateTime یا OffsetDateTime (با فرض فرمت ISO8601 و زون UTC)
-    ZonedDateTime startUtc = ZonedDateTime.parse(startDateStr);
-    ZonedDateTime endUtc = ZonedDateTime.parse(endDateStr);
+        // 2. تبدیل زمان UTC به منطقه زمانی ترکیه
+        ZoneId istanbulZone = ZoneId.of("Europe/Istanbul");
+        ZonedDateTime startIstanbul = startUtc.withZoneSameInstant(istanbulZone);
+        ZonedDateTime endIstanbul = endUtc.withZoneSameInstant(istanbulZone);
 
-    // 2. تبدیل زمان UTC به منطقه زمانی ترکیه
-    ZoneId istanbulZone = ZoneId.of("Europe/Istanbul");
-    ZonedDateTime startIstanbul = startUtc.withZoneSameInstant(istanbulZone);
-    ZonedDateTime endIstanbul = endUtc.withZoneSameInstant(istanbulZone);
+        // 3. حالا اگر دیتابیس با LocalDateTime کار می‌کند، می‌توانیم LocalDateTime بگیریم
+        LocalDateTime startLocal = startIstanbul.toLocalDateTime();
+        LocalDateTime endLocal = endIstanbul.toLocalDateTime();
+        return inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRange(startLocal, endLocal);
+    }
 
-    // 3. حالا اگر دیتابیس با LocalDateTime کار می‌کند، می‌توانیم LocalDateTime بگیریم
-    LocalDateTime startLocal = startIstanbul.toLocalDateTime();
-    LocalDateTime endLocal = endIstanbul.toLocalDateTime();
+    public List<InventoryTransactionResponseDTO> findTransactionsByDateRangePaginated(
+            String startDateStr,
+            String endDateStr,
+            int page,
+            int size
+    ) {
+        // 1. پارس رشته‌های ورودی به ZonedDateTime یا OffsetDateTime (با فرض فرمت ISO8601 و زون UTC)
+        ZonedDateTime startUtc = ZonedDateTime.parse(startDateStr);
+        ZonedDateTime endUtc = ZonedDateTime.parse(endDateStr);
 
-    // 4. کال کردن متد ریپازیتوری با بازه زمانی دقیق
-    List<InventoryTransactionResponseDTO> results = inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRangePaginated(
-            startLocal, endLocal, page, size);
+        // 2. تبدیل زمان UTC به منطقه زمانی ترکیه
+        ZoneId istanbulZone = ZoneId.of("Europe/Istanbul");
+        ZonedDateTime startIstanbul = startUtc.withZoneSameInstant(istanbulZone);
+        ZonedDateTime endIstanbul = endUtc.withZoneSameInstant(istanbulZone);
 
-    return results;
-}
+        // 3. حالا اگر دیتابیس با LocalDateTime کار می‌کند، می‌توانیم LocalDateTime بگیریم
+        LocalDateTime startLocal = startIstanbul.toLocalDateTime();
+        LocalDateTime endLocal = endIstanbul.toLocalDateTime();
 
+        // 4. کال کردن متد ریپازیتوری با بازه زمانی دقیق
+        List<InventoryTransactionResponseDTO> results = inventoryTransactionLogCustomRepositoryImpl.findTransactionsByDateRangePaginated(
+                startLocal, endLocal, page, size);
 
-//
-//    // گرفتن تراکنش بر اساس آیدی
-//    public Optional<InventoryTransactionLog> getTransactionById(String id) {
-//        return repository.findById(new ObjectId(id));
-//    }
+        return results;
+    }
 
-    // گرفتن تراکنش‌ها بر اساس ماشین
-//    public List<InventoryTransactionLog> getTransactionsByCarInfoId(ObjectId carInfoId) {
-//        return repository.findByCarInfoId(carInfoId);
-//    }
-//
-//    // گرفتن تراکنش‌ها بر اساس نوع تراکنش
-//    public List<InventoryTransactionLog> getTransactionsByType(InventoryTransactionLog.TransactionType type) {
-//        return repository.findByType(type);
-//    }
-//
-//    // حذف تراکنش بر اساس آیدی
-//    public boolean deleteTransactionById(String id) {
-//        if (!repository.existsById(new ObjectId(id))) {
-//            return false;  // آیتم وجود نداره
-//        }
-//        repository.deleteById(new ObjectId(id));
-//        return true;  // حذف با موفقیت انجام شد
-//    }
+    public List<InventoryTransactionResponseDTO> getTransactionsByType(String type) {
+        return inventoryTransactionLogCustomRepositoryImpl.findTransactionsByType(type);
+    }
+
+    public InventoryTransactionResponseDTO getLastTransactionByCustomerName(String fullName) {
+        return inventoryTransactionLogCustomRepositoryImpl.findLastTransactionByCustomerFullName(fullName);
+    }
+
+    public List<InventoryTransactionResponseDTO> getTransactionsByCustomerName(String fullName) {
+        return inventoryTransactionLogCustomRepositoryImpl.findByCustomerFullName(fullName);
+    }
+
+    public boolean deleteTransactionById(String id) {
+        if (!repository.existsById(new ObjectId(id))) {
+            return false;  // آیتم وجود نداره
+        }
+        repository.deleteById(new ObjectId(id));
+        return true;  // حذف با موفقیت انجام شد
+    }
 
 }
