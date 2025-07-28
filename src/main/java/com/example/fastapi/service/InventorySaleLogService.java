@@ -42,4 +42,27 @@ public class InventorySaleLogService {
     public List<InventorySaleLog> findBySaleDateBetween(Date startDate, Date endDate) {
         return repository.findBySaleDateBetween(startDate, endDate);
     }
+
+    public Optional<InventorySaleLog> updateInventorySaleLog(String id, InventorySaleLog updatedSaleLog) {
+        return repository.findById(id)
+                .map(existingLog -> {
+                    existingLog.setCustomerName(updatedSaleLog.getCustomerName());
+                    existingLog.setSaleDate(updatedSaleLog.getSaleDate());
+                    existingLog.setSoldItems(updatedSaleLog.getSoldItems());
+                    existingLog.setTotalAmount(updatedSaleLog.getTotalAmount());
+                    existingLog.setPaymentRecords(updatedSaleLog.getPaymentRecords());
+                    existingLog.setRemainingAmount(updatedSaleLog.getRemainingAmount()); // ← این خط اضافه شد
+
+                    return repository.save(existingLog);
+                });
+    }
+    public Double calculateTotalRemainingAmount() {
+        List<InventorySaleLog> logs = repository.findAll();
+
+        return logs.stream()
+                .filter(log -> log.getRemainingAmount() != null)
+                .mapToDouble(InventorySaleLog::getRemainingAmount)
+                .sum();
+    }
+
 }

@@ -10,21 +10,24 @@ public class InventorySaleLogDTO {
 
     private String id;
     private String customerName;
-    private List<SaleItem> soldItems;                 // استفاده مستقیم از مدل اصلی
+    private List<SaleItem> soldItems;
     private Double totalAmount;
     private Date saleDate;
-    private List<PaymentRecords> paymentRecords;      // استفاده مستقیم از مدل اصلی
+    private List<PaymentRecords> paymentRecords;
+    private Double remainingAmount; // ← این فقط اضافه شده
 
     public InventorySaleLogDTO() {}
 
     public InventorySaleLogDTO(String id, String customerName, List<SaleItem> soldItems,
-                               Double totalAmount, Date saleDate, List<PaymentRecords> paymentRecords) {
+                               Double totalAmount, Date saleDate,
+                               List<PaymentRecords> paymentRecords, Double remainingAmount) {
         this.id = id;
         this.customerName = customerName;
         this.soldItems = soldItems;
         this.totalAmount = totalAmount;
         this.saleDate = saleDate;
         this.paymentRecords = paymentRecords;
+        this.remainingAmount = remainingAmount;
     }
 
     // Getters & Setters
@@ -74,5 +77,13 @@ public class InventorySaleLogDTO {
 
     public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
+    }
+
+    public Double getRemainingAmount() {
+        return remainingAmount;
+    }
+
+    public void setRemainingAmount(Double remainingAmount) {
+        this.remainingAmount = remainingAmount;
     }
 }

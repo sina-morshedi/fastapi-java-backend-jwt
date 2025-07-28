@@ -110,6 +110,37 @@ public class InventorySaleLogController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> updateSaleLog(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable String id,
+            @RequestBody InventorySaleLog updatedSaleLog) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventorySaleLog> updated = service.updateInventorySaleLog(id, updatedSaleLog);
+            if (updated.isPresent()) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body(updated.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Kayıt bulunamadı");
+            }
+        } catch (Exception e) {
+            return internalServerErrorResponse();
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
+
     // حذف لاگ فروش بر اساس آیدی
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteSaleLog(
@@ -203,4 +234,27 @@ public class InventorySaleLogController {
             ContextHolder.clear();
         }
     }
+    // گرفتن مجموع باقی‌مانده پرداخت‌ها (total remaining amount)
+    @GetMapping("/totalRemainingAmount")
+    public ResponseEntity<Object> getTotalRemainingAmount(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Double totalRemaining = service.calculateTotalRemainingAmount();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(totalRemaining);
+        } catch (Exception e) {
+            return internalServerErrorResponse();
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
 }

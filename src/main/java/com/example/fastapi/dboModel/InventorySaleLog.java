@@ -18,17 +18,19 @@ public class InventorySaleLog {
     private Double totalAmount;                        // مبلغ کل فروش
     private Date saleDate;                             // تاریخ فروش
     private List<PaymentRecords> paymentRecords;       // لیست پرداخت‌ها
+    private Double remainingAmount;                    // مبلغ باقی‌مانده
 
     // --- Constructors ---
     public InventorySaleLog() {}
 
     public InventorySaleLog(String customerName, List<SaleItem> soldItems, Double totalAmount,
-                            Date saleDate, List<PaymentRecords> paymentRecords) {
+                            Date saleDate, List<PaymentRecords> paymentRecords, Double remainingAmount) {
         this.customerName = customerName;
         this.soldItems = soldItems;
         this.totalAmount = totalAmount;
         this.saleDate = saleDate;
         this.paymentRecords = paymentRecords;
+        this.remainingAmount = remainingAmount;
     }
 
     // --- Getters & Setters ---
@@ -80,5 +82,13 @@ public class InventorySaleLog {
 
     public void setPaymentRecords(List<PaymentRecords> paymentRecords) {
         this.paymentRecords = paymentRecords;
+    }
+
+    public Double getRemainingAmount() {
+        return remainingAmount;
+    }
+
+    public void setRemainingAmount(Double remainingAmount) {
+        this.remainingAmount = remainingAmount;
     }
 }
