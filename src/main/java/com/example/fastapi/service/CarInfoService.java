@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 
 import java.util.Date;
-
+import java.util.List;
 @Service
 public class CarInfoService {
     @Autowired
@@ -48,6 +48,10 @@ public class CarInfoService {
 
     public Optional<CarInfo> getCarByLicensePlate(String licensePlate) {
         return carInfoRepository.findByLicensePlate(licensePlate);
+    }
+
+    public List<CarInfo> searchCarsByLicensePlateKeyword(String keyword) {
+        return carInfoRepository.findByLicensePlateContainingIgnoreCase(keyword);
     }
 
     public CarInfo updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) {

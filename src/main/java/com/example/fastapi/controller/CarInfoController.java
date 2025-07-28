@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-
+import java.util.List;
 @RestController
 @RequestMapping("/cars")
 public class CarInfoController {
@@ -95,6 +95,36 @@ public class CarInfoController {
             return ResponseEntity.status(500)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(new ApiResponse("error", "Sunucu iç hatası"));
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
+    @GetMapping("/searchCarInfo")
+    public ResponseEntity<?> searchCarInfoByLicensePlateKeyword(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String keyword) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<CarInfo> cars = carInfoService.searchCarsByLicensePlateKeyword(keyword);
+            if (cars.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Eşleşen araç bulunamadı");
+            }
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(cars);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body("Sunucu iç hatası");
         } finally {
             ContextHolder.clear();
         }

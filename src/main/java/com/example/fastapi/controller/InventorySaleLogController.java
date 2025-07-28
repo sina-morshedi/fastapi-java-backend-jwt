@@ -257,4 +257,27 @@ public class InventorySaleLogController {
         }
     }
 
+    // گرفتن لاگ‌های فروش که remainingAmount آنها مخالف صفر است
+    @GetMapping("/get-nonzero-remaining")
+    public ResponseEntity<Object> getLogsWithNonZeroRemainingAmount(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            List<InventorySaleLog> logs = service.getLogsWithNonZeroRemainingAmount();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(logs);
+        } catch (Exception e) {
+            return internalServerErrorResponse();
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
 }

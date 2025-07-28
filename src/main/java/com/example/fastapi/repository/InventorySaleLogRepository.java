@@ -16,5 +16,6 @@ public interface InventorySaleLogRepository extends MongoRepository<InventorySal
     // جستجو بر اساس محدوده تاریخ فروش:
     List<InventorySaleLog> findBySaleDateBetween(java.util.Date startDate, java.util.Date endDate);
 
-    // در صورت نیاز متدهای سفارشی دیگر هم می‌توانی اضافه کنی
+    List<InventorySaleLog> findByRemainingAmountNot(Double zero);
+
 }

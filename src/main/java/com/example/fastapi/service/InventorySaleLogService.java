@@ -65,4 +65,8 @@ public class InventorySaleLogService {
                 .sum();
     }
 
+    public List<InventorySaleLog> getLogsWithNonZeroRemainingAmount() {
+        return repository.findByRemainingAmountNot(0.0);
+    }
+
 }
