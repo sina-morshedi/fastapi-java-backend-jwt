@@ -154,14 +154,23 @@ public class InventorySaleLogController {
         ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
 
         try {
-            service.deleteById(id);
-            return ResponseEntity.noContent().build();
+            boolean deleted = service.deleteById(id);
+            if (deleted) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Kayıt başarıyla silindi");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Kayıt bulunamadı");
+            }
         } catch (Exception e) {
             return internalServerErrorResponse();
         } finally {
             ContextHolder.clear();
         }
     }
+
 
     // گرفتن همه لاگ‌ها
     @GetMapping("/get-all")

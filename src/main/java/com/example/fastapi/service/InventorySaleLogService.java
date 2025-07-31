@@ -27,9 +27,14 @@ public class InventorySaleLogService {
         return repository.findById(id);
     }
 
-    public void deleteById(String id) {
+    public boolean deleteById(String id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
         repository.deleteById(id);
+        return true;
     }
+
 
     public List<InventorySaleLog> findAll() {
         return repository.findAll();
