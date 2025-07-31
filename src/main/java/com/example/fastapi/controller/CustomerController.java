@@ -156,6 +156,36 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/search/fullName")
+    public ResponseEntity<Object> searchCustomerByExactName(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam String fullName) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Customer customer = customerService.searchCustomerByFullName(fullName);
+
+            if (customer == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Girilen isimle tam olarak eşleşen müşteri bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(customer);
+
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCustomer(
             @RequestHeader(value = "Authorization", required = false) String authHeader,

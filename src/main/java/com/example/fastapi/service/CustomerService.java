@@ -40,6 +40,11 @@ public class CustomerService {
         return customerRepository.findByFullNameContainingIgnoreCase(name);
     }
 
+    public Customer searchCustomerByFullName(String fullName) {
+        if (fullName == null || fullName.isBlank()) return null;
+        return customerRepository.findByFullName(fullName).orElse(null);
+    }
+
     // ویرایش مشتری (ابتدا چک کن مشتری وجود دارد)
     public Optional<Customer> updateCustomer(String id, Customer updatedCustomer) {
         return getCustomerById(id).map(existingCustomer -> {
