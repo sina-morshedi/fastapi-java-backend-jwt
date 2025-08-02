@@ -85,6 +85,10 @@ public class InventoryItemService {
         return inventoryItemRepository.findById(new ObjectId(id));
     }
 
+    public Optional<InventoryItem> getItemByName(String name) {
+        return inventoryItemRepository.findByPartName(name);
+    }
+
     // جستجو بر اساس نام (کلمه جزئی)
     public List<InventoryItem> searchByPartName(String keyword) {
         return inventoryItemRepository.findByPartNameContainingIgnoreCase(keyword);

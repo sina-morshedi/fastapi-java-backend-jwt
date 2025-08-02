@@ -17,6 +17,8 @@ public interface InventoryItemRepository extends MongoRepository<InventoryItem, 
 
     Optional<InventoryItem> findByBarcode(String barcode);
 
+    Optional<InventoryItem> findByPartName(String partName);
+
     List<InventoryItem> findByIsActiveTrue();
 
     Page<InventoryItem> findByIsActiveTrue(Pageable pageable);

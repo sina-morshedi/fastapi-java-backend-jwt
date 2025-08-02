@@ -176,6 +176,34 @@ public class InventoryItemController {
         }
     }
 
+    @GetMapping("/by-part-name")
+    public ResponseEntity<Object> getItemByPartName(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam("partName") String partName) {
+
+        String token = extractToken(authHeader);
+        if (token == null) return unauthorizedResponse();
+        if (!jwtService.validateToken(token)) return invalidTokenResponse();
+
+        ContextHolder.setStoreName(jwtService.getStoreNameFromToken(token));
+
+        try {
+            Optional<InventoryItem> itemOpt = inventoryItemService.getItemByName(partName);
+
+            if (itemOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .header("Content-Type", "application/json; charset=UTF-8")
+                        .body("Parça bulunamadı.");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(itemOpt.get());
+        } finally {
+            ContextHolder.clear();
+        }
+    }
+
     @GetMapping("/search")
     public ResponseEntity<Object> searchByPartName(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
